@@ -132,7 +132,7 @@ npm run build:prod
 
 ### 注意事项
 
-- 各个组件之间需要共享的资源**一定要用vuex访存**，即使用store文件夹下的Index.js中定义的store来存储，写getter方法来读取，写actions方法来修改，不会用vuex的看一下[手把手教你使用Vuex，猴子都能看懂的教程 - 掘金 (juejin.cn)](https://juejin.cn/post/6928468842377117709)，各个组件使用的资源**建议**用vuex访存
+- 各个组件之间需要共享的资源**一定要用vuex访存**，即使用store文件夹下的Index.js中定义的store来存储，写getter方法来读取，写actions方法来修改，不会用vuex的看一下[手把手教你使用Vuex，猴子都能看懂的教程 - 掘金 (juejin.cn)](https://juejin.cn/post/6928468842377117709)，各个组件内部使用的资源**建议**用vuex访存
 
 - mixin非必须，鉴于项目很小，可以先忽略
 
