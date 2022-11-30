@@ -1,5 +1,5 @@
 import request from '@/utils/request'
-
+import { useMock } from '../settings'
 // 登录方法
 export function login(username, password, code, uuid) {
   const data = {
@@ -16,6 +16,7 @@ export function login(username, password, code, uuid) {
     method: 'post',
     data: data
   })
+
 }
 
 // 注册方法
@@ -32,10 +33,18 @@ export function register(data) {
 
 // 获取用户详细信息
 export function getInfo() {
-  return request({
-    url: '/getInfo',
-    method: 'get'
-  })
+  return useMock ?
+    {
+      user: {
+        avatar: ""
+      },
+      roles: ['admin', 'editor'],
+      permissions: ['system:user:add', 'system:user:edit']
+    }
+    : request({
+      url: '/getInfo',
+      method: 'get'
+    })
 }
 
 // 退出方法
