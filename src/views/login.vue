@@ -128,8 +128,10 @@ export default {
       };
     },
     handleLogin() {
+      //表单校验
       this.$refs.loginForm.validate(valid => {
         if (valid) {
+          //校验成功，开始进行下一步操作
           this.loading = true;
           if (this.loginForm.rememberMe) {
             Cookies.set("username", this.loginForm.username, { expires: 30 });
@@ -142,8 +144,10 @@ export default {
           }
           //调用store/user.js里的Login方法
           this.$store.dispatch("Login", this.loginForm).then(() => {
+            //未出错
             this.$router.push({ path: this.redirect || "/" }).catch(()=>{});
           }).catch(() => {
+            //校验失败
             this.loading = false;
             if (this.captchaEnabled) {
               this.getCode();
