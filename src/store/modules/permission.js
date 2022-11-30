@@ -26,14 +26,20 @@ const permission = {
     },
     SET_SIDEBAR_ROUTERS: (state, routes) => {
       state.sidebarRouters = routes
+      console.log('sidebarRoutes data')
+      console.log(state.sidebarRouters)
     },
   },
   actions: {
     // 生成路由
     GenerateRoutes({ commit }) {
+      console.log('enter GenerateRoutes')
       return new Promise(resolve => {
         // 向后端请求路由数据
+        console.log('enter GenerateRoutes Promise')
         getRouters().then(res => {
+          console.log('raw data')
+          console.log(res)
           const sdata = JSON.parse(JSON.stringify(res.data))
           const rdata = JSON.parse(JSON.stringify(res.data))
           const sidebarRoutes = filterAsyncRouter(sdata)
@@ -106,19 +112,20 @@ function filterChildren(childrenMap, lastRouter = false) {
 
 // 动态路由遍历，验证是否具备权限
 export function filterDynamicRoutes(routes) {
-  const res = []
-  routes.forEach(route => {
-    if (route.permissions) {
-      if (auth.hasPermiOr(route.permissions)) {
-        res.push(route)
-      }
-    } else if (route.roles) {
-      if (auth.hasRoleOr(route.roles)) {
-        res.push(route)
-      }
-    }
-  })
-  return res
+  // const res = []
+  // routes.forEach(route => {
+  //   if (route.permissions) {
+  //     if (auth.hasPermiOr(route.permissions)) {
+  //       res.push(route)
+  //     }
+  //   } else if (route.roles) {
+  //     if (auth.hasRoleOr(route.roles)) {
+  //       res.push(route)
+  //     }
+  //   }
+  // })
+  // return res
+  return routes
 }
 
 export const loadView = (view) => {

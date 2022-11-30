@@ -1,5 +1,6 @@
 import request from '@/utils/request'
 import { useMock } from '../settings'
+import { TookenData,UserData } from '../mock/data'
 // 登录方法
 export function login(username, password, code, uuid) {
   const data = {
@@ -8,7 +9,12 @@ export function login(username, password, code, uuid) {
     code,
     uuid
   }
-  return request({
+
+  return useMock ? new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve(TookenData)
+    },100)
+  }) : request({
     url: '/login',
     headers: {
       isToken: false
@@ -33,14 +39,14 @@ export function register(data) {
 
 // 获取用户详细信息
 export function getInfo() {
+  console.log('enter getInfo')
   return useMock ?
-    {
-      user: {
-        avatar: ""
-      },
-      roles: ['admin', 'editor'],
-      permissions: ['system:user:add', 'system:user:edit']
-    }
+    new Promise((resolve, reject) => {
+      setTimeout(() => {
+        console.log('enter getInfo Promise')
+        resolve(UserData)
+      },100)
+    })
     : request({
       url: '/getInfo',
       method: 'get'

@@ -51,6 +51,13 @@ export default {
         },
         isCollapse() {
             return !this.sidebar.opened;
+        },
+    },
+    watch:{
+        "$store.state.permission.sidebarRouters":{
+            handler:function(newVal,oldVal){
+                console.log(oldVal,newVal)
+            }
         }
     }
 };
