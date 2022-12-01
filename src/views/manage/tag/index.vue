@@ -216,14 +216,16 @@
 </template>
 
 <script>
-import {
-  listType,
-  getType,
-  delType,
-  addType,
-  updateType,
-  refreshCache,
-} from "@/api/system/dict/type";
+// import {
+//   listType,
+//   getType,
+//   delType,
+//   addType,
+//   updateType,
+//   refreshCache,
+// } from "@/api/system/dict/type";
+
+import { addTag, delTag, editTag, getTag } from "@/api/manage/tag.js";
 
 export default {
   name: "Tag",
@@ -265,7 +267,7 @@ export default {
       // 表单校验
       rules: {
         tagName: [{ required: true, message: "标签名称不能为空", trigger: "blur" }],
-        tagType: [{ required: true, message: "标签类型不能为空", trigger: "blur" }],
+        tagClass: [{ required: true, message: "标签级别不能为空", trigger: "blur" }],
       },
     };
   },
@@ -282,27 +284,11 @@ export default {
       //     this.loading = false;
       //   }
       // );
-      let tableData = [
-        {
-          tagName: "标签名",
-          tagID: "1",
-          tagClass: "1",
-          tagParentName: "父标签名",
-          tagPopularity: 666,
-          remark:""
-        },
-        {
-          tagName: "标签名2",
-          tagID: "2",
-          tagClass: "2",
-          tagParentName: "父标签名2",
-          tagPopularity: 666,
-          remark:""
-        },
-      ];
-      this.tagTableData = tableData;
-      this.total = tableData.length;
-      this.loading = false;
+      getTag(this.queryParams).then((res) => {
+        this.tagTableData = res.data;
+        this.total = res.data.length;
+        this.loading = false;
+      });
     },
 
     // 取消按钮
@@ -313,12 +299,17 @@ export default {
     // 表单重置
     reset() {
       this.form = {
+        tagID: undefined,
         tagName: undefined,
         tagClass: undefined,
-        tagID: undefined,
+        tagParentName: undefined,
         remark: undefined,
       };
       this.resetForm("form");
+      this.queryParams = {
+        pageNum: 1,
+        pageSize: 10,
+      };
     },
     /** 搜索按钮操作 */
     handleQuery() {
@@ -346,23 +337,29 @@ export default {
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset();
-      const dictId = row.dictId || this.ids;
-      getType(dictId).then((response) => {
+      const tagIDData = row.tagID || this.ids;
+
+      getTag({ tagID: tagIDData }).then((response) => {
         this.form = response.data;
         this.config_open = true;
         this.title = "修改标签类型";
       });
     },
-    showDetials(row){
+    showDetials(row) {
       this.reset();
       const tagName = row.tagParentName;
-      //待补充------------------------------------------------------------------------------
-    }
+      getTag({ tagName: tagName }).then((res) => {
+        this.form = res.data;
+        this.detail_open = true;
+        this.title = "标签详情";
+      });
+    },
+
     /** 提交按钮 */
     submitForm: function () {
       this.$refs["form"].validate((valid) => {
         if (valid) {
-          if (this.form.dictId != undefined) {
+          if (this.form.tagID != undefined) {
             updateType(this.form).then((response) => {
               this.$modal.msgSuccess("修改成功");
               this.config_open = false;
@@ -380,11 +377,13 @@ export default {
     },
     /** 删除按钮操作 */
     handleDelete(row) {
-      const dictIds = row.dictId || this.ids;
+      const tagID = row.tagID || this.ids;
       this.$modal
-        .confirm('是否确认删除标签编号为"' + dictIds + '"的数据项？')
+        .confirm(
+          '是否确认删除标签编号为"' + tagID + '",名称为' + row.tagName + "的数据项？"
+        )
         .then(function () {
-          return delType(dictIds);
+          return delType(tagID);
         })
         .then(() => {
           this.getList();
@@ -394,13 +393,14 @@ export default {
     },
     /** 导出按钮操作 */
     handleExport() {
-      this.download(
-        "system/dict/type/export",
-        {
-          ...this.queryParams,
-        },
-        `type_${new Date().getTime()}.xlsx`
-      );
+      // this.download(
+      //   "system/dict/type/export",
+      //   {
+      //     ...this.queryParams,
+      //   },
+      //   `type_${new Date().getTime()}.xlsx`
+      // );
+      alert("暂不支持该功能");
     },
     /** 刷新缓存按钮操作 */
     handleRefreshCache() {
@@ -412,4 +412,3 @@ export default {
   },
 };
 </script>
--->

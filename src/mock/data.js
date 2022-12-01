@@ -88,6 +88,18 @@ export const MenuData = {
                     }
                 },
                 {
+                    "name": "Tag",
+                    "path": "tag",
+                    "hidden": false,
+                    "component": "manage/tag/index",
+                    "meta": {
+                        "title": "标签管理",
+                        "icon": "dict",
+                        "noCache": false,
+                        "link": null
+                    }
+                },
+                {
                     "name": "Config",
                     "path": "config",
                     "hidden": false,
