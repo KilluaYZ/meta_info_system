@@ -8,37 +8,31 @@
       v-show="showSearch"
       label-width="68px"
     >
-      <el-form-item label="标签名称" prop="@">
+      <el-form-item label="标签名称" prop="tagName">
         <el-input
-          v-model="queryParams.dictName"
+          v-model="queryParams.tagName"
           placeholder="请输入标签名称"
           clearable
           style="width: 240px"
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="标签ID" prop="@">
+      <el-form-item label="标签ID" prop="tagID">
         <el-input
-          v-model="queryParams.dictType"
+          v-model="queryParams.tagID"
           placeholder="请输入标签ID"
           clearable
           style="width: 240px"
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="级别" prop="@">
+      <el-form-item label="级别" prop="tagClass">
         <el-select
-          v-model="queryParams.status"
+          v-model="queryParams.tagClass"
           placeholder="标签级别"
           clearable
           style="width: 240px"
         >
-          <el-option
-            v-for="dict in dict.type.sys_normal_disable"
-            :key="dict.value"
-            :label="dict.label"
-            :value="dict.value"
-          />
         </el-select>
       </el-form-item>
       <el-form-item>
@@ -115,18 +109,16 @@
       />
 
       <el-table-column label="级别" align="center" prop="tagClass">
-        <template slot-scope="scope">
+        <!-- <template slot-scope="scope">
           <dict-tag :options="dict.type.sys_normal_disable" :value="scope.row.status" />
-        </template>
+        </template> -->
+        <span>{{ tagClass }}</span>
       </el-table-column>
       <el-table-column label="父标签" align="center" :show-overflow-tooltip="true">
         <template slot-scope="scope">
-          <router-link
-            :to="'/system/dict-data/index/' + scope.row.dictId"
-            class="link-type"
-          >
-            <span>{{ scope.row.dictType }}</span>
-          </router-link>
+          <el-button size="mini" type="text" @click="showDetials(scope.row)">
+            <span>{{ scope.row.tagParentName }}</span>
+          </el-button>
         </template>
       </el-table-column>
       <el-table-column
@@ -174,12 +166,12 @@
         </el-form-item>
         <el-form-item label="标签级别" prop="tagClass">
           <el-radio-group v-model="form.status">
-            <el-radio
+            <!-- <el-radio
               v-for="dict in dict.type.sys_normal_disable"
               :key="dict.value"
               :label="dict.value"
               >{{ dict.label }}</el-radio
-            >
+            > -->
           </el-radio-group>
         </el-form-item>
         <el-form-item label="备注" prop="remark">
@@ -207,12 +199,12 @@
         </el-form-item>
         <el-form-item label="标签级别" prop="tagClass">
           <el-radio-group v-model="form.status">
-            <el-radio
+            <!-- <el-radio
               v-for="dict in dict.type.sys_normal_disable"
               :key="dict.value"
               :label="dict.value"
               >{{ dict.label }}</el-radio
-            >
+            > -->
           </el-radio-group>
         </el-form-item>
         <el-form-item label="备注" prop="remark">
@@ -264,25 +256,25 @@ export default {
       queryParams: {
         pageNum: 1,
         pageSize: 10,
-        dictName: undefined,
-        dictType: undefined,
-        status: undefined,
+        tagName: undefined,
+        tagClass: undefined,
+        tagID: undefined,
       },
       // 表单参数
       form: {},
       // 表单校验
       rules: {
-        dictName: [{ required: true, message: "标签名称不能为空", trigger: "blur" }],
-        dictType: [{ required: true, message: "标签类型不能为空", trigger: "blur" }],
+        tagName: [{ required: true, message: "标签名称不能为空", trigger: "blur" }],
+        tagType: [{ required: true, message: "标签类型不能为空", trigger: "blur" }],
       },
     };
   },
   created() {
-    this.getTableData();
+    this.getList();
   },
   methods: {
     /** 查询标签类型列表 */
-    getTableData() {
+    getList() {
       this.loading = true;
       // listType(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
       //     this.typeList = response.rows;
@@ -297,6 +289,7 @@ export default {
           tagClass: "1",
           tagParentName: "父标签名",
           tagPopularity: 666,
+          remark:""
         },
         {
           tagName: "标签名2",
@@ -304,10 +297,14 @@ export default {
           tagClass: "2",
           tagParentName: "父标签名2",
           tagPopularity: 666,
+          remark:""
         },
       ];
       this.tagTableData = tableData;
+      this.total = tableData.length;
+      this.loading = false;
     },
+
     // 取消按钮
     cancel() {
       this.config_open = false;
@@ -316,10 +313,9 @@ export default {
     // 表单重置
     reset() {
       this.form = {
-        dictId: undefined,
-        dictName: undefined,
-        dictType: undefined,
-        status: "0",
+        tagName: undefined,
+        tagClass: undefined,
+        tagID: undefined,
         remark: undefined,
       };
       this.resetForm("form");
@@ -357,6 +353,11 @@ export default {
         this.title = "修改标签类型";
       });
     },
+    showDetials(row){
+      this.reset();
+      const tagName = row.tagParentName;
+      //待补充------------------------------------------------------------------------------
+    }
     /** 提交按钮 */
     submitForm: function () {
       this.$refs["form"].validate((valid) => {
