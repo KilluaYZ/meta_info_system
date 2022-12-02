@@ -109,10 +109,10 @@
       />
 
       <el-table-column label="级别" align="center" prop="tagClass">
-        <!-- <template slot-scope="scope">
+        <!--<template slot-scope="scope">
           <dict-tag :options="dict.type.sys_normal_disable" :value="scope.row.status" />
+          <span>{{scope.row.tagClass}}</span>
         </template> -->
-        <span>{{ tagClass }}</span>
       </el-table-column>
       <el-table-column label="父标签" align="center" :show-overflow-tooltip="true">
         <template slot-scope="scope">
@@ -158,20 +158,17 @@
     <!-- 添加或修改参数配置对话框 -->
     <el-dialog :title="title" :visible.sync="config_open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="标签名称" prop="tagName">
+        <el-form-item label="标签名" prop="tagName">
           <el-input v-model="form.tagName" placeholder="请输入标签名称" />
         </el-form-item>
-        <el-form-item label="父标签名称" prop="parentName">
-          <el-input v-model="form.parentName" placeholder="请输入父标签名称" />
+        <el-form-item label="父标签名" prop="tagParentName">
+          <el-input v-model="form.tagParentName" placeholder="请输入父标签名称" />
         </el-form-item>
         <el-form-item label="标签级别" prop="tagClass">
-          <el-radio-group v-model="form.status">
-            <!-- <el-radio
-              v-for="dict in dict.type.sys_normal_disable"
-              :key="dict.value"
-              :label="dict.value"
-              >{{ dict.label }}</el-radio
-            > -->
+          <el-radio-group v-model="form.tagClass">
+            <el-radio  label="1" value="1">1</el-radio>
+            <el-radio  label="2" value="2">2</el-radio>
+            <el-radio  label="3" value="3">3</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="备注" prop="remark">
@@ -192,23 +189,16 @@
     <el-dialog :title="title" :visible.sync="detail_open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="标签名称" prop="tagName">
-          <el-input v-model="form.tagName" :disabled="true" />
+          <el-input v-model="form.tagName" readonly />
         </el-form-item>
-        <el-form-item label="父标签名称" prop="parentName">
-          <el-input v-model="form.parentName" :disabled="true" />
+        <el-form-item label="父标签名" prop="tagParentName">
+          <el-input v-model="form.tagParentName" readonly />
         </el-form-item>
         <el-form-item label="标签级别" prop="tagClass">
-          <el-radio-group v-model="form.status">
-            <!-- <el-radio
-              v-for="dict in dict.type.sys_normal_disable"
-              :key="dict.value"
-              :label="dict.value"
-              >{{ dict.label }}</el-radio
-            > -->
-          </el-radio-group>
+          <el-input v-model="form.tagClass" readonly />
         </el-form-item>
         <el-form-item label="备注" prop="remark">
-          <el-input v-model="form.remark" type="textarea" :disabled="true"></el-input>
+          <el-input v-model="form.remark" type="textarea" readonly ></el-input>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -225,7 +215,7 @@
 //   refreshCache,
 // } from "@/api/system/dict/type";
 
-import { addTag, delTag, editTag, getTag } from "@/api/manage/tag.js";
+import { addTag, delTag, updateTag, getTag } from "@/api/manage/tag.js";
 
 export default {
   name: "Tag",
@@ -308,10 +298,6 @@ export default {
         remark: undefined,
       };
       this.resetForm("form");
-      this.queryParams = {
-        pageNum: 1,
-        pageSize: 10,
-      };
     },
     /** 搜索按钮操作 */
     handleQuery() {
@@ -340,9 +326,12 @@ export default {
     handleUpdate(row) {
       this.reset();
       const tagIDData = row.tagID || this.ids;
-
       getTag({ tagID: tagIDData }).then((response) => {
-        this.form = response.data;
+        console.log('点开修改页面，收到数据')
+        console.log(response)
+        this.form = response.data[0];
+        console.log('this.form')
+        console.log(this.form)
         this.config_open = true;
         this.title = "修改标签类型";
       });
@@ -351,7 +340,9 @@ export default {
       this.reset();
       const tagName = row.tagParentName;
       getTag({ tagName: tagName }).then((res) => {
-        this.form = res.data;
+        console.log('点开详情页面，收到数据')
+        console.log(res)
+        this.form = res.data[0];
         this.detail_open = true;
         this.title = "标签详情";
       });
@@ -362,13 +353,13 @@ export default {
       this.$refs["form"].validate((valid) => {
         if (valid) {
           if (this.form.tagID != undefined) {
-            updateType(this.form).then((response) => {
+            updateTag(this.form).then((response) => {
               this.$modal.msgSuccess("修改成功");
               this.config_open = false;
               this.getList();
             });
           } else {
-            addType(this.form).then((response) => {
+            addTag(this.form).then((response) => {
               this.$modal.msgSuccess("新增成功");
               this.config_open = false;
               this.getList();
@@ -385,7 +376,7 @@ export default {
           '是否确认删除标签编号为"' + tagID + '",名称为' + row.tagName + "的数据项？"
         )
         .then(function () {
-          return delType(tagID);
+          return delTag(tagID);
         })
         .then(() => {
           this.getList();

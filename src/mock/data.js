@@ -413,7 +413,7 @@ const AllTagData = {
         {
             tagName: "标签名",
             tagID: "1",
-            tagClass: "1",
+            tagClass: 1,
             tagParentName: "父标签名",
             tagPopularity: 666,
             remark: "备注"
@@ -421,7 +421,7 @@ const AllTagData = {
         {
             tagName: "标签名2",
             tagID: "2",
-            tagClass: "1",
+            tagClass: 3,
             tagParentName: "父标签名",
             tagPopularity: 666,
             remark: "备注"
@@ -429,7 +429,7 @@ const AllTagData = {
         {
             tagName: "标签名3",
             tagID: "3",
-            tagClass: "1",
+            tagClass: 2,
             tagParentName: "父标签名",
             tagPopularity: 666,
             remark: "备注"
@@ -437,7 +437,7 @@ const AllTagData = {
         {
             tagName: "标签名4",
             tagID: "4",
-            tagClass: "1",
+            tagClass: 2,
             tagParentName: "父标签名",
             tagPopularity: 666,
             remark: "备注"
@@ -445,7 +445,7 @@ const AllTagData = {
         {
             tagName: "标签名5",
             tagID: "5",
-            tagClass: "1",
+            tagClass: 1,
             tagParentName: "父标签名",
             tagPopularity: 666,
             remark: "备注"
@@ -453,7 +453,7 @@ const AllTagData = {
         {
             tagName: "标签名6",
             tagID: "6",
-            tagClass: "1",
+            tagClass: 1,
             tagParentName: "父标签名",
             tagPopularity: 666,
             remark: "备注"
@@ -461,7 +461,7 @@ const AllTagData = {
         {
             tagName: "标签名7",
             tagID: "7",
-            tagClass: "1",
+            tagClass: 3,
             tagParentName: "父标签名",
             tagPopularity: 666,
             remark: "备注"
@@ -469,7 +469,7 @@ const AllTagData = {
         {
             tagName: "标签名8",
             tagID: "8",
-            tagClass: "1",
+            tagClass: 1,
             tagParentName: "父标签名",
             tagPopularity: 666,
             remark: "备注"
@@ -477,7 +477,7 @@ const AllTagData = {
         {
             tagName: "标签名9",
             tagID: "9",
-            tagClass: "1",
+            tagClass: 1,
             tagParentName: "父标签名",
             tagPopularity: 666,
             remark: "备注"
@@ -485,7 +485,7 @@ const AllTagData = {
         {
             tagName: "标签名10",
             tagID: "10",
-            tagClass: "1",
+            tagClass: 1,
             tagParentName: "父标签名",
             tagPopularity: 666,
             remark: "备注"
@@ -513,11 +513,10 @@ const TagIDTagData = {
     code: 200,
     msg: "操作成功",
     data: [
-        
         {
             tagName: "标签名ID",
             tagID: "10",
-            tagClass: "1",
+            tagClass: "2",
             tagParentName: "父标签名",
             tagPopularity: 666,
             remark: "备注"
@@ -528,10 +527,13 @@ const TagIDTagData = {
 export function getMockTagData(queryParam) {
     let returnData = undefined;
     if(queryParam.tagName != undefined){
+        console.log('查询tagName')
         returnData = TagNameTagData;
     }else if(queryParam.tagID != undefined){
+        console.log('查询tagID')
         returnData = TagIDTagData;
     }else {
+        console.log('查询所有tag数据')
         returnData = AllTagData;
     }
 
@@ -544,7 +546,7 @@ export function getMockTagData(queryParam) {
 
 
 //修改数据
-export const EditData = {
+export const UpdateData = {
     code: 200,
     msg: "操作成功"
 }
