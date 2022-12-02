@@ -268,6 +268,7 @@ export default {
   methods: {
     /** 查询标签类型列表 */
     getList() {
+      
       this.loading = true;
       // listType(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
       //     this.typeList = response.rows;
@@ -403,5 +404,15 @@ export default {
       });
     },
   },
+  watch:{
+    queryParams:{
+      handler(newQuery,oldQuery) {
+        console.log('newQuery')
+        console.log(newQuery)
+      },
+      immediate: true,
+      deep: true
+    }
+  }
 };
 </script>
