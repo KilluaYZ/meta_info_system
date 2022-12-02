@@ -273,6 +273,7 @@ export default {
   },
   created() {
     this.getList();
+    console.log('创建tag页面ing')
   },
   methods: {
     /** 查询标签类型列表 */
@@ -285,6 +286,7 @@ export default {
       //   }
       // );
       getTag(this.queryParams).then((res) => {
+        console.log('成功取得getTag mock数据')
         this.tagTableData = res.data;
         this.total = res.data.length;
         this.loading = false;

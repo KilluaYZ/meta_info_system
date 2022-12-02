@@ -403,104 +403,160 @@ export const TookenData = {
     token: "eyJhbGciOiJIUzUxMiJ9.eyJsb2dpbl91c2VyX2tleSI6IjEyY2I1MGQ3LTQyZTYtNGQ4NS1hMThiLTU1ZWI2NTlmMDU2NiJ9.gnKM328o3SetmAIE8mpQ0s__3XL66z8xf7YAEP7lLl1zHuYLPNsf-cZDaaWhJzmqyY4za8ZwPGsYy7QaYILiBA"
 };
 
+
+
 //查询数据
-export const GetData=[
-    {
-        tagName:"标签名",
-        tagID:"1",
-        tagClass:"1",
-        tagParentName:"父标签名",
-        tagPopularity:666,
-        remark:"备注"
-    },
-    {
-        tagName:"标签名2",
-        tagID:"2",
-        tagClass:"1",
-        tagParentName:"父标签名",
-        tagPopularity:666,
-        remark:"备注"
-    },
-    {
-        tagName:"标签名3",
-        tagID:"3",
-        tagClass:"1",
-        tagParentName:"父标签名",
-        tagPopularity:666,
-        remark:"备注"
-    },
-    {
-        tagName:"标签名4",
-        tagID:"4",
-        tagClass:"1",
-        tagParentName:"父标签名",
-        tagPopularity:666,
-        remark:"备注"
-    },
-    {
-        tagName:"标签名5",
-        tagID:"5",
-        tagClass:"1",
-        tagParentName:"父标签名",
-        tagPopularity:666,
-        remark:"备注"
-    },
-    {
-        tagName:"标签名6",
-        tagID:"6",
-        tagClass:"1",
-        tagParentName:"父标签名",
-        tagPopularity:666,
-        remark:"备注"
-    },
-    {
-        tagName:"标签名7",
-        tagID:"7",
-        tagClass:"1",
-        tagParentName:"父标签名",
-        tagPopularity:666,
-        remark:"备注"
-    },
-    {
-        tagName:"标签名8",
-        tagID:"8",
-        tagClass:"1",
-        tagParentName:"父标签名",
-        tagPopularity:666,
-        remark:"备注"
-    },
-    {
-        tagName:"标签名9",
-        tagID:"9",
-        tagClass:"1",
-        tagParentName:"父标签名",
-        tagPopularity:666,
-        remark:"备注"
-    },
-    {
-        tagName:"标签名10",
-        tagID:"10",
-        tagClass:"1",
-        tagParentName:"父标签名",
-        tagPopularity:666,
-        remark:"备注"
+const AllTagData = {
+    code: 200,
+    msg: "操作成功",
+    data: [
+        {
+            tagName: "标签名",
+            tagID: "1",
+            tagClass: "1",
+            tagParentName: "父标签名",
+            tagPopularity: 666,
+            remark: "备注"
+        },
+        {
+            tagName: "标签名2",
+            tagID: "2",
+            tagClass: "1",
+            tagParentName: "父标签名",
+            tagPopularity: 666,
+            remark: "备注"
+        },
+        {
+            tagName: "标签名3",
+            tagID: "3",
+            tagClass: "1",
+            tagParentName: "父标签名",
+            tagPopularity: 666,
+            remark: "备注"
+        },
+        {
+            tagName: "标签名4",
+            tagID: "4",
+            tagClass: "1",
+            tagParentName: "父标签名",
+            tagPopularity: 666,
+            remark: "备注"
+        },
+        {
+            tagName: "标签名5",
+            tagID: "5",
+            tagClass: "1",
+            tagParentName: "父标签名",
+            tagPopularity: 666,
+            remark: "备注"
+        },
+        {
+            tagName: "标签名6",
+            tagID: "6",
+            tagClass: "1",
+            tagParentName: "父标签名",
+            tagPopularity: 666,
+            remark: "备注"
+        },
+        {
+            tagName: "标签名7",
+            tagID: "7",
+            tagClass: "1",
+            tagParentName: "父标签名",
+            tagPopularity: 666,
+            remark: "备注"
+        },
+        {
+            tagName: "标签名8",
+            tagID: "8",
+            tagClass: "1",
+            tagParentName: "父标签名",
+            tagPopularity: 666,
+            remark: "备注"
+        },
+        {
+            tagName: "标签名9",
+            tagID: "9",
+            tagClass: "1",
+            tagParentName: "父标签名",
+            tagPopularity: 666,
+            remark: "备注"
+        },
+        {
+            tagName: "标签名10",
+            tagID: "10",
+            tagClass: "1",
+            tagParentName: "父标签名",
+            tagPopularity: 666,
+            remark: "备注"
+        }
+    ]
+}
+
+
+const TagNameTagData = {
+    code: 200,
+    msg: "操作成功",
+    data: [
+        {
+            tagName: "标签名NAME",
+            tagID: "10",
+            tagClass: "1",
+            tagParentName: "父标签名",
+            tagPopularity: 666,
+            remark: "备注"
+        }
+    ]
+}
+
+const TagIDTagData = {
+    code: 200,
+    msg: "操作成功",
+    data: [
+        
+        {
+            tagName: "标签名ID",
+            tagID: "10",
+            tagClass: "1",
+            tagParentName: "父标签名",
+            tagPopularity: 666,
+            remark: "备注"
+        }
+    ]
+}
+
+export function getMockTagData(queryParam) {
+    let returnData = undefined;
+    if(queryParam.tagName != undefined){
+        returnData = TagNameTagData;
+    }else if(queryParam.tagID != undefined){
+        returnData = TagIDTagData;
+    }else {
+        returnData = AllTagData;
     }
-]
+
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve(returnData)
+        }, 100)
+    })
+}
+
 
 //修改数据
-export const EditData={
-    code:200,
-    msg:"操作成功"
+export const EditData = {
+    code: 200,
+    msg: "操作成功"
 }
 
 //删除数据
-export const DelData={
-    code:200,
-    msg:"操作成功"
+export const DelData = {
+    code: 200,
+    msg: "操作成功"
 }
 
 //添加数据
-export const AddData={
-    code:200,
-    msg:"操作成功"
+export const AddData = {
+    code: 200,
+    msg: "操作成功"
 }

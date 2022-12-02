@@ -87,6 +87,20 @@ export const constantRoutes = [
         meta: { title: '个人中心', icon: 'user' }
       }
     ]
+  },
+  {
+    path:'/system',
+    component: Layout,
+    hidden:true,
+    redirect:'noredirect',
+    children:[
+      {
+        path:'tag',
+        component: () => import('@/views/manage/tag/index'),
+        name: "Tag",
+        meta:{title:'标签管理', icon: 'user'}
+      }
+    ]
   }
 ]
 
@@ -131,20 +145,6 @@ export const dynamicRoutes = [
         component: () => import('@/views/system/dict/data'),
         name: 'Data',
         meta: { title: '字典数据', activeMenu: '/system/dict' }
-      }
-    ]
-  },
-  {
-    path: '/system/tag',
-    component: Layout,
-    hidden: true,
-    permissions: ['system:dict:list'],
-    children: [
-      {
-        path: 'index/:dictId(\\d+)',
-        component: () => import('@/views/manage/tag/index'),
-        name: 'Tag',
-        meta: { title: '标签管理', activeMenu: '/system/tag' }
       }
     ]
   },

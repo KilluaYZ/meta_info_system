@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 import { useMock } from '@/settings'
-import { TookenData,UserData,GetData,EditData,DelData,AddData } from '@/mock/data'
+import {getMockTagData,EditData,DelData,AddData} from '@/mock/data'
 
 //添加标签
 export function addTag (payload) {
@@ -60,11 +60,7 @@ export function editTag (payload) {
 export function getTag(payload) {
     const data = payload;
   
-    return useMock ? new Promise((resolve, reject) => {
-      setTimeout(() => {
-        resolve(GetData)
-      },100)
-    }) : request({
+    return useMock ? getMockTagData(payload) : request({
       url: '/gettag',
       headers: {
         isToken: false
