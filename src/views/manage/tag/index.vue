@@ -112,7 +112,7 @@
         <!--<template slot-scope="scope">
           <dict-tag :options="dict.type.sys_normal_disable" :value="scope.row.status" />
           <span>{{scope.row.tagClass}}</span>
-        </template> -->
+        </template>-->
       </el-table-column>
       <el-table-column label="父标签" align="center" :show-overflow-tooltip="true">
         <template slot-scope="scope">
@@ -176,6 +176,7 @@
             v-model="form.remark"
             type="textarea"
             placeholder="请输入内容"
+            :autosize="{ minRows: 5, maxRows: 15}"
           ></el-input>
         </el-form-item>
       </el-form>
@@ -198,7 +199,7 @@
           <el-input v-model="form.tagClass" readonly />
         </el-form-item>
         <el-form-item label="备注" prop="remark">
-          <el-input v-model="form.remark" type="textarea" readonly ></el-input>
+          <el-input v-model="form.remark" type="textarea" readonly :autosize="{ minRows: 5, maxRows: 15}" ></el-input>
         </el-form-item>
       </el-form>
     </el-dialog>
