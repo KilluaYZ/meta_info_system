@@ -320,7 +320,7 @@ export default {
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
-      this.ids = selection.map((item) => item.dictId);
+      this.ids = selection.map((item) => item.tagID);
       this.single = selection.length != 1;
       this.multiple = !selection.length;
     },
@@ -372,12 +372,16 @@ export default {
     },
     /** 删除按钮操作 */
     handleDelete(row) {
-      const tagID = row.tagID || this.ids;
+      const tagID = [row.tagID+''] || this.ids;
+      console.log("tagID:")
+      console.log(tagID)
+      console.log("ids:")
+      console.log(this.ids)
       this.$modal
         .confirm(
-          '是否确认删除标签编号为"' + tagID + '",名称为' + row.tagName + "的数据项？"
+          '是否确认删除标签编号为"' + tagID + '"的数据项？'
         )
-        .then(function () {
+        .then(() => {
           return delTag(tagID);
         })
         .then(() => {
