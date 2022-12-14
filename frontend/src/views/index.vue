@@ -1,41 +1,108 @@
 <template>
   <div class="app-container home">
     <el-row :gutter="20">
-      <el-col :sm="24" :lg="24">
-        <blockquote class="text-warning" style="font-size: 14px">
-          领取阿里云通用云产品1888优惠券
-          <br />
-          <el-link
-            href="https://www.aliyun.com/minisite/goods?userCode=brki8iof"
-            type="primary"
-            target="_blank"
-            >https://www.aliyun.com/minisite/goods?userCode=brki8iof</el-link
-          >
-          <br />
-          领取腾讯云通用云产品2860优惠券
-          <br />
-          <el-link
-            href="https://cloud.tencent.com/redirect.php?redirect=1025&cps_key=198c8df2ed259157187173bc7f4f32fd&from=console"
-            type="primary"
-            target="_blank"
-            >https://cloud.tencent.com/redirect.php?redirect=1025&cps_key=198c8df2ed259157187173bc7f4f32fd&from=console</el-link
-          >
-          <br />
-          阿里云服务器折扣区
-          <el-link href="http://aly.ruoyi.vip" type="primary" target="_blank"
-            >>☛☛点我进入☚☚</el-link
-          >
-          &nbsp;&nbsp;&nbsp; 腾讯云服务器秒杀区----
-          <el-link href="http://txy.ruoyi.vip" type="primary" target="_blank"
-            >>☛☛点我进入☚☚</el-link
-          ><br />
-          <h4 class="text-danger">
-            云产品通用红包，可叠加官网常规优惠使用。(仅限新用户)
-          </h4>
-        </blockquote>
-
-        <hr />
+      <el-col :sm="24" :lg="12" style="padding-left: 20px">
+        <h2>知识点标签管理系统</h2>
+        <p>一段话</p>
+        <p>
+          <b>当前版本:</b><span>v{{version}}</span>
+        </p>
       </el-col>
+    </el-row>
+
+    <el-row :gutter="20">
+      <el-col :xs="24" :sm="24" :md="12" :lg="8">
+        <el-card class="update-log">
+          <div>
+            <el-link style="float:right; padding-bottom: 10px;" type="warning" el-link :underline="false" @click="goTag()">
+              更多<i class="el-icon-view el-icon--right"></i>
+            </el-link>
+            <h3>热门标签</h3>
+          </div>
+          <ul>
+            <li v-for="HotTag in HotTagsContent">
+              <div class="col-item">
+                 <el-link type="primary">{{HotTag.name}}</el-link>
+              </div>
+            </li>
+          </ul>
+        </el-card>
+      </el-col>
+
+      <el-col :xs="24" :sm="24" :md="12" :lg="8">
+        <el-card class="update-log">
+          <div>
+            <el-link style="float:right; padding-bottom: 10px;" type="warning" el-link :underline="false">
+              更多<i class="el-icon-view el-icon--right"></i>
+            </el-link>
+            <h3>最新标签</h3>
+          </div>
+          <ul>
+            <li v-for="NewTag in NewTagsContent">
+              <div class="col-item">
+                 <el-link type="primary">{{NewTag.name}}</el-link>
+              </div>
+            </li>
+          </ul>
+        </el-card>
+      </el-col>
+    
+      <el-col :xs="24" :sm="24" :md="12" :lg="8">
+        <el-card class="update-log">
+          <div>
+            <el-link style="float:right; padding-bottom: 10px;" type="warning" el-link :underline="false">
+              更多<i class="el-icon-view el-icon--right"></i>
+            </el-link>
+            <h3>可视化</h3>
+          </div>
+          <div>
+            <img src="logo.png" width="300" height="192">
+          </div>
+        </el-card>
+      </el-col>
+    </el-row>
+
+    <el-row :gutter="20">
+      <el-col :xs="24" :sm="24" :md="12" :lg="8">
+        <el-card class="update-log">
+          <div>
+            <el-link style="float:right; padding-bottom: 10px;" type="warning" el-link :underline="false">
+              更多<i class="el-icon-view el-icon--right"></i>
+            </el-link>
+            <h3>热门帖子</h3>
+          </div>
+          <ul>
+            <li v-for="HotPost in HotPostsContent">
+              <div class="col-item">
+                 <el-link type="primary">{{HotPost.name}}</el-link>
+              </div>
+            </li>
+          </ul>
+        </el-card>
+      </el-col>
+
+      <el-col :xs="24" :sm="24" :md="12" :lg="8">
+        <el-card class="update-log">
+          <div>
+            <el-link style="float:right; padding-bottom: 10px;" type="warning" el-link :underline="false">
+              更多<i class="el-icon-view el-icon--right"></i>
+            </el-link>
+            <h3>最新帖子</h3>
+          </div>
+          <ul>
+            <li v-for="NewPost in NewPostsContent">
+              <div class="col-item">
+                 <el-link type="primary">{{NewPost.name}}</el-link>
+              </div>
+            </li>
+          </ul>
+        </el-card>
+      </el-col>
+
+    </el-row>
+  </div>
+</template>
+    <!--
     </el-row>
     <el-row :gutter="20">
       <el-col :sm="24" :lg="12" style="padding-left: 20px">
@@ -861,23 +928,73 @@
           </div>
         </el-card>
       </el-col>
-    </el-row>
-  </div>
-</template>
+      -->
+
+
 
 <script>
+
+import { getHotTags, getNewTags, getHotPosts, getNewPosts} from "@/api/manage/mainpage.js";
+
 export default {
   name: "Index",
   data() {
     return {
       // 版本号
-      version: "3.8.4",
-    };
+      version: "1.0.0",
+
+      HotTagsContent: [],
+
+      NewTagsContent: [],
+
+      HotPostsContent: [],
+
+      NewPostsContent: [],
+
+      queryHotTagsParams: {
+        HotTagsNum: 5,
+      },
+      queryNewTagsParams: {
+        NewTagsNum: 5,
+      },
+      queryHotPostsParams: {
+        HotPostsNum: 5,
+      },
+      queryNewPostsParams: {
+        NewPostsNum: 5,
+      }
+    };  
+  },
+  created() 
+  {
+    console.log("获取数据");
+    this.getList();
   },
   methods: {
     goTarget(href) {
       window.open(href, "_blank");
     },
+    getList() {
+      getHotTags(this.queryHotTagsParams).then((res) => {
+        console.log("成功取得HotTags数据")
+        this.HotTagsContent = res.data;
+      })
+      getNewTags(this.queryNewTagsParams).then((res) => {
+        console.log("成功取得NewTags数据")
+        this.NewTagsContent = res.data;
+      })
+      getHotPosts(this.queryHotPostsParams).then((res) => {
+        console.log("成功取得HotPosts数据")
+        this.HotPostsContent = res.data;
+      })
+      getNewPosts(this.queryNewPostsParams).then((res) => {
+        console.log("成功取得NewPosts数据")
+        this.NewPostsContent = res.data;
+      })   
+    },
+    goTag() {
+      this.$router.push('/system/tag')
+    }
   },
 };
 </script>
@@ -894,10 +1011,19 @@ export default {
     margin-top: 20px;
     margin-bottom: 20px;
     border: 0;
-    border-top: 1px solid #eee;
+  }
+  h3 {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgb(200, 200, 200);
+    font-size: 16px;
   }
   .col-item {
-    margin-bottom: 20px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgb(200, 200, 200);
   }
 
   ul {
@@ -942,6 +1068,7 @@ export default {
       margin-inline-end: 0;
       padding-inline-start: 40px;
     }
+    margin-bottom: 20px;
   }
 }
 </style>

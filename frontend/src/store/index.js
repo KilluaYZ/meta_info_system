@@ -17,8 +17,7 @@ const store = new Vuex.Store({
     user,
     tagsView,
     permission,
-    settings,
-    tag
+    settings
   },
   getters
 })
