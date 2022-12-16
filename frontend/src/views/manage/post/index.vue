@@ -8,44 +8,66 @@
       v-show="showSearch"
       label-width="68px"
     >
-      <el-form-item label="标签名称" prop="tagName">
+      <el-form-item label="帖子标题" prop="postTitle">
         <el-input
-          v-model="queryParams.tagName"
-          placeholder="请输入标签名称"
+          v-model="queryParams.postTitle"
+          placeholder="请输入帖子标题"
           clearable
           style="width: 240px"
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="标签ID" prop="tagID">
+      <el-form-item label="帖子ID" prop="postID">
         <el-input
-          v-model="queryParams.tagID"
-          placeholder="请输入标签ID"
+          v-model="queryParams.postID"
+          placeholder="请输入帖子ID"
           clearable
           style="width: 240px"
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="级别" prop="tagClass">
-        <el-select
-          v-model="queryParams.tagClass"
-          placeholder="标签级别"
+      <el-form-item label="关键词" prop="postKeywords">
+        <el-input
+          v-model="queryParams.postKeywords"
+          placeholder="请输入关键词"
           clearable
           style="width: 240px"
-        >
-        </el-select>
+          @keyup.enter.native="handleQuery"
+        />
       </el-form-item>
+
+      <el-form-item label="标签" prop="postTag">
+        <el-input
+          v-model="queryParams.postTag"
+          placeholder="请输入标签"
+          clearable
+          style="width: 240px"
+          @keyup.enter.native="handleQuery"
+        />
+      </el-form-item>
+
       <el-form-item>
-        <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery"
+        <el-button
+          type="primary"
+          icon="el-icon-search"
+          size="mini"
+          @click="handleQuery"
           >搜索</el-button
         >
-        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery"
+          >重置</el-button
+        >
       </el-form-item>
     </el-form>
 
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
-        <el-button type="primary" plain icon="el-icon-plus" size="mini" @click="handleAdd"
+        <el-button
+          type="primary"
+          plain
+          icon="el-icon-plus"
+          size="mini"
+          @click="handleAdd"
           >新增</el-button
         >
       </el-col>
@@ -91,43 +113,79 @@
           >刷新缓存</el-button
         >
       </el-col>
-      <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
+      <right-toolbar
+        :showSearch.sync="showSearch"
+        @queryTable="getList"
+      ></right-toolbar>
     </el-row>
 
     <el-table
       v-loading="loading"
-      :data="tagTableData"
+      :data="TableData"
       @selection-change="handleSelectionChange"
     >
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="ID" align="center" prop="tagID" />
+      <el-table-column label="ID" align="center" prop="postID" />
       <el-table-column
-        label="名称"
+        label="标题"
         align="center"
-        prop="tagName"
+        prop="postTitle"
         :show-overflow-tooltip="true"
       />
 
-      <el-table-column label="级别" align="center" prop="tagClass">
-        <!--<template slot-scope="scope">
-          <dict-tag :options="dict.type.sys_normal_disable" :value="scope.row.status" />
-          <span>{{scope.row.tagClass}}</span>
-        </template>-->
-      </el-table-column>
-      <el-table-column label="父标签" align="center" :show-overflow-tooltip="true" prop="tagParentName">
+      <el-table-column label="关键词" align="center" prop="postKeywords">
         <template slot-scope="scope">
-          <el-button size="mini" type="text" @click="showDetials(scope.row)">
-            <span>{{ scope.row.tagParentName }}</span>
+          <el-tag v-for="keyword in scope.row.postKeywords" :key="keyword.id">
+            {{ keyword }}
+          </el-tag>
+        </template>
+      </el-table-column>
+
+      <el-table-column
+        label="标签"
+        align="center"
+        :show-overflow-tooltip="true"
+        prop="postTag"
+      >
+        <template slot-scope="scope">
+          <el-button
+            size="mini"
+            v-for="item in scope.row.postTag"
+            :key="item"
+            :type="item.type"
+            @click="showDetials(item)"
+          >
+            <span>{{ item.tagName }}</span>
           </el-button>
         </template>
       </el-table-column>
+
+      <el-table-column
+        label="热度"
+        align="center"
+        prop="postPopularity"
+        :show-overflow-tooltip="true"
+      />
+
+      <el-table-column label="发帖时间" align="center" prop="postTime">
+        <template slot-scope="scope">
+          <span>{{
+            scope.row.year + "-" + scope.row.month + "-" + scope.row.day
+          }}</span>
+        </template>
+      </el-table-column>
+
       <el-table-column
         label="备注"
         align="center"
         prop="remark"
         :show-overflow-tooltip="true"
       />
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+      <el-table-column
+        label="操作"
+        align="center"
+        class-name="small-padding fixed-width"
+      >
         <template slot-scope="scope">
           <el-button
             size="mini"
@@ -156,19 +214,87 @@
     />
 
     <!-- 添加或修改参数配置对话框 -->
-    <el-dialog :title="title" :visible.sync="config_open" width="500px" append-to-body>
+    <el-dialog
+      :title="title"
+      :visible.sync="config_open"
+      width="80vw"
+      append-to-body
+    >
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="标签名" prop="tagName">
-          <el-input v-model="form.tagName" placeholder="请输入标签名称" />
+        <el-form-item label="标题" prop="postTitle">
+          <el-input v-model="form.postTitle" placeholder="请输入标签名称" />
         </el-form-item>
+
+        <el-form-item label="关键词" prop="postKeywords">
+          <el-tag
+            :key="keyword"
+            v-for="keyword in form.postKeywords"
+            closeable
+            :disable-transitions="false"
+            @close="handleConfigPageKeywordClose(keyword, form)"
+          >
+            {{ keyword }}
+          </el-tag>
+          <el-input
+            v-if="configPageKeywordInputVisiable"
+            v-model="configPageKeywordInputValue"
+            ref="saveConfigPageKeywordInput"
+            size="small"
+            @keyup.enter.native="handleConfigPageKeywordInput(form)"
+            @blur="handleConfigPageKeywordInput"
+          >
+          </el-input>
+          <el-button
+            v-else
+            class="handleAddNewKeywordBtn"
+            size="small"
+            @click="showConfigPageKeywordInput"
+          >
+            + 新关键词
+          </el-button>
+        </el-form-item>
+
+        <el-form-item label="标签" prop="postTag">
+          <el-tag
+            :key="tag"
+            closeable
+            v-for="tag in form.postTag"
+            :type="tag.type"
+            :disable-transitions="false"
+            @close="handleConfigPageTagClose(keyword, form)"
+          >
+            {{ keyword }}
+          </el-tag>
+          <el-input
+            v-if="configPageKeywordInputVisiable"
+            v-model="configPageKeywordInputValue"
+            ref="saveConfigPageKeywordInput"
+            size="small"
+            @keyup.enter.native="handleConfigPageKeywordInput(form)"
+            @blur="handleConfigPageKeywordInput"
+          >
+          </el-input>
+          <el-button
+            v-else
+            class="handleAddNewKeywordBtn"
+            size="small"
+            @click="showConfigPageKeywordInput"
+          >
+            + 新关键词
+          </el-button>
+        </el-form-item>
+
         <el-form-item label="父标签名" prop="tagParentName">
-          <el-input v-model="form.tagParentName" placeholder="请输入父标签名称" />
+          <el-input
+            v-model="form.tagParentName"
+            placeholder="请输入父标签名称"
+          />
         </el-form-item>
         <el-form-item label="标签级别" prop="tagClass">
           <el-radio-group v-model="form.tagClass">
-            <el-radio  label="1" value="1">1</el-radio>
-            <el-radio  label="2" value="2">2</el-radio>
-            <el-radio  label="3" value="3">3</el-radio>
+            <el-radio label="1" value="1">1</el-radio>
+            <el-radio label="2" value="2">2</el-radio>
+            <el-radio label="3" value="3">3</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="备注" prop="remark">
@@ -176,7 +302,7 @@
             v-model="form.remark"
             type="textarea"
             placeholder="请输入内容"
-            :autosize="{ minRows: 5, maxRows: 15}"
+            :autosize="{ minRows: 5, maxRows: 15 }"
           ></el-input>
         </el-form-item>
       </el-form>
@@ -186,8 +312,13 @@
       </div>
     </el-dialog>
 
-    <!-- 显示详情对话框 -->
-    <el-dialog :title="title" :visible.sync="detail_open" width="500px" append-to-body>
+    <!-- 显示标签详情对话框 -->
+    <el-dialog
+      :title="title"
+      :visible.sync="detail_open"
+      width="500px"
+      append-to-body
+    >
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="标签名称" prop="tagName">
           <el-input v-model="form.tagName" readonly />
@@ -199,7 +330,12 @@
           <el-input v-model="form.tagClass" readonly />
         </el-form-item>
         <el-form-item label="备注" prop="remark">
-          <el-input v-model="form.remark" type="textarea" readonly :autosize="{ minRows: 5, maxRows: 15}" ></el-input>
+          <el-input
+            v-model="form.remark"
+            type="textarea"
+            readonly
+            :autosize="{ minRows: 5, maxRows: 15 }"
+          ></el-input>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -236,7 +372,7 @@ export default {
       // 总条数
       total: 0,
       // 标签表格数据
-      tagTableData: [],
+      TableData: [],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
@@ -257,19 +393,24 @@ export default {
       form: {},
       // 表单校验
       rules: {
-        tagName: [{ required: true, message: "标签名称不能为空", trigger: "blur" }],
-        tagClass: [{ required: true, message: "标签级别不能为空", trigger: "blur" }],
+        tagName: [
+          { required: true, message: "标签名称不能为空", trigger: "blur" },
+        ],
+        tagClass: [
+          { required: true, message: "标签级别不能为空", trigger: "blur" },
+        ],
       },
+      configPageKeywordInputVisiable: false,
+      configPageKeywordInputValue: "",
     };
   },
   created() {
     this.getList();
-    console.log('创建tag页面ing')
+    console.log("创建tag页面ing");
   },
   methods: {
     /** 查询标签类型列表 */
     getList() {
-      
       this.loading = true;
       // listType(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
       //     this.typeList = response.rows;
@@ -278,7 +419,7 @@ export default {
       //   }
       // );
       getTag(this.queryParams).then((res) => {
-        console.log('成功取得getTag mock数据')
+        console.log("成功取得getTag mock数据");
         this.tagTableData = res.data;
         this.total = res.data.length;
         this.loading = false;
@@ -329,21 +470,21 @@ export default {
       this.reset();
       const tagIDData = row.tagID || this.ids;
       getTag({ tagID: tagIDData }).then((response) => {
-        console.log('点开修改页面，收到数据')
-        console.log(response)
+        console.log("点开修改页面，收到数据");
+        console.log(response);
         this.form = response.data[0];
-        console.log('this.form')
-        console.log(this.form)
+        console.log("this.form");
+        console.log(this.form);
         this.config_open = true;
         this.title = "修改标签类型";
       });
     },
     showDetials(row) {
       this.reset();
-      const tagName = row.tagParentName;
-      getTag({ tagName: tagName }).then((res) => {
-        console.log('点开详情页面，收到数据')
-        console.log(res)
+      const tagID = row.tagID;
+      getTag({ tagID: tagID }).then((res) => {
+        console.log("点开详情页面，收到数据");
+        console.log(res);
         this.form = res.data[0];
         this.detail_open = true;
         this.title = "标签详情";
@@ -372,15 +513,13 @@ export default {
     },
     /** 删除按钮操作 */
     handleDelete(row) {
-      const tagID = [row.tagID+''] || this.ids;
-      console.log("tagID:")
-      console.log(tagID)
-      console.log("ids:")
-      console.log(this.ids)
+      const tagID = [row.tagID + ""] || this.ids;
+      console.log("tagID:");
+      console.log(tagID);
+      console.log("ids:");
+      console.log(this.ids);
       this.$modal
-        .confirm(
-          '是否确认删除标签编号为"' + tagID + '"的数据项？'
-        )
+        .confirm('是否确认删除标签编号为"' + tagID + '"的数据项？')
         .then(() => {
           return delTag(tagID);
         })
@@ -408,16 +547,43 @@ export default {
         this.$store.dispatch("dict/cleanDict");
       });
     },
+    //处理配置页面添加新的关键词
+    handleConfigPageKeywordInput() {
+      let inputValue = this.configPageKeywordInputValue;
+      if (inputValue) {
+        //输入不为空
+        if (this.form.postKeywords.indexOf(inputValue) == -1) {
+          //不重复
+          this.form.postKeywords.push(inputValue);
+        } else {
+          //发出错误提示
+          this.$modal.msgError("相同关键词不能重复添加");
+        }
+      }
+      this.configPageKeywordInputVisiable = false;
+      this.configPageKeywordInputValue = "";
+    },
+    //展示input框
+    showConfigPageKeywordInput() {
+      this.configPageKeywordInputVisiable = true;
+      this.$nextTick((_) => {
+        this.$refs.saveTagInput.$refs.input.focus();
+      });
+    },
+    //删除已有关键词
+    handleConfigPageKeywordClose(keyword) {
+      this.form.postKeywords.splice(this.form.postKeywords.indexOf(keyword), 1);
+    },
   },
-  watch:{
-    queryParams:{
-      handler(newQuery,oldQuery) {
-        console.log('newQuery')
-        console.log(newQuery)
+  watch: {
+    queryParams: {
+      handler(newQuery, oldQuery) {
+        console.log("newQuery");
+        console.log(newQuery);
       },
       immediate: true,
-      deep: true
-    }
-  }
+      deep: true,
+    },
+  },
 };
 </script>
