@@ -10,7 +10,6 @@ pip==22.2.2
 PyMySQL==1.0.2
 setuptools==65.5.0
 six==1.16.0
-torch==1.13.0
 typing_extensions==4.4.0
 Werkzeug==2.2.2
 wheel==0.37.1
