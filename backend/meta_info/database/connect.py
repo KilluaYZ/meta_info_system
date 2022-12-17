@@ -1,6 +1,7 @@
 import pymysql
 
 
+
 class Conndb:
     def __init__(
         self, host="43.138.62.72", user="root", password="123456", database="cstra",port="6666"
@@ -11,14 +12,13 @@ class Conndb:
         self.password = password
         self.database = database
         
-
         # 打开数据库连接
         self.db = pymysql.connect(
             host=self.host,
             user=self.user,
-            port=self.port
+            port=self.port,
             password=self.password,
-            database=self.database,
+            database=self.database
         )
         self.cursor = self.db.cursor()
 
@@ -40,7 +40,3 @@ class Conndb:
         self.db.close()
 
 
-if __name__ == "__main__":
-    conndb = Conndb()
-    data = conndb.read("select * from traj limit 10;")
-    print(data)
