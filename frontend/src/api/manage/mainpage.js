@@ -9,7 +9,7 @@ export function getHotTags(payload){
           resolve(HotTagsData)
         },100)
       }) : request({
-        url: '/gettag',
+        url: '/getHotTags',
         headers: {
           isToken: false
         },
@@ -25,7 +25,7 @@ export function getNewTags(payload){
           resolve(NewTagsData)
         },100)
       }) : request({
-        url: '/gettag',
+        url: '/getNewTags',
         headers: {
           isToken: false
         },
@@ -41,7 +41,7 @@ export function getHotPosts(payload){
           resolve(HotPostsData)
         },100)
       }) : request({
-        url: '/gettag',
+        url: '/getHotPosts',
         headers: {
           isToken: false
         },
@@ -57,7 +57,7 @@ export function getNewPosts(payload){
           resolve(NewPostsData)
         },100)
       }) : request({
-        url: '/gettag',
+        url: '/getNewPosts',
         headers: {
           isToken: false
         },
