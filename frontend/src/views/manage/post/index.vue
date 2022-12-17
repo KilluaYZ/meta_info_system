@@ -46,6 +46,19 @@
         />
       </el-form-item>
 
+      <el-form-item label="时间" prop="postTime">
+        <el-date-picker
+          v-model="queryParams.postTime"
+          value-format="yyyy-MM-dd"
+          type="daterange"
+          unlink-panels
+          range-separator="至"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+        >
+        </el-date-picker>
+      </el-form-item>
+
       <el-form-item>
         <el-button
           type="primary"
@@ -69,17 +82,6 @@
           size="mini"
           @click="handleAdd"
           >新增</el-button
-        >
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="success"
-          plain
-          icon="el-icon-edit"
-          size="mini"
-          :disabled="single"
-          @click="handleUpdate"
-          >修改</el-button
         >
       </el-col>
       <el-col :span="1.5">
@@ -124,16 +126,27 @@
       :data="TableData"
       @selection-change="handleSelectionChange"
     >
-      <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="ID" align="center" prop="postID" />
+      <el-table-column
+        type="selection"
+        width="55"
+        align="center"
+        fixed="left"
+      />
+      <el-table-column label="ID" align="center" prop="postID" fixed="left" />
       <el-table-column
         label="标题"
         align="center"
         prop="postTitle"
         :show-overflow-tooltip="true"
+        width="250"
       />
 
-      <el-table-column label="关键词" align="center" prop="postKeywords">
+      <el-table-column
+        label="关键词"
+        align="center"
+        prop="postKeywords"
+        width="300"
+      >
         <template slot-scope="scope">
           <el-tag v-for="keyword in scope.row.postKeywords" :key="keyword.id">
             {{ keyword }}
@@ -146,6 +159,7 @@
         align="center"
         :show-overflow-tooltip="true"
         prop="postTag"
+        width="300"
       >
         <template slot-scope="scope">
           <el-button
@@ -167,11 +181,14 @@
         :show-overflow-tooltip="true"
       />
 
-      <el-table-column label="发帖时间" align="center" prop="postTime">
+      <el-table-column
+        label="发帖时间"
+        align="center"
+        prop="postTime"
+        width="150"
+      >
         <template slot-scope="scope">
-          <span>{{
-            scope.row.year + "-" + scope.row.month + "-" + scope.row.day
-          }}</span>
+          <span>{{ scope.row.postTime }}</span>
         </template>
       </el-table-column>
 
@@ -180,11 +197,14 @@
         align="center"
         prop="remark"
         :show-overflow-tooltip="true"
+        width="300"
       />
       <el-table-column
         label="操作"
         align="center"
         class-name="small-padding fixed-width"
+        fixed="right"
+        width="200"
       >
         <template slot-scope="scope">
           <el-button
@@ -229,9 +249,8 @@
           <el-tag
             :key="keyword"
             v-for="keyword in form.postKeywords"
-            closeable
-            :disable-transitions="false"
-            @close="handleConfigPageKeywordClose(keyword, form)"
+            closable
+            @close="handleConfigPageKeywordClose(keyword)"
           >
             {{ keyword }}
           </el-tag>
@@ -239,6 +258,7 @@
             v-if="configPageKeywordInputVisiable"
             v-model="configPageKeywordInputValue"
             ref="saveConfigPageKeywordInput"
+            class="input-new-tag"
             size="small"
             @keyup.enter.native="handleConfigPageKeywordInput(form)"
             @blur="handleConfigPageKeywordInput"
@@ -246,7 +266,7 @@
           </el-input>
           <el-button
             v-else
-            class="handleAddNewKeywordBtn"
+            class="button-new-tag"
             size="small"
             @click="showConfigPageKeywordInput"
           >
@@ -257,46 +277,119 @@
         <el-form-item label="标签" prop="postTag">
           <el-tag
             :key="tag"
-            closeable
+            closable
             v-for="tag in form.postTag"
             :type="tag.type"
-            :disable-transitions="false"
-            @close="handleConfigPageTagClose(keyword, form)"
+            @close="handleConfigPageTagClose(tag)"
           >
-            {{ keyword }}
+            {{ tag.tagName }}
           </el-tag>
-          <el-input
-            v-if="configPageKeywordInputVisiable"
-            v-model="configPageKeywordInputValue"
-            ref="saveConfigPageKeywordInput"
-            size="small"
-            @keyup.enter.native="handleConfigPageKeywordInput(form)"
-            @blur="handleConfigPageKeywordInput"
-          >
-          </el-input>
+
+          <template v-if="configPageTagAddVisiable">
+            <el-select
+              v-model="configPageFirstTagValue"
+              filterable
+              placeholder="一级标签"
+              :loading="tagSelectLoading"
+              @change="handleTagAddSelectChanged(1)"
+            >
+              <el-option
+                v-for="item in firstTags"
+                :key="item.tagName"
+                :value="item.tagName"
+                :label="item.tagName"
+              >
+              </el-option>
+            </el-select>
+            <el-select
+              v-model="configPageSecondTagValue"
+              filterable
+              :loading="tagSelectLoading"
+              placeholder="二级标签"
+              @change="handleTagAddSelectChanged(2)"
+            >
+              <el-option
+                v-for="item in secondTags"
+                :key="item.tagName"
+                :value="item.tagName"
+              >
+              </el-option>
+            </el-select>
+            <el-select
+              v-model="configPageThirdTagValue"
+              filterable
+              :loading="tagSelectLoading"
+              placeholder="三级标签"
+              @change="handleTagAddSelectChanged(3)"
+            >
+              <el-option
+                v-for="item in thirdTags"
+                :key="item.tagName"
+                :value="item.tagName"
+              >
+              </el-option>
+            </el-select>
+            <el-button
+              size="small"
+              type="sucess"
+              @click="handlerConfigPageTagAdd"
+            >
+              确认
+            </el-button>
+            <el-button
+              size="small"
+              type="danger"
+              @click="unshowConfigPageTagAdd"
+            >
+              取消
+            </el-button>
+          </template>
+
           <el-button
             v-else
-            class="handleAddNewKeywordBtn"
             size="small"
-            @click="showConfigPageKeywordInput"
+            @click="showConfigPageTagAdd"
+            class="button-new-tag"
           >
-            + 新关键词
+            + 新标签
           </el-button>
         </el-form-item>
 
-        <el-form-item label="父标签名" prop="tagParentName">
+        <el-form-item label="发帖日期" prop="postTime">
+          <el-date-picker
+            v-model="form.postTime"
+            type="date"
+            placeholder="选择发帖日期"
+            value-format="yyyy-MM-dd"
+          >
+          </el-date-picker>
+        </el-form-item>
+
+        <el-form-item label="热度" prop="postPopularity">
           <el-input
-            v-model="form.tagParentName"
-            placeholder="请输入父标签名称"
+            v-model="form.postPopularity"
+            placeholder="请输入帖子热度"
           />
         </el-form-item>
-        <el-form-item label="标签级别" prop="tagClass">
-          <el-radio-group v-model="form.tagClass">
-            <el-radio label="1" value="1">1</el-radio>
-            <el-radio label="2" value="2">2</el-radio>
-            <el-radio label="3" value="3">3</el-radio>
-          </el-radio-group>
+
+        <el-form-item label="内容" prop="postContent">
+          <el-input
+            v-model="form.postContent"
+            type="textarea"
+            placeholder="请输入内容"
+            :autosize="{ minRows: 15, maxRows: 20 }"
+          ></el-input>
         </el-form-item>
+
+        <el-form-item label="回答" prop="postAnswer">
+          <el-input
+            v-model="form.postAnswer"
+            type="textarea"
+            placeholder="请输入内容"
+            :autosize="{ minRows: 10, maxRows: 15 }"
+          ></el-input>
+        </el-form-item>
+
         <el-form-item label="备注" prop="remark">
           <el-input
             v-model="form.remark"
@@ -329,6 +422,17 @@
         <el-form-item label="标签级别" prop="tagClass">
           <el-input v-model="form.tagClass" readonly />
         </el-form-item>
+        <el-form-item label="标签继承关系" prop="frontTagTree">
+          <el-tag
+            :key="tag"
+            v-for="tag in form.frontTagTree"
+            :type="tag.type"
+            :disable-transitions="false"
+          >
+            {{ tag.tagName }}
+          </el-tag>
+        </el-form-item>
+
         <el-form-item label="备注" prop="remark">
           <el-input
             v-model="form.remark"
@@ -342,20 +446,36 @@
   </div>
 </template>
 
+<style lang="scss">
+.el-tag + .el-tag {
+  margin-left: 10px;
+}
+.button-new-tag {
+  margin-left: 10px;
+  height: 32px;
+  line-height: 30px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+.input-new-tag {
+  width: 90px;
+  margin-left: 10px;
+  vertical-align: bottom;
+}
+</style>
+
+
 <script>
-// import {
-//   listType,
-//   getType,
-//   delType,
-//   addType,
-//   updateType,
-//   refreshCache,
-// } from "@/api/system/dict/type";
-
-import { addTag, delTag, updateTag, getTag } from "@/api/manage/tag.js";
-
+import {
+  addTag,
+  delTag,
+  updateTag,
+  getTag,
+  getFrontTagTree,
+} from "@/api/manage/tag.js";
+import { addPost, delPost, updatePost, getPost } from "@/api/manage/post.js";
 export default {
-  name: "Tag",
+  name: "Post",
   dicts: ["sys_normal_disable"],
   data() {
     return {
@@ -385,28 +505,38 @@ export default {
       queryParams: {
         pageNum: 1,
         pageSize: 10,
-        tagName: undefined,
-        tagClass: undefined,
-        tagID: undefined,
+        postTitle: undefined,
+        postID: undefined,
+        postKeywords: undefined,
+        postTag: undefined,
+        postTime: undefined,
       },
       // 表单参数
       form: {},
       // 表单校验
       rules: {
-        tagName: [
+        postTitle: [
           { required: true, message: "标签名称不能为空", trigger: "blur" },
-        ],
-        tagClass: [
-          { required: true, message: "标签级别不能为空", trigger: "blur" },
         ],
       },
       configPageKeywordInputVisiable: false,
       configPageKeywordInputValue: "",
+      configPageTagAddVisiable: false,
+      configPageFirstTagValue: "", //储存选中的一级标签的tagName
+      configPageSecondTagValue: "",
+      configPageThirdTagValue: "",
+      firstTags: [],
+      secondTags: [],
+      thirdTags: [],
+      tagSelectLoading: false,
     };
   },
   created() {
     this.getList();
-    console.log("创建tag页面ing");
+    getTag({ tagClass: "1" }).then((res) => {
+      this.firstTags = res.data;
+    });
+    console.log("创建post页面ing");
   },
   methods: {
     /** 查询标签类型列表 */
@@ -418,10 +548,17 @@ export default {
       //     this.loading = false;
       //   }
       // );
-      getTag(this.queryParams).then((res) => {
-        console.log("成功取得getTag mock数据");
-        this.tagTableData = res.data;
-        this.total = res.data.length;
+      // getTag(this.queryParams).then((res) => {
+      //   console.log("成功取得getTag mock数据");
+      //   this.tagTableData = res.data;
+      //   this.total = res.data.length;
+      //   this.loading = false;
+      // });
+      getPost(this.queryParams).then((res) => {
+        console.log("成功取得getPost mock数据");
+        console.log(res);
+        this.TableData = res.data;
+        this.total = res.length;
         this.loading = false;
       });
     },
@@ -434,10 +571,14 @@ export default {
     // 表单重置
     reset() {
       this.form = {
-        tagID: undefined,
-        tagName: undefined,
-        tagClass: undefined,
-        tagParentName: undefined,
+        postID: undefined,
+        postTitle: undefined,
+        postKeywords: undefined,
+        postTag: undefined,
+        postContent: undefined,
+        postTime: undefined,
+        postAnswer: undefined,
+        postPopularity: undefined,
         remark: undefined,
       };
       this.resetForm("form");
@@ -461,33 +602,33 @@ export default {
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
-      this.ids = selection.map((item) => item.tagID);
+      this.ids = selection.map((item) => item.postID);
       this.single = selection.length != 1;
       this.multiple = !selection.length;
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset();
-      const tagIDData = row.tagID || this.ids;
-      getTag({ tagID: tagIDData }).then((response) => {
-        console.log("点开修改页面，收到数据");
-        console.log(response);
+      const postIDData = row.postID;
+      getPost({ postID: postIDData }).then((response) => {
         this.form = response.data[0];
-        console.log("this.form");
-        console.log(this.form);
         this.config_open = true;
-        this.title = "修改标签类型";
+        this.title = "帖子详情&修改";
       });
     },
+
     showDetials(row) {
       this.reset();
-      const tagID = row.tagID;
-      getTag({ tagID: tagID }).then((res) => {
+      const tagName = row.tagName;
+      getTag({ tagName: tagName }).then((res) => {
         console.log("点开详情页面，收到数据");
         console.log(res);
         this.form = res.data[0];
-        this.detail_open = true;
-        this.title = "标签详情";
+        getFrontTagTree().then((res) => {
+          this.form.frontTagTree = res.data;
+          this.detail_open = true;
+          this.title = "标签详情";
+        });
       });
     },
 
@@ -495,14 +636,14 @@ export default {
     submitForm: function () {
       this.$refs["form"].validate((valid) => {
         if (valid) {
-          if (this.form.tagID != undefined) {
-            updateTag(this.form).then((response) => {
+          if (this.form.postID != undefined) {
+            updatePost(this.form).then((response) => {
               this.$modal.msgSuccess("修改成功");
               this.config_open = false;
               this.getList();
             });
           } else {
-            addTag(this.form).then((response) => {
+            addPost(this.form).then((response) => {
               this.$modal.msgSuccess("新增成功");
               this.config_open = false;
               this.getList();
@@ -513,19 +654,21 @@ export default {
     },
     /** 删除按钮操作 */
     handleDelete(row) {
-      const tagID = [row.tagID + ""] || this.ids;
-      console.log("tagID:");
-      console.log(tagID);
-      console.log("ids:");
-      console.log(this.ids);
+      const postIDList = row.postID ? [row.postID+""] : this.ids;
       this.$modal
-        .confirm('是否确认删除标签编号为"' + tagID + '"的数据项？')
+        .confirm('是否确认删除ID为"' + postIDList.toString() + '"的数据项？')
         .then(() => {
-          return delTag(tagID);
+          // return delPost(postID);
+          postIDList.forEach((item,index) => {
+            delPost({postID:item}).then(()=>{
+              this.$modal.msgSuccess("删除"+item+"成功");
+            }).catch(()=>{
+              this.$modal.msgError('删除'+item+'失败');
+            })
+          })
         })
         .then(() => {
           this.getList();
-          this.$modal.msgSuccess("删除成功");
         })
         .catch(() => {});
     },
@@ -573,6 +716,65 @@ export default {
     //删除已有关键词
     handleConfigPageKeywordClose(keyword) {
       this.form.postKeywords.splice(this.form.postKeywords.indexOf(keyword), 1);
+    },
+    //添加标签
+    handlerConfigPageTagAdd() {
+      if (this.configPageThirdTagValue) {
+        if (
+          this.configPageFirstTagValue == "" ||
+          this.configPageSecondTagValue == ""
+        ) {
+          this.$modal.msgError("请确保一级二级标签不为空！");
+        } else {
+          getTag({ tagName: this.configPageThirdTagValue }).then((res) => {
+            let tag = res.data[0];
+            this.form.postTag.push(tag);
+          });
+        }
+      } else if (this.configPageSecondTagValue) {
+        if (this.configPageFirstTagValue == "") {
+          this.$modal.msgError("请确保一级标签不为空！");
+        } else {
+          getTag({ tagName: this.configPageSecondTagValue }).then((res) => {
+            let tag = res.data[0];
+            this.form.postTag.push(tag);
+          });
+        }
+      } else if (this.configPageFirstTagValue) {
+        getTag({ tagName: this.configPageSecondTagValue }).then((res) => {
+          let tag = res.data[0];
+          this.form.postTag.push(tag);
+        });
+      }
+      this.configPageTagAddVisiable = false;
+    },
+    //删除标签
+    handleConfigPageTagClose(tag) {
+      this.form.postTag.splice(this.form.postTag.indexOf(tag),1);
+    },
+    //显示添加标签选项
+    showConfigPageTagAdd() {
+      this.configPageTagAddVisiable = true;
+    },
+    unshowConfigPageTagAdd() {
+      this.configPageTagAddVisiable = false;
+      this.configPageFirstTagValue = "";
+      this.configPageSecondTagValue = "";
+      this.configPageThirdTagValue = "";
+    },
+    //处理tagAdd选择改变
+    handleTagAddSelectChanged(tagClass) {
+      
+      if (tagCLass == 1 && this.configPageFirstTagValue) {
+        getTag({ tagParentName: this.configPageFirstTagValue }).then((res) => {
+          this.secondTags = res.data;
+          this.thirdTags = [];
+        });
+      } else if (tagClass == 2 && this.configPageSecondTagValue) {
+        getTag({ tagParentName: this.configPageSecondTagValue }).then((res) => {
+          this.thirdTags = res.data;
+        });
+      }
     },
   },
   watch: {

@@ -64,18 +64,6 @@ export const MenuData = {
                     }
                 },
                 {
-                    "name": "Post",
-                    "path": "post",
-                    "hidden": false,
-                    "component": "system/post/index",
-                    "meta": {
-                        "title": "岗位管理",
-                        "icon": "post",
-                        "noCache": false,
-                        "link": null
-                    }
-                },
-                {
                     "name": "Dict",
                     "path": "dict",
                     "hidden": false,
@@ -94,6 +82,18 @@ export const MenuData = {
                     "component": "manage/tag/index",
                     "meta": {
                         "title": "标签管理",
+                        "icon": "dict",
+                        "noCache": false,
+                        "link": null
+                    }
+                },
+                {
+                    "name": "Post",
+                    "path": "post",
+                    "hidden": false,
+                    "component": "manage/post/index",
+                    "meta": {
+                        "title": "帖子管理",
                         "icon": "dict",
                         "noCache": false,
                         "link": null
@@ -526,13 +526,13 @@ const TagIDTagData = {
 
 export function getMockTagData(queryParam) {
     let returnData = undefined;
-    if(queryParam.tagName != undefined){
+    if (queryParam.tagName != undefined) {
         console.log('查询tagName')
         returnData = TagNameTagData;
-    }else if(queryParam.tagID != undefined){
+    } else if (queryParam.tagID != undefined) {
         console.log('查询tagID')
         returnData = TagIDTagData;
-    }else {
+    } else {
         console.log('查询所有tag数据')
         returnData = AllTagData;
     }
@@ -544,6 +544,303 @@ export function getMockTagData(queryParam) {
     })
 }
 
+const AllPostData = {
+    code: 200,
+    msg: "操作成功",
+    data: [
+        {
+            postID: "123",
+            postTitle: "帖子标题1",
+            postKeywords: [
+                "关键词1",
+                "关键词2",
+                "关键词3",
+            ],
+            postTag: [
+                {
+                    tagName: "标签名3",
+                    tagID: "3",
+                    tagClass: "3",
+                    tagParentName: "标签名2",
+                    tagPopularity: 666,
+                    remark: "备注",
+                },
+            ],
+            postContent: "帖子内容1",
+            postTime: "2022-12-13",
+            postAnswer:"回答1",
+            postPopularity: 666,
+            remark: "备注1"
+        },
+        {
+            postID: "123",
+            postTitle: "帖子标题2",
+            postKeywords: [
+                "关键词1",
+                "关键词2",
+                "关键词3",
+            ],
+            postTag: [
+                {
+                    tagName: "标签名3",
+                    tagID: "3",
+                    tagClass: "3",
+                    tagParentName: "标签名2",
+                    tagPopularity: 666,
+                    remark: "备注",
+                },
+            ],
+            postContent: "帖子内容2",
+            postTime: "2022-12-13",
+            postAnswer:"回答1",
+            postPopularity: 666,
+            remark: "备注2"
+        },
+        {
+            postID: "123",
+            postTitle: "帖子标题3",
+            postKeywords: [
+                "关键词1",
+                "关键词2",
+                "关键词3",
+            ],
+            postTag: [
+                {
+                    tagName: "标签名3",
+                    tagID: "3",
+                    tagClass: "3",
+                    tagParentName: "标签名2",
+                    tagPopularity: 666,
+                    remark: "备注",
+                },
+            ],
+            postContent: "帖子内容3",
+            postTime: "2022-12-13",
+            postAnswer:"回答1",
+            postPopularity: 666,
+            remark: "备注3"
+        },
+        {
+            postID: "123",
+            postTitle: "帖子标题4",
+            postKeywords: [
+                "关键词1",
+                "关键词2",
+                "关键词3",
+            ],
+            postTag: [
+                {
+                    tagName: "标签名3",
+                    tagID: "3",
+                    tagClass: "3",
+                    tagParentName: "标签名2",
+                    tagPopularity: 666,
+                    remark: "备注",
+                },
+            ],
+            postContent: "帖子内容4",
+            postTime: "2022-12-13",
+            postAnswer:"回答1",
+            postPopularity: 666,
+            remark: "备注4"
+        },
+        {
+            postID: "123",
+            postTitle: "帖子标题5",
+            postKeywords: [
+                "关键词1",
+                "关键词2",
+                "关键词3",
+            ],
+            postTag: [
+                {
+                    tagName: "标签名3",
+                    tagID: "3",
+                    tagClass: "3",
+                    tagParentName: "标签名2",
+                    tagPopularity: 666,
+                    remark: "备注",
+                },
+            ],
+            postContent: "帖子内容5",
+            postTime: "2022-12-13",
+            postAnswer:"回答1",
+            postPopularity: 666,
+            remark: "备注5"
+        },
+        {
+            postID: "123",
+            postTitle: "帖子标题6",
+            postKeywords: [
+                "关键词1",
+                "关键词2",
+                "关键词3",
+            ],
+            postTag: [
+                {
+                    tagName: "标签名3",
+                    tagID: "3",
+                    tagClass: "3",
+                    tagParentName: "标签名2",
+                    tagPopularity: 666,
+                    remark: "备注",
+                },
+            ],
+            postContent: "帖子内容1",
+            postTime: "2022-12-13",
+            postAnswer:"回答6",
+            postPopularity: 666,
+            remark: "备注6"
+        },
+        {
+            postID: "123",
+            postTitle: "帖子标题7",
+            postKeywords: [
+                "关键词1",
+                "关键词2",
+                "关键词3",
+            ],
+            postTag: [
+                {
+                    tagName: "标签名3",
+                    tagID: "3",
+                    tagClass: "3",
+                    tagParentName: "标签名2",
+                    tagPopularity: 666,
+                    remark: "备注",
+                },
+            ],
+            postContent: "帖子内容7",
+            postTime: "2022-12-13",
+            postAnswer:"回答1",
+            postPopularity: 666,
+            remark: "备注7"
+        },
+        {
+            postID: "123",
+            postTitle: "帖子标题8",
+            postKeywords: [
+                "关键词1",
+                "关键词2",
+                "关键词3",
+            ],
+            postTag: [
+                {
+                    tagName: "标签名3",
+                    tagID: "3",
+                    tagClass: "3",
+                    tagParentName: "标签名2",
+                    tagPopularity: 666,
+                    remark: "备注",
+                },
+            ],
+            postContent: "帖子内容1",
+            postTime: "2022-12-13",
+            postAnswer:"回答8",
+            postPopularity: 666,
+            remark: "备注8"
+        },
+        {
+            postID: "123",
+            postTitle: "帖子标题9",
+            postKeywords: [
+                "关键词1",
+                "关键词2",
+                "关键词3",
+            ],
+            postTag: [
+                {
+                    tagName: "标签名3",
+                    tagID: "3",
+                    tagClass: "3",
+                    tagParentName: "标签名2",
+                    tagPopularity: 666,
+                    remark: "备注",
+                },
+            ],
+            postContent: "帖子内容9",
+            postTime: "2022-12-13",
+            postAnswer:"回答9",
+            postPopularity: 666,
+            remark: "备注9"
+        },
+        {
+            postID: "123",
+            postTitle: "帖子标题10",
+            postKeywords: [
+                "关键词1",
+                "关键词2",
+                "关键词3",
+            ],
+            postTag: [
+                {
+                    tagName: "标签名3",
+                    tagID: "3",
+                    tagClass: "3",
+                    tagParentName: "标签名2",
+                    tagPopularity: 666,
+                    remark: "备注",
+                },
+            ],
+            postContent: "帖子内容10",
+            postTime: "2022-12-13",
+            postAnswer:"回答10",
+            postPopularity: 666,
+            remark: "备注10"
+        },
+    ],
+    length:50
+
+}
+
+const postIDData = {
+    code: 200,
+    msg: "操作成功",
+    data: [
+        {
+            postID: "123",
+            postTitle: "帖子ID标题",
+            postKeywords: [
+                "关键词1",
+                "关键词2",
+                "关键词3",
+            ],
+            postTag: [
+                {
+                    tagName: "标签名3",
+                    tagID: "3",
+                    tagClass: "3",
+                    tagParentName: "标签名2",
+                    tagPopularity: 666,
+                    remark: "备注",
+                },
+            ],
+            postContent: "帖子内容1",
+            postTime: "2022-12-13",
+            postAnswer:"回答1",
+            postPopularity: 666,
+            remark: "备注1"
+        },
+    ],
+    
+}
+
+export function getMockPostData(queryParam) {
+    let returnData = undefined;
+    if (queryParam.postID != undefined) {
+        console.log('查询postID')
+        returnData = postIDData;
+    } else {
+        console.log('查询所有tag数据')
+        returnData = AllPostData;
+    }
+
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve(returnData)
+        }, 100)
+    })
+}
 
 //修改数据
 export const UpdateData = {
@@ -561,4 +858,29 @@ export const DelData = {
 export const AddData = {
     code: 200,
     msg: "操作成功"
+}
+
+export const frontTagTreeData = {
+    code:200,
+    msg:"操作成功",
+    data:[
+        {
+            tagName:"标签名1",
+            tagID:"1",
+            tagClass:"1",
+            tagParentName:null,
+            tagPopularity:10,
+            remark:"备注",
+            type:"danger"
+        },
+        {
+            tagName:"标签名4",
+            tagID:"4",
+            tagClass:"2",
+            tagParentName:"标签名1",
+            tagPopularity:666,
+            remark:"备注",
+            type:"success"
+        },                     
+    ]
 }

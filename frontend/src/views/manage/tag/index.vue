@@ -17,15 +17,6 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="标签ID" prop="tagID">
-        <el-input
-          v-model="queryParams.tagID"
-          placeholder="请输入标签ID"
-          clearable
-          style="width: 240px"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
       <el-form-item label="级别" prop="tagClass">
         <el-select
           v-model="queryParams.tagClass"
@@ -47,17 +38,6 @@
       <el-col :span="1.5">
         <el-button type="primary" plain icon="el-icon-plus" size="mini" @click="handleAdd"
           >新增</el-button
-        >
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="success"
-          plain
-          icon="el-icon-edit"
-          size="mini"
-          :disabled="single"
-          @click="handleUpdate"
-          >修改</el-button
         >
       </el-col>
       <el-col :span="1.5">
@@ -100,7 +80,6 @@
       @selection-change="handleSelectionChange"
     >
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="ID" align="center" prop="tagID" />
       <el-table-column
         label="名称"
         align="center"
@@ -251,7 +230,7 @@ export default {
         pageSize: 10,
         tagName: undefined,
         tagClass: undefined,
-        tagID: undefined,
+
       },
       // 表单参数
       form: {},
@@ -293,7 +272,7 @@ export default {
     // 表单重置
     reset() {
       this.form = {
-        tagID: undefined,
+        
         tagName: undefined,
         tagClass: undefined,
         tagParentName: undefined,
@@ -320,15 +299,15 @@ export default {
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
-      this.ids = selection.map((item) => item.tagID);
+      this.ids = selection.map((item) => item.tagName);
       this.single = selection.length != 1;
       this.multiple = !selection.length;
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset();
-      const tagIDData = row.tagID || this.ids;
-      getTag({ tagID: tagIDData }).then((response) => {
+      const tagNameData = row.tagName;
+      getTag({ tagName: tagNameData }).then((response) => {
         console.log('点开修改页面，收到数据')
         console.log(response)
         this.form = response.data[0];
@@ -354,7 +333,7 @@ export default {
     submitForm: function () {
       this.$refs["form"].validate((valid) => {
         if (valid) {
-          if (this.form.tagID != undefined) {
+          if (this.form.tagName != undefined) {
             updateTag(this.form).then((response) => {
               this.$modal.msgSuccess("修改成功");
               this.config_open = false;
@@ -372,21 +351,26 @@ export default {
     },
     /** 删除按钮操作 */
     handleDelete(row) {
-      const tagID = [row.tagID+''] || this.ids;
-      console.log("tagID:")
-      console.log(tagID)
+      const tagName = row.tagName ? [row.tagName+''] : this.ids;
+      console.log("tagName:")
+      console.log(tagName)
       console.log("ids:")
       console.log(this.ids)
       this.$modal
         .confirm(
-          '是否确认删除标签编号为"' + tagID + '"的数据项？'
+          '是否确认删除标签名称为"' + tagName.toString() + '"的数据项？'
         )
         .then(() => {
-          return delTag(tagID);
+          tagName.forEach((item)=>{
+            delTag({tagName:item}).then(()=>{
+              this.$modal.msgSuccess('成功删除标签"'+item+'"');
+            }).catch(()=>{
+              this.$modal.msgError('删除标签"'+item+'"失败');
+            })
+          })
         })
         .then(() => {
           this.getList();
-          this.$modal.msgSuccess("删除成功");
         })
         .catch(() => {});
     },

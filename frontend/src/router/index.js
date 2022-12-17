@@ -101,6 +101,20 @@ export const constantRoutes = [
         meta:{title:'标签管理', icon: 'user'}
       }
     ]
+  },
+  {
+    path:'/system',
+    component: Layout,
+    hidden:true,
+    redirect:'noredirect',
+    children:[
+      {
+        path:'post',
+        component: () => import('@/views/manage/post/index'),
+        name: "Post",
+        meta:{title:'帖子管理', icon: 'user'}
+      }
+    ]
   }
 ]
 
