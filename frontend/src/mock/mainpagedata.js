@@ -321,14 +321,49 @@ export const MenuData = {
 };
 
 const HotTagsData = {
-    code : 200,
-    msg : "操作成功",
-    data : [
-        {name:"热门标签1"},
-        {name:"热门标签2"},
-        {name:"热门标签3"},
-        {name:"热门标签4"},
-        {name:"热门标签5"},
+    code: 200,
+    msg: "操作成功",
+    data: [
+        {
+            tagName: "标签名",
+            tagID: "1",
+            tagClass: 1,
+            tagParentName: "父标签名",
+            tagPopularity: 666,
+            remark: "备注"
+        },
+        {
+            tagName: "标签名2",
+            tagID: "2",
+            tagClass: 3,
+            tagParentName: "父标签名",
+            tagPopularity: 666,
+            remark: "备注"
+        },
+        {
+            tagName: "标签名3",
+            tagID: "3",
+            tagClass: 2,
+            tagParentName: "父标签名",
+            tagPopularity: 666,
+            remark: "备注"
+        },
+        {
+            tagName: "标签名4",
+            tagID: "4",
+            tagClass: 2,
+            tagParentName: "父标签名",
+            tagPopularity: 666,
+            remark: "备注"
+        },
+        {
+            tagName: "标签名5",
+            tagID: "5",
+            tagClass: 1,
+            tagParentName: "父标签名",
+            tagPopularity: 666,
+            remark: "备注"
+        },
     ]
 }
 
@@ -336,36 +371,242 @@ const NewTagsData = {
     code : 200,
     msg : "操作成功",
     data : [
-        {name:"最新标签1"},
-        {name:"最新标签2"},
-        {name:"最新标签3"},
-        {name:"最新标签4"},
-        {name:"最新标签5"},
+        {
+            tagName: "标签名6",
+            tagID: "6",
+            tagClass: 1,
+            tagParentName: "父标签名",
+            tagPopularity: 666,
+            remark: "备注"
+        },
+        {
+            tagName: "标签名7",
+            tagID: "7",
+            tagClass: 3,
+            tagParentName: "父标签名",
+            tagPopularity: 666,
+            remark: "备注"
+        },
+        {
+            tagName: "标签名8",
+            tagID: "8",
+            tagClass: 1,
+            tagParentName: "父标签名",
+            tagPopularity: 666,
+            remark: "备注"
+        },
+        {
+            tagName: "标签名9",
+            tagID: "9",
+            tagClass: 1,
+            tagParentName: "父标签名",
+            tagPopularity: 666,
+            remark: "备注"
+        },
+        {
+            tagName: "标签名10",
+            tagID: "10",
+            tagClass: 1,
+            tagParentName: "父标签名",
+            tagPopularity: 666,
+            remark: "备注我是谁吉萨的看法化解了安徽省价格很绝望感觉哈桑了的回顾 活塞i干哈就开始了规划爱上了规划i是党和国家啊是的贵啊和山地和  和世界观和俺家帅哥洒家扩大规划叫阿三的哈公司电话挂机啊说得好叫阿三的和健康噶说的话九阿哥合适的金克拉更合适的"
+        },
     ]
 }
 
 const HotPostsData = {
     code : 200,
     msg : "操作成功",
-    data : [
-        {name:"热门帖子1"},
-        {name:"热门帖子2"},
-        {name:"热门帖子3"},
-        {name:"热门帖子4"},
-        {name:"热门帖子5"},
-    ]
+    data: [
+        {
+            postTitle:"帖子标题",
+            postKeywords:[
+                "关键词1",
+                "关键词2",
+                "关键词3",
+            ],//一个帖子有多个关键词,
+            postTag:["1","2","3"],
+            postContent:"帖子内容1",
+            postTime:{
+                year:2022,
+                month:12,
+                day:6
+                //目前就精确到日，因为没必要到时分秒
+            },
+            postAnswer:"回答",
+            postPopularity:666
+        },
+        {
+            postTitle:"帖子标题",
+            postKeywords:[
+                "关键词1",
+                "关键词2",
+                "关键词3",
+            ],//一个帖子有多个关键词,
+            postTag:["1","2","3"],
+            postContent:"帖子内容2",
+            postTime:{
+                year:2022,
+                month:12,
+                day:6
+                //目前就精确到日，因为没必要到时分秒
+            },
+            postAnswer:"回答",
+            postPopularity:666
+        },
+        {
+            postTitle:"帖子标题",
+            postKeywords:[
+                "关键词1",
+                "关键词2",
+                "关键词3",
+            ],//一个帖子有多个关键词,
+            postTag:["1","2","3"],
+            postContent:"帖子内容3",
+            postTime:{
+                year:2022,
+                month:12,
+                day:6
+                //目前就精确到日，因为没必要到时分秒
+            },
+            postAnswer:"回答",
+            postPopularity:666
+        },
+        {
+            postTitle:"帖子标题",
+            postKeywords:[
+                "关键词1",
+                "关键词2",
+                "关键词3",
+            ],//一个帖子有多个关键词,
+            postTag:["1","2","3"],
+            postContent:"帖子内容4",
+            postTime:{
+                year:2022,
+                month:12,
+                day:6
+                //目前就精确到日，因为没必要到时分秒
+            },
+            postAnswer:"回答",
+            postPopularity:666
+        },
+        {
+            postTitle:"帖子标题",
+            postKeywords:[
+                "关键词1",
+                "关键词2",
+                "关键词3",
+            ],//一个帖子有多个关键词,
+            postTag:["1","2","3"],
+            postContent:"帖子内容5的按本地阿布ui悲催啊不i吧uia吧挠啊从啊擦拭啊啊的安布ui百度擦ui并处于边缘v元v创意图vact有从v天涯从天涯和长白班uiab与擦u余元v从元v粗与阿姨v冲压v元v与阿姨v与擦v与v啊va",
+            postTime:{
+                year:2022,
+                month:12,
+                day:6
+                //目前就精确到日，因为没必要到时分秒
+            },
+            postAnswer:"回答",
+            postPopularity:666
+        }
+    ]   
+
 }
 
 const NewPostsData = {
     code : 200,
     msg : "操作成功",
-    data : [
-        {name:"最新帖子1"},
-        {name:"最新帖子2"},
-        {name:"最新帖子3"},
-        {name:"最新帖子4"},
-        {name:"最新帖子5"},
-    ]
+    data: [
+        {
+            postTitle:"帖子标题",
+            postKeywords:[
+                "关键词1",
+                "关键词2",
+                "关键词3",
+            ],//一个帖子有多个关键词,
+            postTag:["1","2","3"],
+            postContent:"帖子内容6",
+            postTime:{
+                year:2022,
+                month:12,
+                day:6
+                //目前就精确到日，因为没必要到时分秒
+            },
+            postAnswer:"回答",
+            postPopularity:666
+        },
+        {
+            postTitle:"帖子标题",
+            postKeywords:[
+                "关键词1",
+                "关键词2",
+                "关键词3",
+            ],//一个帖子有多个关键词,
+            postTag:["1","2","3"],
+            postContent:"帖子内容7",
+            postTime:{
+                year:2022,
+                month:12,
+                day:6
+                //目前就精确到日，因为没必要到时分秒
+            },
+            postAnswer:"回答",
+            postPopularity:666
+        },
+        {
+            postTitle:"帖子标题",
+            postKeywords:[
+                "关键词1",
+                "关键词2",
+                "关键词3",
+            ],//一个帖子有多个关键词,
+            postTag:["1","2","3"],
+            postContent:"帖子内容8",
+            postTime:{
+                year:2022,
+                month:12,
+                day:6
+                //目前就精确到日，因为没必要到时分秒
+            },
+            postAnswer:"回答",
+            postPopularity:666
+        },
+        {
+            postTitle:"帖子标题",
+            postKeywords:[
+                "关键词1",
+                "关键词2",
+                "关键词3",
+            ],//一个帖子有多个关键词,
+            postTag:["1","2","3"],
+            postContent:"帖子内容9",
+            postTime:{
+                year:2022,
+                month:12,
+                day:6
+                //目前就精确到日，因为没必要到时分秒
+            },
+            postAnswer:"回答",
+            postPopularity:666
+        },
+        {
+            postTitle:"帖子标题",
+            postKeywords:[
+                "关键词1",
+                "关键词2",
+                "关键词3",
+            ],//一个帖子有多个关键词,
+            postTag:["1","2","3"],
+            postContent:"帖子内容10",
+            postTime:{
+                year:2022,
+                month:12,
+                day:6
+                //目前就精确到日，因为没必要到时分秒
+            },
+            postAnswer:"回答",
+            postPopularity:666
+        }
+    ]   
 }
 
 export function getMockHotTags(queryParam) {
