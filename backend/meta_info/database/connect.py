@@ -1,7 +1,5 @@
 import pymysql
 
-
-
 class Conndb:
     def __init__(
         self, host="43.138.62.72", user="root", password="123456", database="cstra",port="6666"

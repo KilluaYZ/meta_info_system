@@ -91,7 +91,7 @@ def register_user_regular(username,password):
     return uID
 
 #标注员
-def register_user_tagker(username,password，vercode):
+def register_user_tagker(username,password,vercode):
     conn = get_db()
     cursor = conn.cursor()
     sql="""select code="%d" from vercode_tagker"""%(code)
@@ -196,7 +196,7 @@ def create_post():
             postkeywords3 TEXT,
             postanswer TEXT,
             posts_time DATE,
-            postcontent TEXT，
+            postcontent TEXT,
             postpopularity VARCHAR(3),
             remark TEXT"""        
     cursor.execute(sql)
