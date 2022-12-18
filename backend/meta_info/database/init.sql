@@ -5,7 +5,7 @@ DROP Table if EXISTS tag;
 
 CREATE TABLE tag(
     tagID INT PRIMARY KEY AUTO_INCREMENT,
-    tagName VARCHAR(50) NOT NULL,
+    tagName VARCHAR(50) UNIQUE  NOT NULL,
     tagClass SMALLINT NOT NULL check(tagClass >= 1 and tagClass <= 3),
     tagParentName VARCHAR(50),
     tagPopularity INT,
@@ -897,6 +897,40 @@ INSERT INTO tag (tagName,tagClass,tagParentName,tagPopularity,remark)
 VALUES ('存算分离',3,'云数据库',0,'');
 INSERT INTO tag (tagName,tagClass,tagParentName,tagPopularity,remark)
 VALUES ('弹性伸缩',3,'云数据库',0,'');
+
+-------------------------------------------------------------------------
+--帖子
+DROP Table if EXISTS posts;
+create table posts(
+    postID int primary key AUTO_INCREMENT,
+    postTitle TEXT not null,
+    postAnswer TEXT,
+    postTime DATE,
+    postContent TEXT not null,
+    postPopularity int,
+    remark TEXT
+);
+
+-------------------------------------------------------------------------
+--帖子标签
+DROP Table if EXISTS posts_tags;
+create table posts_tags(
+    postID int not null,
+    tagName VARCHAR(50) not null,
+    primary key(postid,tagname),
+    foreign key(postID) references posts(postID),
+    foreign key(tagName) references tag(tagName)
+);
+
+-------------------------------------------------------------------------
+--帖子关键词
+DROP Table if EXISTS posts_keywords;
+create table posts_keywords(
+    postID int not null,
+    keyword TEXT not null,
+    primary key(postid,tagname),
+    foreign key(postID) references posts(postID)
+);
 
 -------------------------------------------------------------------------
 

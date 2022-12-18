@@ -44,10 +44,11 @@ def check_tagParentName(tagParentName,tagClass):
     
     
 # 添加标签
+#前端访问127.0.0.1:5000/tag/add就可以执行该函数，下面的类似~
 @tag.route('/add', methods=['POST'])
 def addTag():
     try:
-        data = request.json
+        data = request.json  #request.json是一个字典
         # 正确性检验
         tagClass = data['tagClass']
         if(not is_number(str(tagClass))):

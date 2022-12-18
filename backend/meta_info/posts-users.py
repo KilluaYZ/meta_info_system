@@ -43,7 +43,7 @@ def log_user(username,ID,password):
         return 400
 
 #判断UID是否已有
-def wheather_UID(UID)
+def wheather_UID(UID):
     conn = get_db()
     cursor = conn.cursor()
     sql='select * from users where userid="%s"'%(UID)
@@ -262,7 +262,7 @@ def select_post_tag(post_title):
     return ret
 
 #帖子——标签关系表
-def create_posts_tags()
+def create_posts_tags():
     conn=get_db()
     cursor = conn.cursor()
     sql="""create table posts_tags(
@@ -285,7 +285,7 @@ def create_posts_tags()
     return
 
 #帖子——关键词关系表
-def create_posts_keywords()
+def create_posts_keywords():
     conn=get_db()
     cursor = conn.cursor()
     sql="""create table posts_keywords(
