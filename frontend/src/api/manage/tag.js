@@ -6,7 +6,7 @@ import {getMockTagData,UpdateData,DelData,AddData,frontTagTreeData} from '@/mock
 export function addTag (payload) {
     const data = payload;
   
-    return useMock ? new Promise((resolve, reject) => {
+    return false ? new Promise((resolve, reject) => {
         setTimeout(() => {
           resolve(AddData)
         },100)
@@ -24,7 +24,7 @@ export function addTag (payload) {
 export function delTag (payload) {
     const data = payload;
   
-    return useMock ? new Promise((resolve, reject) => {
+    return false ? new Promise((resolve, reject) => {
         setTimeout(() => {
           resolve(DelData)
         },100)
@@ -42,7 +42,7 @@ export function delTag (payload) {
 export function updateTag (payload) {
     const data = payload;
   
-    return useMock ? new Promise((resolve, reject) => {
+    return false ? new Promise((resolve, reject) => {
         setTimeout(() => {
           resolve(UpdateData)
         },100)
@@ -60,7 +60,7 @@ export function updateTag (payload) {
 export function getTag(payload) {
     const data = payload;
   
-    return useMock ? getMockTagData(payload) : request({
+    return false ? getMockTagData(payload) : request({
       url: '/tag/get',
       headers: {
         isToken: false
@@ -74,7 +74,7 @@ export function getTag(payload) {
 export function getFrontTagTree(payload) {
   const data = payload;
 
-  return useMock ? new Promise((resolve, reject) => {
+  return false ? new Promise((resolve, reject) => {
     setTimeout(() => {
       resolve(frontTagTreeData)
     },100)

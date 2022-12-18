@@ -140,9 +140,9 @@ export default {
       NewPostSetting: {fontSize:'16px'},
 
       imgList : [
-        {id:1,idView:require('../assets/mainpage/1.png')},
-        {id:2,idView:require('../assets/mainpage/2.png')},
-        {id:3,idView:require('../assets/mainpage/3.png')}
+        // {id:1,idView:require('../assets/mainpage/1.png')},
+        // {id:2,idView:require('../assets/mainpage/2.png')},
+        // {id:3,idView:require('../assets/mainpage/3.png')}
       ],
 
       queryHotTagsParams: {

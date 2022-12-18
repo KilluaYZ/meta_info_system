@@ -1,11 +1,13 @@
-CREATE DATABASE IF NOT EXISTS meta_info_db;
+
 use meta_info_db;
+
 DROP Table if EXISTS tag;
 
 CREATE TABLE tag(
-    tagName VARCHAR(50) PRIMARY KEY,
+    tagID INT PRIMARY KEY AUTO_INCREMENT,
+    tagName VARCHAR(50) NOT NULL,
     tagClass SMALLINT NOT NULL check(tagClass >= 1 and tagClass <= 3),
-    tagParentName VARCHAR(50) check(tagParentName in select tagName from tag),
+    tagParentName VARCHAR(50),
     tagPopularity INT,
     remark TEXT
 );

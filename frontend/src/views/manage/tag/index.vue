@@ -24,19 +24,33 @@
           clearable
           style="width: 240px"
         >
+          <el-option label="1" value="1">1</el-option>
+          <el-option label="2" value="2">2</el-option>
+          <el-option label="3" value="3">3</el-option>
         </el-select>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery"
+        <el-button
+          type="primary"
+          icon="el-icon-search"
+          size="mini"
+          @click="handleQuery"
           >搜索</el-button
         >
-        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery"
+          >重置</el-button
+        >
       </el-form-item>
     </el-form>
 
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
-        <el-button type="primary" plain icon="el-icon-plus" size="mini" @click="handleAdd"
+        <el-button
+          type="primary"
+          plain
+          icon="el-icon-plus"
+          size="mini"
+          @click="handleAdd"
           >新增</el-button
         >
       </el-col>
@@ -71,7 +85,10 @@
           >刷新缓存</el-button
         >
       </el-col>
-      <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
+      <right-toolbar
+        :showSearch.sync="showSearch"
+        @queryTable="getList"
+      ></right-toolbar>
     </el-row>
 
     <el-table
@@ -93,7 +110,12 @@
           <span>{{scope.row.tagClass}}</span>
         </template>-->
       </el-table-column>
-      <el-table-column label="父标签" align="center" :show-overflow-tooltip="true" prop="tagParentName">
+      <el-table-column
+        label="父标签"
+        align="center"
+        :show-overflow-tooltip="true"
+        prop="tagParentName"
+      >
         <template slot-scope="scope">
           <el-button size="mini" type="text" @click="showDetials(scope.row)">
             <span>{{ scope.row.tagParentName }}</span>
@@ -106,7 +128,11 @@
         prop="remark"
         :show-overflow-tooltip="true"
       />
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+      <el-table-column
+        label="操作"
+        align="center"
+        class-name="small-padding fixed-width"
+      >
         <template slot-scope="scope">
           <el-button
             size="mini"
@@ -135,19 +161,42 @@
     />
 
     <!-- 添加或修改参数配置对话框 -->
-    <el-dialog :title="title" :visible.sync="config_open" width="500px" append-to-body>
+    <el-dialog
+      :title="title"
+      :visible.sync="config_open"
+      width="500px"
+      append-to-body
+    >
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="标签名" prop="tagName">
           <el-input v-model="form.tagName" placeholder="请输入标签名称" />
         </el-form-item>
         <el-form-item label="父标签名" prop="tagParentName">
-          <el-input v-model="form.tagParentName" placeholder="请输入父标签名称" />
+          <!-- <el-input v-model="form.tagParentName" placeholder="请输入父标签名称" /> -->
+          <el-select
+            v-model="form.tagParentName"
+            filterable
+            :loading="tagSelectLoading"
+            placeholder="父标签名"
+            :disabled="configPageParentTagDisabled"
+          >
+            <el-option
+              v-for="item in configPageParentTags"
+              :key="item.tagName"
+              :value="item.tagName"
+            >
+            </el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="标签级别" prop="tagClass">
-          <el-radio-group v-model="form.tagClass">
-            <el-radio  label="1" value="1">1</el-radio>
-            <el-radio  label="2" value="2">2</el-radio>
-            <el-radio  label="3" value="3">3</el-radio>
+          <el-radio-group
+            v-model="form.tagClass"
+            size="small"
+            @change="handleConfigPageParentTagNameSelectChanged(form.tagClass)"
+          >
+            <el-radio-button label="1" value="1">级别1</el-radio-button>
+            <el-radio-button label="2" value="2">级别2</el-radio-button>
+            <el-radio-button label="3" value="3">级别3</el-radio-button>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="备注" prop="remark">
@@ -155,7 +204,7 @@
             v-model="form.remark"
             type="textarea"
             placeholder="请输入内容"
-            :autosize="{ minRows: 5, maxRows: 15}"
+            :autosize="{ minRows: 5, maxRows: 15 }"
           ></el-input>
         </el-form-item>
       </el-form>
@@ -166,7 +215,12 @@
     </el-dialog>
 
     <!-- 显示详情对话框 -->
-    <el-dialog :title="title" :visible.sync="detail_open" width="500px" append-to-body>
+    <el-dialog
+      :title="title"
+      :visible.sync="detail_open"
+      width="500px"
+      append-to-body
+    >
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="标签名称" prop="tagName">
           <el-input v-model="form.tagName" readonly />
@@ -178,7 +232,12 @@
           <el-input v-model="form.tagClass" readonly />
         </el-form-item>
         <el-form-item label="备注" prop="remark">
-          <el-input v-model="form.remark" type="textarea" readonly :autosize="{ minRows: 5, maxRows: 15}" ></el-input>
+          <el-input
+            v-model="form.remark"
+            type="textarea"
+            readonly
+            :autosize="{ minRows: 5, maxRows: 15 }"
+          ></el-input>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -230,25 +289,29 @@ export default {
         pageSize: 10,
         tagName: undefined,
         tagClass: undefined,
-
       },
       // 表单参数
       form: {},
       // 表单校验
       rules: {
-        tagName: [{ required: true, message: "标签名称不能为空", trigger: "blur" }],
-        tagClass: [{ required: true, message: "标签级别不能为空", trigger: "blur" }],
+        tagName: [
+          { required: true, message: "标签名称不能为空", trigger: "blur" },
+        ],
+        tagClass: [
+          { required: true, message: "标签级别不能为空", trigger: "blur" },
+        ],
       },
+      configPageParentTags: [],
+      configPageParentTagDisabled: false,
     };
   },
   created() {
     this.getList();
-    console.log('创建tag页面ing')
+    console.log("创建tag页面ing");
   },
   methods: {
     /** 查询标签类型列表 */
     getList() {
-      
       this.loading = true;
       // listType(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
       //     this.typeList = response.rows;
@@ -257,9 +320,9 @@ export default {
       //   }
       // );
       getTag(this.queryParams).then((res) => {
-        console.log('成功取得getTag mock数据')
+        console.log("成功取得getTag mock数据");
         this.tagTableData = res.data;
-        this.total = res.data.length;
+        this.total = res.length;
         this.loading = false;
       });
     },
@@ -272,7 +335,6 @@ export default {
     // 表单重置
     reset() {
       this.form = {
-        
         tagName: undefined,
         tagClass: undefined,
         tagParentName: undefined,
@@ -308,11 +370,11 @@ export default {
       this.reset();
       const tagNameData = row.tagName;
       getTag({ tagName: tagNameData }).then((response) => {
-        console.log('点开修改页面，收到数据')
-        console.log(response)
+        console.log("点开修改页面，收到数据");
+        console.log(response);
         this.form = response.data[0];
-        console.log('this.form')
-        console.log(this.form)
+        console.log("this.form");
+        console.log(this.form);
         this.config_open = true;
         this.title = "修改标签类型";
       });
@@ -321,8 +383,8 @@ export default {
       this.reset();
       const tagName = row.tagParentName;
       getTag({ tagName: tagName }).then((res) => {
-        console.log('点开详情页面，收到数据')
-        console.log(res)
+        console.log("点开详情页面，收到数据");
+        console.log(res);
         this.form = res.data[0];
         this.detail_open = true;
         this.title = "标签详情";
@@ -351,23 +413,23 @@ export default {
     },
     /** 删除按钮操作 */
     handleDelete(row) {
-      const tagName = row.tagName ? [row.tagName+''] : this.ids;
-      console.log("tagName:")
-      console.log(tagName)
-      console.log("ids:")
-      console.log(this.ids)
+      const tagName = row.tagName ? [row.tagName + ""] : this.ids;
+      console.log("tagName:");
+      console.log(tagName);
+      console.log("ids:");
+      console.log(this.ids);
       this.$modal
-        .confirm(
-          '是否确认删除标签名称为"' + tagName.toString() + '"的数据项？'
-        )
+        .confirm('是否确认删除标签名称为"' + tagName.toString() + '"的数据项？')
         .then(() => {
-          tagName.forEach((item)=>{
-            delTag({tagName:item}).then(()=>{
-              this.$modal.msgSuccess('成功删除标签"'+item+'"');
-            }).catch(()=>{
-              this.$modal.msgError('删除标签"'+item+'"失败');
-            })
-          })
+          tagName.forEach((item) => {
+            delTag({ tagName: item })
+              .then(() => {
+                this.$modal.msgSuccess('成功删除标签"' + item + '"');
+              })
+              .catch(() => {
+                this.$modal.msgError('删除标签"' + item + '"失败');
+              });
+          });
         })
         .then(() => {
           this.getList();
@@ -392,16 +454,27 @@ export default {
         this.$store.dispatch("dict/cleanDict");
       });
     },
+    handleConfigPageParentTagNameSelectChanged(selectedTagClass) {
+      if (selectedTagClass == 1) {
+        //选了级别1时，让父标签失效
+        this.configPageParentTagDisabled = true;
+      } else {
+        this.configPageParentTagDisabled = false;
+        getTag({ tagClass: selectedTagClass - 1 }).then((res) => {
+          this.configPageParentTags = res.data;
+        });
+      }
+    },
   },
-  watch:{
-    queryParams:{
-      handler(newQuery,oldQuery) {
-        console.log('newQuery')
-        console.log(newQuery)
+  watch: {
+    queryParams: {
+      handler(newQuery, oldQuery) {
+        console.log("newQuery");
+        console.log(newQuery);
       },
       immediate: true,
-      deep: true
-    }
-  }
+      deep: true,
+    },
+  },
 };
 </script>

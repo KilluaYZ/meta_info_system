@@ -1,9 +1,21 @@
+from distutils.log import debug
 from flask import Flask
 from flask import request
 from flask_cors import CORS # 跨域
 # from dbtest.showdata10 import db # 引入其他蓝图
 import os
 import sys
+
+
+# 找到model文件夹
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.dirname(SCRIPT_DIR))
+# sys.path.append(".")
+# sys.path.append("..")
+
+from database.init_db import init_db
+from manage.tagManage import tag
+
 
 #创建flask app
 def create_app(test_config=None):
@@ -31,10 +43,18 @@ def create_app(test_config=None):
         return 'Hello, World!'
 
     #在应用中注册init_db
-    from . import db
-    db.init_app(app)
+    @app.cli.command('init-db')
+    def init_db_command():
+        '''删除现有的所有数据，并新建关系表'''
+        init_db()
+        print("已初始化数据库")
 
     #在应用中注册蓝图
     # app.register_blueprint(db,url_prefix='/db')
+    app.register_blueprint(tag,url_prefix='/tag')
     
     return app
+
+if __name__ == '__main__':
+    app = create_app()
+    app.run(debug = True)
