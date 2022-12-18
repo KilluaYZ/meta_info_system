@@ -186,7 +186,8 @@ def alter_user_username(ID,newname):
     conn = get_db()
     cursor = conn.cursor()
     sql="""select * from users where userID="%s"
-            update users set username="%s""%(ID,newname)
+            update users set username="%s" 
+            """%(ID,newname)
     cursor.execute(sql)
     conn.commit()
     cursor.close()
@@ -198,7 +199,8 @@ def alter_user_password(ID,newword):
     conn = get_db()
     cursor = conn.cursor()
     sql="""select * from users where userID="%s"
-            update users set password="%s""%(ID,newword)
+            update users set password="%s"
+            """%(ID,newword)
     cursor.execute(sql)
     conn.commit()
     cursor.close()
@@ -241,7 +243,7 @@ def delete_user(post_title):
 def select_post_tag(post_title):
     conn = get_db()
     cursor = conn.cursor()
-    sql="""select * from posts where post_title="%s"""%(post_title)
+    sql='select * from posts where post_title="%s"'%(post_title)
     cursor.execute(sql)
     ret=cursor.fetchall()
     cursor.close()
@@ -252,7 +254,7 @@ def select_post_tag(post_title):
 def select_post_tag(post_title):
     conn = get_db()
     cursor = conn.cursor()
-    sql="""select tagname from posts where post_title="%s"""%(post_title)
+    sql='select tagname from posts where post_title="%s"'%(post_title)
     cursor.execute(sql)
     ret=cursor.fetchall()
     cursor.close()
