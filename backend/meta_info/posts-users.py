@@ -186,7 +186,7 @@ def alter_user_username(ID,newname):
     conn = get_db()
     cursor = conn.cursor()
     sql="""select * from users where userID="%s"
-            update users set username="%s""""%(ID,newname)
+            update users set username="%s""%(ID,newname)
     cursor.execute(sql)
     conn.commit()
     cursor.close()
@@ -198,7 +198,7 @@ def alter_user_password(ID,newword):
     conn = get_db()
     cursor = conn.cursor()
     sql="""select * from users where userID="%s"
-            update users set password="%s""""%(ID,newword)
+            update users set password="%s""%(ID,newword)
     cursor.execute(sql)
     conn.commit()
     cursor.close()
@@ -215,9 +215,9 @@ def create_posts():
             post_title TEXT not null unique primary key,
             postanswer TEXT,
             posts_time DATE,
-            postcontent TEXT not null，
+            postcontent TEXT not null,
             post_popularity VARCHAR(5),
-            remark TEXT"""        
+            remark TEXT)"""        
     cursor.execute(sql)
     conn.commit()
     cursor.close()
