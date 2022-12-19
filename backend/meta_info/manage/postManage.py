@@ -24,10 +24,10 @@ posts = Blueprint('posts', __name__)
 
 #帖子
 
-#传入postid，返回这个帖子所有的tag的全部信息
-def query_post_all_keywords(postid)->list:
+#传入postID，返回这个帖子所有的tag的全部信息
+def query_post_all_keywords(postID)->list:
     try:
-        conndb.cursor.execute('select * from posts_keywords where postid=%d',(postid))
+        conndb.cursor.execute('select * from posts_keywords where postID=%s',(postID))
         #取出帖子所有的关键词
         rows = conndb.cursor.fetchall()
         #将字典的keyword作映射
@@ -38,10 +38,10 @@ def query_post_all_keywords(postid)->list:
         print(e)
         raise Exception()
 
-#输入postid，返回该帖子的所有的tag的全部信息
-def query_post_all_tags(postid)->list:
+#输入postID，返回该帖子的所有的tag的全部信息
+def query_post_all_tags(postID)->list:
     try:
-        conndb.cursor.execute('select * from posts_tags where postid=%d',(postid))
+        conndb.cursor.execute('select * from posts_tags where postID=%s',(postID))
         #取出帖子所有的关键词
         rows = conndb.cursor.fetchall()
         #将字典的tagName作映射
@@ -54,7 +54,7 @@ def query_post_all_tags(postid)->list:
 
 def query_post_sql(queryParam):
     #假设queryParam是绝对正确的，本函数就忽略对queryParam的正确性检验，将注意力集中在功能上
-    query_sql = 'select * from posts,posts_keywords,posts_tags '
+    query_sql = 'select * from posts'
     #限制条件查询的属性
     query_constrain_attr = ['postTitle','postID','postKeywords','postTag','postTime']
     #condition_sql_list是存放queryParam中的查询条件构造出的sql语句的列表
@@ -69,10 +69,12 @@ def query_post_sql(queryParam):
         val = item[1]
         if(key in query_constrain_attr):
             if(key == 'postKeywords'):
-                condition_sql_list.append(' posts.postid=posts_keywords.postid and keyword=%s ')
+                query_sql += ',posts_keywords '
+                condition_sql_list.append(' posts.postID=posts_keywords.postID and keyword=%s ')
                 condition_sql_val_list.append(val)
             elif(key == 'postTag'):
-                condition_sql_list.append(' posts.postid=posts_tags.postid and tagName=%s ')
+                query_sql += ',posts_tags '
+                condition_sql_list.append(' posts.postID=posts_tags.postID and tagName=%s ')
                 condition_sql_val_list.append(val)
             elif(key == 'postTime'):
                 condition_sql_list.append(' postTime between %s and %s ')
@@ -105,7 +107,13 @@ def query_post_sql(queryParam):
     try:
         #防止SQL注入，选用参数化查询
         conndb.cursor.execute(query_sql,tuple(condition_sql_val_list))
-        rows = conndb.cursor.fetchall()
+        rows = []
+        for i in range(conndb.cursor.rowcount):
+            row = conndb.cursor.fetchone()
+            row['postTime']=row['postTime'].strftime('%Y-%m-%d')
+            rows.append(row)
+        return rows
+
     except Exception as e:
         print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
         print(e)
@@ -113,36 +121,49 @@ def query_post_sql(queryParam):
     
     return rows
 
-
-
-def add_post_sql(data:dict):
-    #假设data中的属性都是确定无误的
-    sql = 'insert into posts ('
-    sql2 = ' values ('
-    val_list = []
-    data_key_val = data.items()
-    for i in range(len(data_key_val)-1):
-        val_list.append(data_key_val[i][1])
-        sql += " %s ," % (data_key_val[i][0])
-        sql2 += "%s ,"
-
-    val_list.append(data_key_val[-1][1])
-    sql += "%s)"
-    sql2 += "%s)"
-    sql += sql2
+def query_post_max_id() -> int:
     try:
+        conndb.cursor.execute("select postID from posts order by postID desc limit 1")
+        row = conndb.cursor.fetchall()[0]
+        return int(row['postID'])
+
+    except Exception as e:
+        print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
+        print(e)
+        raise Exception()
+
+def add_post_sql(data:dict) -> int:
+    try:
+        #假设data中的属性都是确定无误的
+        gen_postid = query_post_max_id()+1
+        sql = 'insert into posts ('
+        sql2 = ' values ('
+        val_list = []
+        data_key_val = [['postID',gen_postid]] + list(data.items())
+        for i in range(len(data_key_val)-1):
+            val_list.append(data_key_val[i][1])
+            sql += " %s ," % (data_key_val[i][0])
+            sql2 += "%s ,"
+
+        val_list.append(data_key_val[-1][1])
+        sql += "%s)" % (data_key_val[-1][0])
+        sql2 += "%s)"
+        sql += sql2
+        print("[DEBUG] insert sql=",sql)
         conndb.cursor.execute(sql,tuple(val_list))
         conndb.db.commit()
+        #返回当前post的id
+        return gen_postid
     except Exception as e:
         print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
         print(e)
         conndb.db.rollback()
         raise Exception()
 
-def add_post_tag_sql(postid,tagName):
-    sql = 'insert into posts_tags(postID,tagName) values(%d,%s)'
+def add_post_tag_sql(postID,tagName):
+    sql = 'insert into posts_tags(postID,tagName) values(%s,%s)'
     try:
-        conndb.cursor.execute(sql,(postid,tagName))
+        conndb.cursor.execute(sql,(postID,tagName))
         conndb.db.commit()
     except Exception as e:
         print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2]+"::数据库sql执行错误")
@@ -150,10 +171,10 @@ def add_post_tag_sql(postid,tagName):
         conndb.db.rollback()
         raise Exception()
 
-def del_post_tag_sql(postid,tagName):
-    sql = 'delete from posts_tags where postid=%d and tagname=%s'
+def del_post_tag_sql(postID,tagName):
+    sql = 'delete from posts_tags where postID=%s and tagName=%s'
     try:
-        conndb.cursor.execute(sql,(postid,tagName))
+        conndb.cursor.execute(sql,(postID,tagName))
         conndb.db.commit()
     except Exception as e:
         print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2]+"::数据库sql执行错误")
@@ -161,10 +182,10 @@ def del_post_tag_sql(postid,tagName):
         conndb.db.rollback()
         raise Exception()
 
-def add_post_keywords_sql(postid,keyword):
-    sql = 'insert into posts_keywords(postID,keyword) values(%d,%s)'
+def add_post_keywords_sql(postID,keyword):
+    sql = 'insert into posts_keywords(postID,keyword) values(%s,%s)'
     try:
-        conndb.cursor.execute(sql,(postid,keyword))
+        conndb.cursor.execute(sql,(postID,keyword))
         conndb.db.commit()
     except Exception as e:
         print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2]+"::数据库sql执行错误")
@@ -172,10 +193,10 @@ def add_post_keywords_sql(postid,keyword):
         conndb.db.rollback()
         raise Exception()
 
-def del_post_keywords_sql(postid,keyword):
-    sql = 'delete from posts_keywords where postid=%d and keyword=%s'
+def del_post_keywords_sql(postID,keyword):
+    sql = 'delete from posts_keywords where postID=%s and keyword=%s'
     try:
-        conndb.cursor.execute(sql,(postid,keyword))
+        conndb.cursor.execute(sql,(postID,keyword))
         conndb.db.commit()
     except Exception as e:
         print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2]+"::数据库sql执行错误")
@@ -183,12 +204,12 @@ def del_post_keywords_sql(postid,keyword):
         conndb.db.rollback()
         raise Exception()
 
-# 传入postid和新的keyword列表，分析差异，进行更新
-def update_post_keywords(postid,new_post_keywords_list):
+# 传入postID和新的keyword列表，分析差异，进行更新
+def update_post_keywords(postID,new_post_keywords_list):
     del_keywords_list = []
     add_keywords_list = []
     try:
-        cur_keywords = query_post_all_keywords(postid)
+        cur_keywords = query_post_all_keywords(postID)
         for item in new_post_keywords_list:
             if item not in cur_keywords:
                 #新表中的数据不在原表中，则添加
@@ -198,9 +219,9 @@ def update_post_keywords(postid,new_post_keywords_list):
                 #新表中没有当前表中的数据，删除
                 del_keywords_list.append(item)
         for item in add_keywords_list:
-            add_post_keywords_sql(postid,item)
+            add_post_keywords_sql(postID,item)
         for item in del_keywords_list:
-            del_post_keywords_sql(postid,item)
+            del_post_keywords_sql(postID,item)
 
     except Exception as e:
         print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2]+"::数据库sql执行错误")
@@ -208,13 +229,13 @@ def update_post_keywords(postid,new_post_keywords_list):
         conndb.db.rollback()
         raise Exception()
 
-# 传入postid和新的tagName列表，分析差异，进行更新
-def update_post_tag(postid,new_post_tag_list):
+# 传入postID和新的tagName列表，分析差异，进行更新
+def update_post_tag(postID,new_post_tag_list):
     #下面两个list储存的都是tagName
     del_tag_list = []
     add_tag_list = []
     try:
-        cur_keywords = list(map(lambda x : x['tagName'],query_post_all_tags(postid)))
+        cur_keywords = list(map(lambda x : x['tagName'],query_post_all_tags(postID)))
         for item in new_post_tag_list:
             if item not in cur_keywords:
                 #新表中的数据不在原表中，则添加
@@ -224,9 +245,9 @@ def update_post_tag(postid,new_post_tag_list):
                 #新表中没有当前表中的数据，删除
                 del_tag_list.append(item)
         for item in add_tag_list:
-            add_post_tag_sql(postid,item)
+            add_post_tag_sql(postID,item)
         for item in del_tag_list:
-            del_post_tag_sql(postid,item)
+            del_post_tag_sql(postID,item)
             
     except Exception as e:
         print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2]+"::数据库sql执行错误")
@@ -234,8 +255,8 @@ def update_post_tag(postid,new_post_tag_list):
         conndb.db.rollback()
         raise Exception()
 
-# 传入postid和新的post数据，分析差异，进行更新
-def update_post_sql(postid, new_post_data):
+# 传入postID和新的post数据，分析差异，进行更新
+def update_post_sql(postID, new_post_data):
     #防止sql注入
     try:
         update_sql = 'UPDATE posts SET '
@@ -246,8 +267,8 @@ def update_post_sql(postid, new_post_data):
             val_list.append(item[1])
         for i in range(len(sql_list)-1):
             update_sql += (' '+sql_list[i]+', ')
-        update_sql += (' ' + sql_list[-1] +' where postid=%s')
-        val_list.append(postid)
+        update_sql += (' ' + sql_list[-1] +' where postID=%s')
+        val_list.append(postID)
 
         conndb.cursor.execute(update_sql,tuple(val_list))
         #提交事务
@@ -260,31 +281,32 @@ def update_post_sql(postid, new_post_data):
         print(e)
         raise Exception()
 
-#传入postid，删除对应的post，并级联删除帖子关键词表和帖子标签表上的所有信息
+#传入postID，删除对应的post，并级联删除帖子关键词表和帖子标签表上的所有信息
 #级联删除部分由DBMS完成，应用层只需要删除就行
-def del_post_sql(postid):
+def del_post_sql(postID):
     try:
-        del_sql = 'DELETE FROM posts WHERE postid=%s'
-        conndb.cursor.execute(del_sql,(postid))
+        del_sql = 'DELETE FROM posts WHERE postID=%s'
+        conndb.cursor.execute(del_sql,(postID))
         #提交事务
         conndb.db.commit()
         return build_success_response()
 
     except Exception as e:
         #出现错误回滚
+        print("[ERROR] 删除帖子失败")
         conndb.db.rollback()
         print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
         print(e)
         raise Exception()
 
 
-#post查询返回构造函数，输入postid列表，就可以返回该列表下所有post的全部数据
-def build_post_response_data(postid_list:list):
+#post查询返回构造函数，输入postID列表，就可以返回该列表下所有post的全部数据
+def build_post_response_data(postID_list:list):
     res = []
-    for postid in postid_list:
-        post_data = query_post_sql({"postID":postid})
-        tag_data = query_post_all_tags(postid)
-        keyword_data = query_post_all_keywords(postid)
+    for postID in postID_list:
+        post_data = query_post_sql({"postID":postID})[0]
+        tag_data = query_post_all_tags(postID)
+        keyword_data = query_post_all_keywords(postID)
         post_data['postTag'] = tag_data
         post_data['postKeywords'] = keyword_data
         res.append(post_data)
@@ -294,30 +316,37 @@ def build_post_response_data(postid_list:list):
 #增加帖子
 @posts.route('/add', methods=['POST'])
 def addPost():
-    data = request.json
-    post_add_data = {}
-    post_tag_list = []
-    post_keywords_list = []
-    for item in data.items():
-        if(item[0] in ["postTitle",'postContent','postTime','postAnswer','postPopularity','remark']):
-            post_add_data[item[0]]=item[1]
-
-    if('postKeywords' in data):
-        post_keywords_list = data['postKeywords']
-    
-    if('postTag' in data):
-        for item in data['postTag']:
-            post_tag_list.append(item['tagName'])
-            
     try:
-        add_post_sql(post_add_data)
-        postid = query_post_sql()
+        data = request.json
+        post_add_data = {}
+        post_tag_list = []
+        post_keywords_list = []
+        # print(1)
+        for item in data.items():
+            if(item[0] in ["postTitle",'postContent','postTime','postAnswer','postPopularity','remark']):
+                post_add_data[item[0]]=item[1]
+        # print(2)
+        if('postPopularity' in data.keys()):
+            if(not is_number(data['postPopularity'])):
+                raise Exception('postPopularity不合法')
+        # print(3)
+        if('postKeywords' in data.keys()):
+            post_keywords_list = data['postKeywords']
+        # print(4)
+        if('postTag' in data.keys()):
+            for item in data['postTag']:
+                post_tag_list.append(item['tagName'])
+        # print(5)
+        postID = add_post_sql(post_add_data)
+        # print(7)
+        # print("[DEBUG] postID=",postID)
         for item in post_tag_list:
-            add_post_tag_sql(postid,item)
+            add_post_tag_sql(postID,item)
         for item in post_keywords_list:
-            add_post_keywords_sql(postid,item)
+            add_post_keywords_sql(postID,item)
+        
         return build_success_response()
-
+        
     except Exception as e:
         print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
         print(e)
@@ -331,7 +360,7 @@ def updatePost():
     post_update_data = {}
     post_tag_list = []
     post_keywords_list = []
-    postid = data['postID']
+    postID = data['postID']
     for item in data.items():
         if(item[0] in ["postTitle",'postContent','postTime','postAnswer','postPopularity','remark']):
             post_update_data[item[0]]=item[1]
@@ -344,9 +373,9 @@ def updatePost():
             post_tag_list.append(item['tagName'])
             
     try:
-        update_post_sql(postid, post_update_data)
-        update_post_tag(postid,post_tag_list)
-        update_post_keywords(postid,post_keywords_list)
+        update_post_sql(postID, post_update_data)
+        update_post_tag(postID,post_tag_list)
+        update_post_keywords(postID,post_keywords_list)
         return build_success_response()
 
     except Exception as e:
@@ -359,9 +388,9 @@ def updatePost():
 #删除帖子
 @posts.route('/del', methods=['POST'])
 def delPost():
-    postid = request.json.get('postID')        
+    postID = request.json.get('postID')        
     try:
-        del_post_sql(postid)
+        del_post_sql(postID)
         return build_success_response()
 
     except Exception as e:
@@ -381,9 +410,13 @@ def getPost():
                 print('sort 正确性检验失败')
                 raise Exception('sort 正确性检验失败')
 
-        data = query_post_sql(queryParam)
+        tmp_data = query_post_sql(queryParam)
+        # print("[DEBUG] tmp_data = \n",tmp_data)
+        postid_list = list(map(lambda x : x['postID'],tmp_data))
+        print("[DEBUG] postid_list = ",postid_list)
+        data = build_post_response_data(postid_list)
         data_length = len(data)
-        
+        print("data_length=",data_length)
         # 返回某一页的数据
         if('pageNum' in queryParam and 'pageSize' in queryParam):
             if(not is_number(queryParam['pageNum']) or not is_number(queryParam['pageSize'])):

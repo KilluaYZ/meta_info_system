@@ -1,8 +1,25 @@
-
 use meta_info_db;
 
-DROP Table if EXISTS tag;
+-------------------------------------------------------------------------
+--帖子
+SET foreign_key_checks=0;
+DROP Table if EXISTS posts;
+SET foreign_key_checks=1;
+create table posts(
+    postID int primary key,
+    postTitle TEXT not null,
+    postAnswer TEXT,
+    postTime DATE,
+    postContent TEXT not null,
+    postPopularity int,
+    remark TEXT
+);
 
+-------------------------------------------------------------------------
+-- 标签
+SET foreign_key_checks=0;
+DROP Table if EXISTS tag;
+SET foreign_key_checks=1;
 CREATE TABLE tag(
     tagID INT PRIMARY KEY AUTO_INCREMENT,
     tagName VARCHAR(50) UNIQUE  NOT NULL,
@@ -10,6 +27,27 @@ CREATE TABLE tag(
     tagParentName VARCHAR(50),
     tagPopularity INT,
     remark TEXT
+);
+
+-------------------------------------------------------------------------
+--帖子标签
+DROP Table if EXISTS posts_tags;
+create table posts_tags(
+    postID int not null,
+    tagName VARCHAR(50) not null,
+    primary key(postID,tagName),
+    foreign key(postID) references posts(postID) on delete cascade on update cascade,
+    foreign key(tagName) references tag(tagName) on delete cascade on update cascade
+);
+
+-------------------------------------------------------------------------
+--帖子关键词
+DROP Table if EXISTS posts_keywords;
+create table posts_keywords(
+    postID int not null,
+    keyword VARCHAR(50) not null,
+    primary key(postID,keyword),
+    foreign key(postID) references posts(postID) on delete cascade on update cascade
 );
 
 
@@ -56,19 +94,19 @@ INSERT INTO tag (tagName,tagClass,tagParentName,tagPopularity,remark)
 VALUES ('数据库体系结构',2,'数据库概述',0,'');
 
 INSERT INTO tag (tagName,tagClass,tagParentName,tagPopularity,remark)
-VALUES ('集中式数据库',3,'数据库体系结构',0,'');
+VALUES ('集中式数据库结构',3,'数据库体系结构',0,'');
 
 INSERT INTO tag (tagName,tagClass,tagParentName,tagPopularity,remark)
-VALUES ('客户/服务器数据库',3,'数据库体系结构',0,'');
+VALUES ('客户/服务器数据库结构',3,'数据库体系结构',0,'');
 
 INSERT INTO tag (tagName,tagClass,tagParentName,tagPopularity,remark)
-VALUES ('并行数据库',3,'数据库体系结构',0,'');
+VALUES ('并行数据库结构',3,'数据库体系结构',0,'');
 
 INSERT INTO tag (tagName,tagClass,tagParentName,tagPopularity,remark)
-VALUES ('分布式数据库',3,'数据库体系结构',0,'');
+VALUES ('分布式数据库结构',3,'数据库体系结构',0,'');
 
 INSERT INTO tag (tagName,tagClass,tagParentName,tagPopularity,remark)
-VALUES ('云数据库',3,'数据库体系结构',0,'');
+VALUES ('云数据库结构',3,'数据库体系结构',0,'');
 
 
 
@@ -562,13 +600,13 @@ INSERT INTO tag (tagName,tagClass,tagParentName,tagPopularity,remark)
 VALUES ('查询处理的基本步骤',2,'查询处理',0,'');
 
 INSERT INTO tag (tagName,tagClass,tagParentName,tagPopularity,remark)
-VALUES ('查询检查',3,'查询处理的基本步骤',0,'');
+VALUES ('查询处理的基本步骤--查询检查',3,'查询处理的基本步骤',0,'');
 INSERT INTO tag (tagName,tagClass,tagParentName,tagPopularity,remark)
-VALUES ('查询分析',3,'查询处理的基本步骤',0,'');
+VALUES ('查询处理的基本步骤--查询分析',3,'查询处理的基本步骤',0,'');
 INSERT INTO tag (tagName,tagClass,tagParentName,tagPopularity,remark)
-VALUES ('查询优化',3,'查询处理的基本步骤',0,'');
+VALUES ('查询处理的基本步骤--查询优化',3,'查询处理的基本步骤',0,'');
 INSERT INTO tag (tagName,tagClass,tagParentName,tagPopularity,remark)
-VALUES ('查询执行',3,'查询处理的基本步骤',0,'');
+VALUES ('查询处理的基本步骤--查询执行',3,'查询处理的基本步骤',0,'');
 
 INSERT INTO tag (tagName,tagClass,tagParentName,tagPopularity,remark)
 VALUES ('扫描算法',2,'查询处理',0,'');
@@ -722,9 +760,9 @@ VALUES ('基于时间戳的并发控制',2,'并发控制',0,'');
 INSERT INTO tag (tagName,tagClass,tagParentName,tagPopularity,remark)
 VALUES ('基本的时间戳并发控制算法',3,'基于时间戳的并发控制',0,'');
 INSERT INTO tag (tagName,tagClass,tagParentName,tagPopularity,remark)
-VALUES ('如何确定等价的事务冲突可串行化顺序',3,'基于时间戳的并发控制',0,'');
+VALUES ('基于时间戳的并发控制--确定等价的事务冲突可串行化顺序',3,'基于时间戳的并发控制',0,'');
 INSERT INTO tag (tagName,tagClass,tagParentName,tagPopularity,remark)
-VALUES ('冲突检测与事务回滚',3,'基于时间戳的并发控制',0,'');
+VALUES ('基于时间戳的冲突检测与事务回滚',3,'基于时间戳的并发控制',0,'');
 INSERT INTO tag (tagName,tagClass,tagParentName,tagPopularity,remark)
 VALUES ('基本的时间戳并发控制算法实现举例',3,'基于时间戳的并发控制',0,'');
 
@@ -734,9 +772,9 @@ VALUES ('乐观并发控制',2,'并发控制',0,'');
 INSERT INTO tag (tagName,tagClass,tagParentName,tagPopularity,remark)
 VALUES ('基本的乐观并发控制算法',3,'乐观并发控制',0,'');
 INSERT INTO tag (tagName,tagClass,tagParentName,tagPopularity,remark)
-VALUES ('如何确定等价的事务冲突可串行化顺序',3,'乐观并发控制',0,'');
+VALUES ('乐观并发控制确定等价的事务冲突可串行化顺序',3,'乐观并发控制',0,'');
 INSERT INTO tag (tagName,tagClass,tagParentName,tagPopularity,remark)
-VALUES ('冲突检测与事务回滚',3,'乐观并发控制',0,'');
+VALUES ('乐观并发控制冲突检测与事务回滚',3,'乐观并发控制',0,'');
 INSERT INTO tag (tagName,tagClass,tagParentName,tagPopularity,remark)
 VALUES ('基本的乐观并发控制算法实现举例',3,'乐观并发控制',0,'');
 
@@ -786,7 +824,7 @@ VALUES ('基于检查点的恢复策略',2,'故障恢复',0,'');
 INSERT INTO tag (tagName,tagClass,tagParentName,tagPopularity,remark)
 VALUES ('检查点概念',3,'基于检查点的恢复策略',0,'');
 INSERT INTO tag (tagName,tagClass,tagParentName,tagPopularity,remark)
-VALUES ('基于检查点的恢复策略',3,'基于检查点的恢复策略',0,'');
+VALUES ('基于检查点的恢复策略细节',3,'基于检查点的恢复策略',0,'');
 
 
 INSERT INTO tag (tagName,tagClass,tagParentName,tagPopularity,remark)
@@ -899,38 +937,5 @@ INSERT INTO tag (tagName,tagClass,tagParentName,tagPopularity,remark)
 VALUES ('弹性伸缩',3,'云数据库',0,'');
 
 -------------------------------------------------------------------------
---帖子
-DROP Table if EXISTS posts;
-create table posts(
-    postID int primary key AUTO_INCREMENT,
-    postTitle TEXT not null,
-    postAnswer TEXT,
-    postTime DATE,
-    postContent TEXT not null,
-    postPopularity int,
-    remark TEXT
-);
 
--------------------------------------------------------------------------
---帖子标签
-DROP Table if EXISTS posts_tags;
-create table posts_tags(
-    postID int not null,
-    tagName VARCHAR(50) not null,
-    primary key(postid,tagname),
-    foreign key(postID) references posts(postID) on delete cascade,
-    foreign key(tagName) references tag(tagName) on delete cascade
-);
-
--------------------------------------------------------------------------
---帖子关键词
-DROP Table if EXISTS posts_keywords;
-create table posts_keywords(
-    postID int not null,
-    keyword TEXT not null,
-    primary key(postid,tagname),
-    foreign key(postID) references posts(postID) on delete cascade
-);
-
--------------------------------------------------------------------------
 

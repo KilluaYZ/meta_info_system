@@ -6,7 +6,7 @@ import {getMockPostData,UpdateData,DelData,AddData} from '@/mock/data'
 export function addPost (payload) {
     const data = payload;
   
-    return useMock ? new Promise((resolve, reject) => {
+    return false ? new Promise((resolve, reject) => {
         setTimeout(() => {
           resolve(AddData)
         },100)
@@ -24,12 +24,12 @@ export function addPost (payload) {
 export function delPost (payload) {
     const data = payload;
   
-    return useMock ? new Promise((resolve, reject) => {
+    return false ? new Promise((resolve, reject) => {
         setTimeout(() => {
           resolve(DelData)
         },100)
       }) : request({
-      url: '/tag/del',
+      url: '/post/del',
       headers: {
         isToken: false
       },
@@ -42,7 +42,7 @@ export function delPost (payload) {
 export function updatePost (payload) {
     const data = payload;
   
-    return useMock ? new Promise((resolve, reject) => {
+    return false ? new Promise((resolve, reject) => {
         setTimeout(() => {
           resolve(UpdateData)
         },100)
@@ -60,7 +60,7 @@ export function updatePost (payload) {
 export function getPost(payload) {
     const data = payload;
   
-    return useMock ? getMockPostData(payload) : request({
+    return false ? getMockPostData(payload) : request({
       url: '/post/get',
       headers: {
         isToken: false

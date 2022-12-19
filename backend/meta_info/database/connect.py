@@ -3,7 +3,7 @@ from pymysql.cursors import DictCursor
 
 class Conndb:
     def __init__(
-        self,cursor_mode='tuple',host="43.138.62.72", user="root", password="123456", database="meta_info_db",port=6666
+        self,cursor_mode='dict',host="43.138.62.72", user="root", password="123456", database="meta_info_db",port=6666
     ):
         self.host = host
         self.user = user
@@ -55,19 +55,14 @@ class Conndb:
 
             sql_list = sql_data.split(';')[:-1]
             sql_list = [x.replace('\n',' ')if '\n' in x else x for x in sql_list]
+            sql_item = ""
             try:
-                # with open('debug.txt','a',encoding='utf8') as of:
-
-                    # of.writelines(sql_list)
-                    # for sql_item in sql_list:
-                        # of.write(sql_item+"\n")
-                        
-                    # self.cursor.execute(sql_item)
                 for sql_item in sql_list:
                     self.cursor.execute(sql_item)
                     
             except:
                 print('connect.py::execute_scirpt sql脚本执行失败')
+                print('错误的sql语句：',sql_item)
                 self.db.rollback()
                 raise Exception()
             

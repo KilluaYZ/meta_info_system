@@ -150,31 +150,31 @@ def updateTag():
     try:
         data = request.json
         tagID = data['tagID']
-        print(1)
+        # print(1)
         if(not check_tagID(tagID)):
             print('[ERROR] tagID检查不通过')
             #tagID检查不通过
             raise Exception()
-        print(2)
+        # print(2)
         if('tagName' in data):
             update_sql(tagID,'tagName',data['tagName'])
-        print(3)
+        # print(3)
         if('tagClass' in data):
             if(not is_number(data['tagClass'])):
                 raise Exception()
             update_sql(tagID,'tagClass',data['tagClass'])
-        print(4)
+        # print(4)
         if('tagParentName' in data):
             if(not check_tagParentName(data['tagParentName'],data['tagClass'])):
                 print('updateTag::tagParentName检查不通过')
                 raise Exception()
             update_sql(tagID,'tagParentName',data['tagParentName'])
-        print(5)
+        # print(5)
         if('tagPopularity' in data):
             if(not is_number(data['tagPopularity'])):
                 raise Exception()
             update_sql(tagID,'tagPopularity',data['tagPopularity'])
-        print(6)
+        # print(6)
         if('remark' in data):
             update_sql(tagID,'remark',data['remark'])
         print(7)
@@ -196,14 +196,14 @@ def query_sql(queryParam:dict):
     condition_sql_val_list = []
 
     sort_sql = ''
-    print(1)
+    # print(1)
     for item in queryParam.items():
         key = item[0]
         val = item[1]
         if(key in query_constrain_attr):
             condition_sql_list.append(key+'=%s')
             condition_sql_val_list.append(val)
-    print(2)  
+    # print(2)  
     if('sort' in queryParam):
         sort_sql = ' order by %s ' %(queryParam['sort']['sortAttr'])
         if(queryParam['sort']['mode'] == 'asc'):
@@ -213,7 +213,7 @@ def query_sql(queryParam:dict):
         else:
             print('tagManage.py::query_sql sort错误')
             raise Exception()
-    print(3)
+    # print(3)
     #构建查询sql语句
     if(len(condition_sql_list)):
         query_sql += ' where '
@@ -221,7 +221,7 @@ def query_sql(queryParam:dict):
             query_sql += ' %s AND ' % (condition_sql_list[i])
         query_sql += (" " + condition_sql_list[-1] + " ")
     query_sql += sort_sql
-    print('[DEBUG] query_sql='+query_sql)
+    # print('[DEBUG] query_sql='+query_sql)
     try:
         #防止SQL注入，选用参数化查询
         conndb.cursor.execute(query_sql,tuple(condition_sql_val_list))

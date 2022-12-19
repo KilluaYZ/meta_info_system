@@ -241,8 +241,8 @@
       append-to-body
     >
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="标题" prop="postTitle">
-          <el-input v-model="form.postTitle" placeholder="请输入标签名称" />
+        <el-form-item label="帖子标题" prop="postTitle">
+          <el-input v-model="form.postTitle" placeholder="请输入帖子标题" />
         </el-form-item>
 
         <el-form-item label="关键词" prop="postKeywords">
@@ -260,7 +260,7 @@
             ref="saveConfigPageKeywordInput"
             class="input-new-tag"
             size="small"
-            @keyup.enter.native="handleConfigPageKeywordInput(form)"
+            @keyup.enter.native="handleConfigPageKeywordInput"
             @blur="handleConfigPageKeywordInput"
           >
           </el-input>
@@ -289,9 +289,11 @@
             <el-select
               v-model="configPageFirstTagValue"
               filterable
+              clearable
               placeholder="一级标签"
-              :loading="tagSelectLoading"
+              :loading="firstTagSelectLoading"
               @change="handleTagAddSelectChanged(1)"
+              @clear="handleTagAddSelectClear(1)"
             >
               <el-option
                 v-for="item in firstTags"
@@ -304,9 +306,11 @@
             <el-select
               v-model="configPageSecondTagValue"
               filterable
-              :loading="tagSelectLoading"
+              clearable
+              :loading="secondTagSelectLoading"
               placeholder="二级标签"
               @change="handleTagAddSelectChanged(2)"
+              @clear="handleTagAddSelectClear(2)"
             >
               <el-option
                 v-for="item in secondTags"
@@ -318,9 +322,11 @@
             <el-select
               v-model="configPageThirdTagValue"
               filterable
-              :loading="tagSelectLoading"
+              clearable
+              :loading="thirdTagSelectLoading"
               placeholder="三级标签"
               @change="handleTagAddSelectChanged(3)"
+              @clear="handleTagAddSelectClear(3)"
             >
               <el-option
                 v-for="item in thirdTags"
@@ -516,7 +522,13 @@ export default {
       // 表单校验
       rules: {
         postTitle: [
-          { required: true, message: "标签名称不能为空", trigger: "blur" },
+          { required: true, message: "帖子标题不能为空", trigger: "blur" },
+        ],
+        postContent: [
+          { required: true, message: "帖子内容不能为空", trigger: "blur" },
+        ],
+        postTime: [
+          { required: true, message: "发帖时间不能为空", trigger: "blur" },
         ],
       },
       configPageKeywordInputVisiable: false,
@@ -528,13 +540,17 @@ export default {
       firstTags: [],
       secondTags: [],
       thirdTags: [],
-      tagSelectLoading: false,
+      firstTagSelectLoading: false,
+      secondTagSelectLoading: false,
+      thirdTagSelectLoading: false,
     };
   },
   created() {
     this.getList();
+    this.firstTagSelectLoading = true
     getTag({ tagClass: "1" }).then((res) => {
       this.firstTags = res.data;
+      this.firstTagSelectLoading = false
     });
     console.log("创建post页面ing");
   },
@@ -573,8 +589,8 @@ export default {
       this.form = {
         postID: undefined,
         postTitle: undefined,
-        postKeywords: undefined,
-        postTag: undefined,
+        postKeywords: [],
+        postTag: [],
         postContent: undefined,
         postTime: undefined,
         postAnswer: undefined,
@@ -765,15 +781,42 @@ export default {
     //处理tagAdd选择改变
     handleTagAddSelectChanged(tagClass) {
       
-      if (tagCLass == 1 && this.configPageFirstTagValue) {
+      if (tagClass == 1 && this.configPageFirstTagValue) {
+        this.secondTagSelectLoading = true
+        this.thirdTagSelectLoading = true
         getTag({ tagParentName: this.configPageFirstTagValue }).then((res) => {
           this.secondTags = res.data;
           this.thirdTags = [];
+          this.configPageSecondTagValue = ""
+          this.configPageThirdTagValue = ""
+          this.secondTagSelectLoading = false
+          this.thirdTagSelectLoading = false
         });
       } else if (tagClass == 2 && this.configPageSecondTagValue) {
+        this.thirdTagSelectLoading = true
         getTag({ tagParentName: this.configPageSecondTagValue }).then((res) => {
           this.thirdTags = res.data;
+          this.configPageThirdTagValue = ""
+          this.thirdTagSelectLoading = false
         });
+      }
+    },
+
+    //处理用户点击标签添加的clear
+    handleTagAddSelectClear(tagClass){
+      if(tagClass == 1){
+        //如果clear了第一个，则将2、3都删掉
+        this.configPageFirstTagValue = ""
+        this.configPageSecondTagValue = ""
+        this.configPageThirdTagValue = ""
+        this.secondTags = []
+        this.thirdTags = []
+      }else if(tagClass == 2){
+        this.configPageSecondTagValue = ""
+        this.configPageThirdTagValue = ""
+        this.thirdTags = []
+      }else if(tagClass == 3){
+        this.configPageThirdTagValue = ""
       }
     },
   },
