@@ -13,7 +13,7 @@ sys.path.append(os.path.dirname(SCRIPT_DIR))
 
 from manage.buildResponse import build_response,build_success_response,build_error_response
 from utils.check import is_number
-from database.connect import Conndb
+# from database.connect import Conndb
  
 tag = Blueprint('tag', __name__)
 
