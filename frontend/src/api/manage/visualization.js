@@ -9,7 +9,7 @@ export function getData(startdate,enddate){
           resolve(HotTagsData)
         },100)
       }) : request({
-        url: '/getHotTags',
+        url: 'vis/getHotTags',
         headers: {
           isToken: false
         },
