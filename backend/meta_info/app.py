@@ -16,7 +16,8 @@ sys.path.append(os.path.dirname(SCRIPT_DIR))
 from database.init_db import init_db
 from manage.tagManage import tag
 from manage.postManage import posts
-
+from database.connectPool import Pooldb
+#在入口文件处新建一个全局
 
 #创建flask app
 def create_app(test_config=None):

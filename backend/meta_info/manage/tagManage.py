@@ -8,6 +8,7 @@ import os
 import sys
 import inspect
 
+
 # 找到model文件夹
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(SCRIPT_DIR))
@@ -17,9 +18,12 @@ sys.path.append(os.path.dirname(SCRIPT_DIR))
 from manage.buildResponse import build_response,build_success_response,build_error_response
 from utils.check import is_number
 from database.connect import Conndb
-
+ 
 tag = Blueprint('tag', __name__)
-conndb = Conndb(cursor_mode='dict')
+
+import database.connectPool
+global pooldb
+pooldb = database.connectPool.pooldb
 
 '''
     重要数据项
@@ -32,8 +36,15 @@ conndb = Conndb(cursor_mode='dict')
 
 def check_tagParentName(tagParentName,tagClass):
     search_tagname_tag = 'select * from tag where tagName = %s'
-    conndb.cursor.execute(search_tagname_tag,(tagParentName))
-    rows = conndb.cursor.fetchall()
+    # conndb.cursor.execute(search_tagname_tag,(tagParentName))
+    # rows = conndb.cursor.fetchall()
+    #获取连接池中的连接
+    conn,cursor = pooldb.get_conn()
+    cursor.execute(search_tagname_tag,(tagParentName))
+    rows = cursor.fetchall()
+    #释放连接池中的连接
+    pooldb.close_conn(conn,cursor)
+
     if(len(rows) <= 0):
         #数据库中没有tagParentName，破坏了完整性约束
         return False
@@ -69,14 +80,20 @@ def addTag():
         #防止sql注入
         try:
             add_sql = 'INSERT INTO tag (tagName,tagClass,tagParentName,tagPopularity,remark) VALUES(%s,%d,%s,0,%s)'
-            conndb.cursor.execute(add_sql,(tagName,tagClass,tagParentName,remark))
+            # conndb.cursor.execute(add_sql,(tagName,tagClass,tagParentName,remark))
+            conn,cursor = pooldb.get_conn()
+            cursor.execute(add_sql,(tagName,tagClass,tagParentName,remark))
             #提交事务
-            conndb.db.commit()
+            # conndb.db.commit()
+            conn.commit()
+            pooldb.close_conn(conn,cursor)
             return build_success_response()
 
         except Exception as e:
             #出现错误回滚
-            conndb.db.rollback()
+            # conndb.db.rollback()
+            conn.rollback()
+            pooldb.close_conn(conn,cursor)
             print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
             print(e)
             raise Exception()
@@ -95,14 +112,20 @@ def delTag():
         #防止sql注入
         try:
             del_sql = 'DELETE FROM tag WHERE tagName=%s'
-            conndb.cursor.execute(del_sql,(tagName))
+            # conndb.cursor.execute(del_sql,(tagName))
+            conn,cursor = pooldb.get_conn()
+            cursor.execute(del_sql,(tagName))
             #提交事务
-            conndb.db.commit()
+            # conndb.db.commit()
+            conn.commit()
+            pooldb.close_conn(conn,cursor)
             return build_success_response()
 
         except Exception as e:
             #出现错误回滚
-            conndb.db.rollback()
+            # conndb.db.rollback()
+            conn.roolback()
+            pooldb.close_conn(conn,cursor)
             print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
             print(e)
             raise Exception()
@@ -121,13 +144,19 @@ def update_sql(tagID,attr:str,val):
     try:
         del_sql = 'UPDATE tag SET %s' % (attr)
         del_sql += '=%s WHERE tagID=%s'
-        conndb.cursor.execute(del_sql,(val,tagID))
+        # conndb.cursor.execute(del_sql,(val,tagID))
+        conn,cursor = pooldb.get_conn()
+        cursor.execute(del_sql,(val,tagID))
         #提交事务
-        conndb.db.commit()
+        # conndb.db.commit()
+        conn.commit()
+        pooldb.close_conn(conn,cursor)
 
     except Exception as e:
         #出现错误回滚
-        conndb.db.rollback()
+        # conndb.db.rollback()
+        conn.rollback()
+        pooldb.close_conn(conn,cursor)
         print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
         print(e)
         raise Exception()
@@ -136,8 +165,12 @@ def check_tagID(tagID):
     #tagID必须为数字
     if(not is_number(tagID)):
         return False
-    conndb.cursor.execute('select * from tag where tagID=%s',(tagID));
-    rows = conndb.cursor.fetchall()
+    # conndb.cursor.execute('select * from tag where tagID=%s',(tagID));
+    conn,cursor = pooldb.get_conn()
+    cursor.execute('select * from tag where tagID=%s',(tagID))
+    # rows = conndb.cursor.fetchall()
+    rows = cursor.fetchall()
+    pooldb.close_conn(conn,cursor)
     if(len(rows) <= 0):
         #数据库中不存在该tagID
         return False
@@ -224,8 +257,11 @@ def query_sql(queryParam:dict):
     # print('[DEBUG] query_sql='+query_sql)
     try:
         #防止SQL注入，选用参数化查询
-        conndb.cursor.execute(query_sql,tuple(condition_sql_val_list))
-        rows = conndb.cursor.fetchall()
+        # conndb.cursor.execute(query_sql,tuple(condition_sql_val_list))
+        conn,cursor = pooldb.get_conn()
+        cursor.execute(query_sql,tuple(condition_sql_val_list))
+        # rows = conndb.cursor.fetchall()
+        rows = cursor.fetchall()
     except:
         print('tagManage.py::query_sql 查询失败')
         raise Exception()
@@ -282,7 +318,7 @@ def getTag():
 
 
 #查询标签的前向路径
-@tag.route('/getFrontTagTree', methods=['POST'])
+@tag.route('/getFrontTree', methods=['POST'])
 def getFrontTagTree():
     try:
         data = request.json

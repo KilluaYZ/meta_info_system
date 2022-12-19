@@ -19,37 +19,51 @@ from utils.check import is_number
 from database.connect import Conndb
 from manage.tagManage import query_sql
 
-conndb = Conndb(cursor_mode='dict')
+# conndb = Conndb(cursor_mode='dict')
 posts = Blueprint('posts', __name__)
+
+import database.connectPool
+global pooldb
+pooldb = database.connectPool.pooldb
 
 #帖子
 
 #传入postID，返回这个帖子所有的tag的全部信息
 def query_post_all_keywords(postID)->list:
     try:
-        conndb.cursor.execute('select * from posts_keywords where postID=%s',(postID))
+        # conndb.cursor.execute('select * from posts_keywords where postID=%s',(postID))
+        conn,cursor = pooldb.get_conn()
+        cursor.execute('select * from posts_keywords where postID=%s',(postID))
         #取出帖子所有的关键词
-        rows = conndb.cursor.fetchall()
+        # rows = conndb.cursor.fetchall()
+        rows = cursor.fetchall()
+        pooldb.close_conn(conn,cursor)
         #将字典的keyword作映射
         return list(map(lambda x : x['keyword'],rows))
 
     except Exception as e:
         print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
         print(e)
+        pooldb.close_conn(conn,cursor)
         raise Exception()
 
 #输入postID，返回该帖子的所有的tag的全部信息
 def query_post_all_tags(postID)->list:
     try:
-        conndb.cursor.execute('select * from posts_tags where postID=%s',(postID))
+        # conndb.cursor.execute('select * from posts_tags where postID=%s',(postID))
+        conn,cursor = pooldb.get_conn()
+        cursor.execute('select * from posts_tags where postID=%s',(postID))
         #取出帖子所有的关键词
-        rows = conndb.cursor.fetchall()
+        # rows = conndb.cursor.fetchall()
+        rows = cursor.fetchall()
+        pooldb.close_conn(conn,cursor)
         #将字典的tagName作映射
         return list(map(lambda tagname : query_sql({"tagName":tagname})[0],list(map(lambda x : x['tagName'],rows))))
 
     except Exception as e:
         print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
         print(e)
+        pooldb.close_conn(conn,cursor)
         raise Exception()
 
 def query_post_sql(queryParam):
@@ -106,30 +120,38 @@ def query_post_sql(queryParam):
 
     try:
         #防止SQL注入，选用参数化查询
-        conndb.cursor.execute(query_sql,tuple(condition_sql_val_list))
+        # conndb.cursor.execute(query_sql,tuple(condition_sql_val_list))
+        conn,cursor = pooldb.get_conn()
+        cursor.execute(query_sql,tuple(condition_sql_val_list))
+
         rows = []
-        for i in range(conndb.cursor.rowcount):
-            row = conndb.cursor.fetchone()
+        for i in range(cursor.rowcount):
+            row = cursor.fetchone()
             row['postTime']=row['postTime'].strftime('%Y-%m-%d')
             rows.append(row)
+        
+        pooldb.close_conn(conn,cursor)
         return rows
 
     except Exception as e:
         print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
         print(e)
+        pooldb.close_conn(conn,cursor)
         raise Exception()
-    
-    return rows
 
 def query_post_max_id() -> int:
     try:
-        conndb.cursor.execute("select postID from posts order by postID desc limit 1")
-        row = conndb.cursor.fetchall()[0]
+        # conndb.cursor.execute("select postID from posts order by postID desc limit 1")
+        conn,cursor = pooldb.get_conn()
+        cursor.execute("select postID from posts order by postID desc limit 1")
+        row = cursor.fetchall()[0]
+        pooldb.close_conn(conn,cursor)
         return int(row['postID'])
 
     except Exception as e:
         print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
         print(e)
+        pooldb.close_conn(conn,cursor)
         raise Exception()
 
 def add_post_sql(data:dict) -> int:
@@ -150,58 +172,76 @@ def add_post_sql(data:dict) -> int:
         sql2 += "%s)"
         sql += sql2
         print("[DEBUG] insert sql=",sql)
-        conndb.cursor.execute(sql,tuple(val_list))
-        conndb.db.commit()
+        conn,cursor = pooldb.get_conn()
+        cursor.execute(sql,tuple(val_list))
+        conn.commit()
+        pooldb.close_conn(conn,cursor)
         #返回当前post的id
         return gen_postid
     except Exception as e:
         print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
         print(e)
-        conndb.db.rollback()
+        conn.rollback()
+        pooldb.close_conn(conn,cursor)
         raise Exception()
 
 def add_post_tag_sql(postID,tagName):
     sql = 'insert into posts_tags(postID,tagName) values(%s,%s)'
     try:
-        conndb.cursor.execute(sql,(postID,tagName))
-        conndb.db.commit()
+        conn,cursor = pooldb.get_conn()
+        cursor.execute(sql,(postID,tagName))
+        conn.commit()
+        pooldb.close_conn(conn,cursor)
+
     except Exception as e:
         print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2]+"::数据库sql执行错误")
         print(e)
-        conndb.db.rollback()
+        conn.rollback()
+        pooldb.close_conn(conn,cursor)
         raise Exception()
 
 def del_post_tag_sql(postID,tagName):
     sql = 'delete from posts_tags where postID=%s and tagName=%s'
     try:
-        conndb.cursor.execute(sql,(postID,tagName))
-        conndb.db.commit()
+        conn,cursor = pooldb.get_conn()
+        cursor.execute(sql,(postID,tagName))
+        conn.commit()
+        pooldb.close_conn(conn,cursor)
+
     except Exception as e:
         print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2]+"::数据库sql执行错误")
         print(e)
-        conndb.db.rollback()
+        conn.rollback()
+        pooldb.close_conn(conn,cursor)
         raise Exception()
 
 def add_post_keywords_sql(postID,keyword):
     sql = 'insert into posts_keywords(postID,keyword) values(%s,%s)'
     try:
-        conndb.cursor.execute(sql,(postID,keyword))
-        conndb.db.commit()
+        conn,cursor = pooldb.get_conn()
+        cursor.execute(sql,(postID,keyword))
+        conn.commit()
+        pooldb.close_conn(conn,cursor)
+
     except Exception as e:
         print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2]+"::数据库sql执行错误")
         print(e)
-        conndb.db.rollback()
+        conn.rollback()
+        pooldb.close_conn(conn,cursor)
         raise Exception()
 
 def del_post_keywords_sql(postID,keyword):
     sql = 'delete from posts_keywords where postID=%s and keyword=%s'
     try:
-        conndb.cursor.execute(sql,(postID,keyword))
-        conndb.db.commit()
+        conn,cursor = pooldb.get_conn()
+        cursor.execute(sql,(postID,keyword))
+        conn.commit()
+        pooldb.close_conn(conn,cursor)
     except Exception as e:
         print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2]+"::数据库sql执行错误")
         print(e)
-        conndb.db.rollback()
+        conn.rollback()
+        pooldb.close_conn(conn,cursor)
         raise Exception()
 
 # 传入postID和新的keyword列表，分析差异，进行更新
@@ -226,7 +266,6 @@ def update_post_keywords(postID,new_post_keywords_list):
     except Exception as e:
         print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2]+"::数据库sql执行错误")
         print(e)
-        conndb.db.rollback()
         raise Exception()
 
 # 传入postID和新的tagName列表，分析差异，进行更新
@@ -252,7 +291,6 @@ def update_post_tag(postID,new_post_tag_list):
     except Exception as e:
         print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2]+"::数据库sql执行错误")
         print(e)
-        conndb.db.rollback()
         raise Exception()
 
 # 传入postID和新的post数据，分析差异，进行更新
@@ -269,14 +307,15 @@ def update_post_sql(postID, new_post_data):
             update_sql += (' '+sql_list[i]+', ')
         update_sql += (' ' + sql_list[-1] +' where postID=%s')
         val_list.append(postID)
-
-        conndb.cursor.execute(update_sql,tuple(val_list))
+        conn,cursor = pooldb.get_conn()
+        cursor.execute(update_sql,tuple(val_list))
         #提交事务
-        conndb.db.commit()
-
+        conn.commit()
+        pooldb.close_conn(conn,cursor)
     except Exception as e:
         #出现错误回滚
-        conndb.db.rollback()
+        conn.rollback()
+        pooldb.close_conn(conn,cursor)
         print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
         print(e)
         raise Exception()
@@ -286,15 +325,18 @@ def update_post_sql(postID, new_post_data):
 def del_post_sql(postID):
     try:
         del_sql = 'DELETE FROM posts WHERE postID=%s'
-        conndb.cursor.execute(del_sql,(postID))
+        conn,cursor = pooldb.get_conn()
+        cursor.execute(del_sql,(postID))
         #提交事务
-        conndb.db.commit()
+        conn.commit()
+        pooldb.close_conn(conn,cursor)
         return build_success_response()
 
     except Exception as e:
         #出现错误回滚
         print("[ERROR] 删除帖子失败")
-        conndb.db.rollback()
+        conn.rollback()
+        pooldb.close_conn(conn,cursor)
         print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
         print(e)
         raise Exception()

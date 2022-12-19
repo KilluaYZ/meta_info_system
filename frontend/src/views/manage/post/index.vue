@@ -640,7 +640,7 @@ export default {
         console.log("点开详情页面，收到数据");
         console.log(res);
         this.form = res.data[0];
-        getFrontTagTree().then((res) => {
+        getFrontTagTree({tagName:tagName}).then((res) => {
           this.form.frontTagTree = res.data;
           this.detail_open = true;
           this.title = "标签详情";
