@@ -918,8 +918,8 @@ create table posts_tags(
     postID int not null,
     tagName VARCHAR(50) not null,
     primary key(postid,tagname),
-    foreign key(postID) references posts(postID),
-    foreign key(tagName) references tag(tagName)
+    foreign key(postID) references posts(postID) on delete cascade,
+    foreign key(tagName) references tag(tagName) on delete cascade
 );
 
 -------------------------------------------------------------------------
@@ -929,7 +929,7 @@ create table posts_keywords(
     postID int not null,
     keyword TEXT not null,
     primary key(postid,tagname),
-    foreign key(postID) references posts(postID)
+    foreign key(postID) references posts(postID) on delete cascade
 );
 
 -------------------------------------------------------------------------

@@ -1,10 +1,12 @@
 
+from shutil import ExecError
 from flask import Flask
 from flask import request
 from flask import Blueprint
 import json
 import os
 import sys
+import inspect
 
 # 找到model文件夹
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -72,9 +74,11 @@ def addTag():
             conndb.db.commit()
             return build_success_response()
 
-        except:
+        except Exception as e:
             #出现错误回滚
             conndb.db.rollback()
+            print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
+            print(e)
             raise Exception()
 
     except:
@@ -96,9 +100,11 @@ def delTag():
             conndb.db.commit()
             return build_success_response()
 
-        except:
+        except Exception as e:
             #出现错误回滚
             conndb.db.rollback()
+            print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
+            print(e)
             raise Exception()
 
     except:
@@ -122,7 +128,7 @@ def update_sql(tagID,attr:str,val):
     except Exception as e:
         #出现错误回滚
         conndb.db.rollback()
-        print('[ERROR]update_sql sql运行失败')
+        print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
         print(e)
         raise Exception()
 
@@ -175,7 +181,7 @@ def updateTag():
         return build_success_response()
 
     except Exception as e:
-        print("Error occurs in tagManage.py::updateTag")
+        print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
         print(e)
         return build_error_response()
 
@@ -199,7 +205,7 @@ def query_sql(queryParam:dict):
             condition_sql_val_list.append(val)
     print(2)  
     if('sort' in queryParam):
-        sort_sql = 'order by %s ' %(queryParam['sort']['sortAttr'])
+        sort_sql = ' order by %s ' %(queryParam['sort']['sortAttr'])
         if(queryParam['sort']['mode'] == 'asc'):
             sort_sql+='ASC'
         elif(queryParam['sort']['mode'] == 'desc'):
@@ -210,10 +216,10 @@ def query_sql(queryParam:dict):
     print(3)
     #构建查询sql语句
     if(len(condition_sql_list)):
-        query_sql += 'where '
+        query_sql += ' where '
         for i in range(len(condition_sql_list)-1):
-            query_sql += '%s AND' % (condition_sql_list[i])
-        query_sql += (condition_sql_list[-1] + " ")
+            query_sql += ' %s AND ' % (condition_sql_list[i])
+        query_sql += (" " + condition_sql_list[-1] + " ")
     query_sql += sort_sql
     print('[DEBUG] query_sql='+query_sql)
     try:
@@ -270,7 +276,7 @@ def getTag():
         return build_success_response(data,data_length)
 
     except Exception as e:
-        print("Error occurs in tagManage.py::getTag")
+        print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
         print(e)
         return build_error_response()
 
@@ -296,8 +302,9 @@ def getFrontTagTree():
 
         return build_success_response(response_data)
 
-    except:
-        print("Error occurs in tagManage.py::getFrontTagTree")
+    except Exception as e:
+        print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
+        print(e)
         return build_error_response()
 
 
@@ -325,6 +332,7 @@ def getTagTree():
         
         return build_success_response(row1,len(row1))
             
-    except:
-        print("Error occurs in tagManage.py::delTag")
+    except Exception as e:
+        print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
+        print(e)
         return build_error_response()
