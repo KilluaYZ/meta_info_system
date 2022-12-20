@@ -52,18 +52,6 @@ export const MenuData = {
                     }
                 },
                 {
-                    "name": "Dept",
-                    "path": "dept",
-                    "hidden": false,
-                    "component": "system/dept/index",
-                    "meta": {
-                        "title": "部门管理",
-                        "icon": "tree",
-                        "noCache": false,
-                        "link": null
-                    }
-                },
-                {
                     "name": "Dict",
                     "path": "dict",
                     "hidden": false,
@@ -95,6 +83,18 @@ export const MenuData = {
                     "meta": {
                         "title": "帖子管理",
                         "icon": "dict",
+                        "noCache": false,
+                        "link": null
+                    }
+                },
+                {
+                    "name": "Visualization",
+                    "path": "visualization",
+                    "hidden": false,
+                    "component": "manage/visualization/index",
+                    "meta": {
+                        "title": "可视化界面",
+                        "icon": "tree",
                         "noCache": false,
                         "link": null
                     }
