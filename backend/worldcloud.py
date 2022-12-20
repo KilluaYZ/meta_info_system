@@ -6,6 +6,7 @@ pooldb = database.connectPool.pooldb
 begin_time=request.json.get('begin_time')
 end_time=request.json.get('end_time')
 
+#从数据库获得热度前十的标签
 def get_txt(begin_time,end_time):
     conn=get_db()
     cursor = conn.cursor()
