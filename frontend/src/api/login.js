@@ -10,12 +10,12 @@ export function login(username, password, code, uuid) {
     uuid
   }
 
-  return useMock ? new Promise((resolve, reject) => {
+  return false ? new Promise((resolve, reject) => {
     setTimeout(() => {
       resolve(TookenData)
     },100)
   }) : request({
-    url: '/login',
+    url: 'auth/login',
     headers: {
       isToken: false
     },
@@ -28,7 +28,7 @@ export function login(username, password, code, uuid) {
 // 注册方法
 export function register(data) {
   return request({
-    url: '/register',
+    url: 'auth/register',
     headers: {
       isToken: false
     },
@@ -40,7 +40,7 @@ export function register(data) {
 // 获取用户详细信息
 export function getInfo() {
   console.log('enter getInfo')
-  return useMock ?
+  return false ?
     new Promise((resolve, reject) => {
       setTimeout(() => {
         console.log('enter getInfo Promise')
@@ -48,7 +48,7 @@ export function getInfo() {
       },100)
     })
     : request({
-      url: '/getInfo',
+      url: 'auth/getInfo',
       method: 'get'
     })
 }
@@ -56,7 +56,7 @@ export function getInfo() {
 // 退出方法
 export function logout() {
   return request({
-    url: '/logout',
+    url: 'auth/logout',
     method: 'post'
   })
 }
@@ -64,7 +64,7 @@ export function logout() {
 // 获取验证码
 export function getCodeImg() {
   return request({
-    url: '/captchaImage',
+    url: 'auth/captchaImage',
     headers: {
       isToken: false
     },

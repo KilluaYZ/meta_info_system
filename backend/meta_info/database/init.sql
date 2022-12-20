@@ -64,6 +64,45 @@ after delete on posts_tags
 for each row 
 update tag set tagPopularity=(select count(*) as cnt from posts_tags where old.tagName=posts_tags.tagName  group by old.tagName ) where tagName = old.tagName ; 
 
+-------------------------------------------------------------------------
+--用户表
+SET foreign_key_checks=0;
+DROP Table if EXISTS user;
+SET foreign_key_checks=1;
+
+create table user( 
+    uid int PRIMARY KEY AUTO_INCREMENT, 
+    username varchar(50) not null, 
+    nickname varchar(50) not null, 
+    password TEXT not null, 
+    roles varchar(8) not null , 
+    email varchar(50), 
+    phonenumber varchar(50), 
+    avator TEXT 
+); 
+
+--用户会话表
+SET foreign_key_checks=0;
+DROP Table if EXISTS user_token;
+SET foreign_key_checks=1;
+create table user_token( 
+    uid int not null, 
+    token TEXT not null, 
+    foreign key(uid) references user(uid) on delete cascade on update cascade 
+); 
+--用户会话表触发器
+-- drop trigger if EXISTS user_token_insert_tri ; 
+-- create trigger user_token_insert_tri 
+-- before insert on user_token 
+-- for each row 
+-- delete from user_token where user_token.uid=new.uid; 
+
+INSERT INTO user(username,nickname,password,roles) 
+VALUES('admin','ruc', 
+'pbkdf2:sha256:260000$twMVANMQb6phGZEV$bd84550842562a5e597c8f4eb57237ac5e7fda7f5177656447b5016a5f1d89c4','admin'); 
+
+-------------------------------------------------------------------------
+
 --添加tag数据
 -------------------------------------------------------------------------
 INSERT INTO tag (tagName,tagClass,tagParentName,tagPopularity,remark)
