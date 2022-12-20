@@ -2,7 +2,7 @@ import store from '@/store'
 
 function authPermission(permission) {
   const all_permission = "*:*:*";
-  const permissions = store.getters && store.getters.permissions
+  const permissions = store.getters && store.getters.permissions //获取用户有的权限
   if (permission && permission.length > 0) {
     return permissions.some(v => {
       return all_permission === v || v === permission

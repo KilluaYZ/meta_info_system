@@ -112,20 +112,19 @@ function filterChildren(childrenMap, lastRouter = false) {
 
 // 动态路由遍历，验证是否具备权限
 export function filterDynamicRoutes(routes) {
-  // const res = []
-  // routes.forEach(route => {
-  //   if (route.permissions) {
-  //     if (auth.hasPermiOr(route.permissions)) {
-  //       res.push(route)
-  //     }
-  //   } else if (route.roles) {
-  //     if (auth.hasRoleOr(route.roles)) {
-  //       res.push(route)
-  //     }
-  //   }
-  // })
-  // return res
-  return routes
+  const res = []
+  routes.forEach(route => {
+    if (route.permissions) {
+      if (auth.hasPermiOr(route.permissions)) {
+        res.push(route)
+      }
+    } else if (route.roles) {
+      if (auth.hasRoleOr(route.roles)) {
+        res.push(route)
+      }
+    }
+  })
+  return res
 }
 
 export const loadView = (view) => {

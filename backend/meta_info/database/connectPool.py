@@ -95,5 +95,18 @@ class Pooldb:
         cursor.close()
         conn.close()
 
+    def read(self,sql):
+        try:
+            conn, cursor = pooldb.get_conn()
+            cursor.execute(sql)
+            rows = cursor.fetchall()
+            pooldb.close_conn(conn,cursor)
+            return rows
+
+        except Exception as e:
+            print(e)
+            pooldb.close_conn(conn,cursor)
+            raise Exception('Pooldb::read错误！')
+
 global pooldb
 pooldb = Pooldb()

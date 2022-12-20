@@ -11,3 +11,6 @@ def build_error_response():
 
 def build_success_response(data={},length=0):
     return build_response(200,'操作成功',data,length)
+
+def build_404_response():
+    build_response(404,'不存在')

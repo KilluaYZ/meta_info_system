@@ -3,8 +3,8 @@ import { useMock } from '@/settings'
 import {HotTagsData,NewTagsData,HotPostsData,NewPostsData} from '@/mock/mainpagedata'
 
 export function getHotTags(payload){
-    const data = payload;
-    return  useMock ? new Promise((resolve, reject) => {
+    // const data = payload;
+    return  false ? new Promise((resolve, reject) => {
         setTimeout(() => {
           resolve(HotTagsData)
         },100)
@@ -13,14 +13,13 @@ export function getHotTags(payload){
         headers: {
           isToken: false
         },
-        method: 'post',
-        data: data
+        method: 'get'
     })
 }
 
 export function getNewTags(payload){
-    const data = payload;
-    return  useMock ? new Promise((resolve, reject) => {
+    // const data = payload;
+    return  false ? new Promise((resolve, reject) => {
         setTimeout(() => {
           resolve(NewTagsData)
         },100)
@@ -29,14 +28,13 @@ export function getNewTags(payload){
         headers: {
           isToken: false
         },
-        method: 'post',
-        data: data
+        method: 'get',
       })
 }
 
 export function getHotPosts(payload){
-    const data = payload;
-    return  useMock ? new Promise((resolve, reject) => {
+    // const data = payload;
+    return  false ? new Promise((resolve, reject) => {
         setTimeout(() => {
           resolve(HotPostsData)
         },100)
@@ -45,14 +43,13 @@ export function getHotPosts(payload){
         headers: {
           isToken: false
         },
-        method: 'post',
-        data: data
+        method: 'get',
       })
 }
 
 export function getNewPosts(payload){
-    const data = payload;
-    return  useMock ? new Promise((resolve, reject) => {
+    // const data = payload;
+    return  false ? new Promise((resolve, reject) => {
         setTimeout(() => {
           resolve(NewPostsData)
         },100)
@@ -61,7 +58,6 @@ export function getNewPosts(payload){
         headers: {
           isToken: false
         },
-        method: 'post',
-        data: data
+        method: 'get',
       })
 }

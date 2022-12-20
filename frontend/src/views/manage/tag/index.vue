@@ -103,15 +103,6 @@
         prop="tagName"
         :show-overflow-tooltip="true"
       />
-
-      <el-table-column label="级别" align="center" prop="tagClass">
-        <!--<template slot-scope="scope">
-          <dict-tag :options="dict.type.sys_normal_disable" :value="scope.row.status" />
-          <span>{{scope.row.tagClass}}</span>
-        </template>-->
-      </el-table-column>
-      <el-table-column label="热度" align="center" prop="tagPopularity">
-      </el-table-column>
       <el-table-column
         label="父标签"
         align="center"
@@ -124,6 +115,16 @@
           </el-button>
         </template>
       </el-table-column>
+
+      <el-table-column label="级别" align="center" prop="tagClass">
+        <!--<template slot-scope="scope">
+          <dict-tag :options="dict.type.sys_normal_disable" :value="scope.row.status" />
+          <span>{{scope.row.tagClass}}</span>
+        </template>-->
+      </el-table-column>
+      <el-table-column label="热度" align="center" prop="tagPopularity">
+      </el-table-column>
+      
       <el-table-column
         label="备注"
         align="center"

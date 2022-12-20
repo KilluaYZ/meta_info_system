@@ -14,7 +14,7 @@ sys.path.append(os.path.dirname(SCRIPT_DIR))
 from manage.buildResponse import build_response,build_success_response,build_error_response
 from utils.check import is_number
 from database.connect import Conndb
-from manage.tagManage import query_sql
+from manage.tagManage import query_sql,update_sql
 
 # conndb = Conndb(cursor_mode='dict')
 posts = Blueprint('posts', __name__)
