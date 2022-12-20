@@ -11,7 +11,7 @@ sys.path.append(os.path.dirname(SCRIPT_DIR))
 
 # sys.path.append("..")
 
-from manage.buildResponse import build_response,build_success_response,build_error_response
+from utils.buildResponse import build_response,build_success_response,build_error_response
 from utils.check import is_number
 from database.connect import Conndb
 from manage.tagManage import query_sql,update_sql
