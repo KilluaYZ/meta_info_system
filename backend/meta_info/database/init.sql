@@ -11,7 +11,7 @@ create table posts(
     postAnswer TEXT,
     postTime DATE,
     postContent TEXT not null,
-    postPopularity int,
+    postPopularity int default 0,
     remark TEXT
 );
 
@@ -25,8 +25,9 @@ CREATE TABLE tag(
     tagName VARCHAR(50) UNIQUE  NOT NULL,
     tagClass SMALLINT NOT NULL check(tagClass >= 1 and tagClass <= 3),
     tagParentName VARCHAR(50),
-    tagPopularity INT,
-    remark TEXT
+    tagPopularity INT default 0,
+    remark TEXT,
+    createTime datetime not null default current_timestamp
 );
 
 -------------------------------------------------------------------------
@@ -48,8 +49,20 @@ create table posts_keywords(
     keyword VARCHAR(50) not null,
     primary key(postID,keyword),
     foreign key(postID) references posts(postID) on delete cascade on update cascade
-);
+); 
 
+drop trigger if EXISTS posts_tags_insert_tri ; 
+create trigger posts_tags_insert_tri 
+after insert on posts_tags 
+for each row 
+update tag set tagPopularity=(select count(*) as cnt from posts_tags where NEW.tagName=posts_tags.tagName group by NEW.tagName ) where tagName = NEW.tagName ;
+
+
+drop trigger if EXISTS posts_tags_delete_tri ; 
+create trigger posts_tags_delete_tri 
+after delete on posts_tags 
+for each row 
+update tag set tagPopularity=(select count(*) as cnt from posts_tags where old.tagName=posts_tags.tagName  group by old.tagName ) where tagName = old.tagName ; 
 
 --添加tag数据
 -------------------------------------------------------------------------

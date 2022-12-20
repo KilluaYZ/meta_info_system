@@ -147,7 +147,7 @@
         prop="postKeywords"
         width="300"
       >
-        <template slot-scope="scope">
+        <template slot-scope="scope" class="postpage-warp-column">
           <el-tag v-for="keyword in scope.row.postKeywords" :key="keyword.id">
             {{ keyword }}
           </el-tag>
@@ -159,9 +159,9 @@
         align="center"
         :show-overflow-tooltip="true"
         prop="postTag"
-        width="300"
+        width="400"
       >
-        <template slot-scope="scope">
+        <template slot-scope="scope" class="postpage-warp-column">
           <el-button
             size="mini"
             v-for="item in scope.row.postTag"
@@ -276,7 +276,7 @@
 
         <el-form-item label="标签" prop="postTag">
           <el-tag
-            :key="tag"
+            :key="tag.tagName"
             closable
             v-for="tag in form.postTag"
             :type="tag.type"
@@ -337,7 +337,8 @@
             </el-select>
             <el-button
               size="small"
-              type="sucess"
+              type="success"
+              class="configPageAddTagBtn"
               @click="handlerConfigPageTagAdd"
             >
               确认
@@ -345,6 +346,7 @@
             <el-button
               size="small"
               type="danger"
+              class="configPageAddTagBtn"
               @click="unshowConfigPageTagAdd"
             >
               取消
@@ -430,7 +432,7 @@
         </el-form-item>
         <el-form-item label="标签继承关系" prop="frontTagTree">
           <el-tag
-            :key="tag"
+            :key="tag.tagName"
             v-for="tag in form.frontTagTree"
             :type="tag.type"
             :disable-transitions="false"
@@ -467,6 +469,16 @@
   width: 90px;
   margin-left: 10px;
   vertical-align: bottom;
+}
+.configPageAddTagBtn{
+  margin-left: 10px;
+}
+
+.postpage-warp-column{
+  // display: flex;
+  // flex-direction: column;
+  // justify-content: center;
+  // align-items: center;
 }
 </style>
 
@@ -598,6 +610,12 @@ export default {
         remark: undefined,
       };
       this.resetForm("form");
+      this.configPageFirstTagValue = "";
+      this.configPageSecondTagValue = "";
+      this.configPageThirdTagValue = "";
+      this.configPageKeywordInputVisiable = "";
+      this.secondTags = []
+      this.thirdTags = []
     },
     /** 搜索按钮操作 */
     handleQuery() {
@@ -757,7 +775,7 @@ export default {
           });
         }
       } else if (this.configPageFirstTagValue) {
-        getTag({ tagName: this.configPageSecondTagValue }).then((res) => {
+        getTag({ tagName: this.configPageFirstTagValue }).then((res) => {
           let tag = res.data[0];
           this.form.postTag.push(tag);
         });

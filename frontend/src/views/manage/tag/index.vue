@@ -110,6 +110,8 @@
           <span>{{scope.row.tagClass}}</span>
         </template>-->
       </el-table-column>
+      <el-table-column label="热度" align="center" prop="tagPopularity">
+      </el-table-column>
       <el-table-column
         label="父标签"
         align="center"

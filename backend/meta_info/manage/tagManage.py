@@ -271,6 +271,8 @@ def query_sql(queryParam:dict):
         elif(row['tagClass']==3):
             row['type']=''
         # print(row)
+        if(not isinstance(row['createTime'],str)):
+            row['createTime'] = row['createTime'].strftime('%Y-%m-%d')
     return rows
 
 

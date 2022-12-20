@@ -3,12 +3,7 @@
     <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form">
       <h3 class="title">MOOC知识点标签管理系统</h3>
       <el-form-item prop="username">
-        <el-input
-          v-model="loginForm.username"
-          type="text"
-          auto-complete="off"
-          placeholder="账号"
-        >
+        <el-input v-model="loginForm.username" type="text" auto-complete="off" placeholder="账号">
           <svg-icon slot="prefix" icon-class="user" class="el-input__icon input-icon" />
         </el-input>
       </el-form-item>
@@ -34,7 +29,7 @@
           <svg-icon slot="prefix" icon-class="validCode" class="el-input__icon input-icon" />
         </el-input>
         <div class="login-code">
-          <img :src="codeUrl" @click="getCode" class="login-code-img"/>
+          <img :src="codeUrl" @click="getCode" class="login-code-img" />
         </div>
       </el-form-item>
       <el-checkbox v-model="loginForm.rememberMe" style="margin:0px 0px 25px 0px;">记住密码</el-checkbox>
@@ -64,7 +59,7 @@
 <script>
 import { getCodeImg } from "@/api/login";
 import Cookies from "js-cookie";
-import { encrypt, decrypt } from '@/utils/jsencrypt'
+import { encrypt, decrypt } from "@/utils/jsencrypt";
 
 export default {
   name: "Login",
@@ -110,7 +105,8 @@ export default {
   methods: {
     getCode() {
       getCodeImg().then(res => {
-        this.captchaEnabled = res.captchaEnabled === undefined ? true : res.captchaEnabled;
+        this.captchaEnabled =
+          res.captchaEnabled === undefined ? true : res.captchaEnabled;
         if (this.captchaEnabled) {
           this.codeUrl = "data:image/gif;base64," + res.img;
           this.loginForm.uuid = res.uuid;
@@ -120,10 +116,11 @@ export default {
     getCookie() {
       const username = Cookies.get("username");
       const password = Cookies.get("password");
-      const rememberMe = Cookies.get('rememberMe')
+      const rememberMe = Cookies.get("rememberMe");
       this.loginForm = {
         username: username === undefined ? this.loginForm.username : username,
-        password: password === undefined ? this.loginForm.password : decrypt(password),
+        password:
+          password === undefined ? this.loginForm.password : decrypt(password),
         rememberMe: rememberMe === undefined ? false : Boolean(rememberMe)
       };
     },
@@ -135,24 +132,31 @@ export default {
           this.loading = true;
           if (this.loginForm.rememberMe) {
             Cookies.set("username", this.loginForm.username, { expires: 30 });
-            Cookies.set("password", encrypt(this.loginForm.password), { expires: 30 });
-            Cookies.set('rememberMe', this.loginForm.rememberMe, { expires: 30 });
+            Cookies.set("password", encrypt(this.loginForm.password), {
+              expires: 30
+            });
+            Cookies.set("rememberMe", this.loginForm.rememberMe, {
+              expires: 30
+            });
           } else {
             Cookies.remove("username");
             Cookies.remove("password");
-            Cookies.remove('rememberMe');
+            Cookies.remove("rememberMe");
           }
           //调用store/user.js里的Login方法
-          this.$store.dispatch("Login", this.loginForm).then(() => {
-            //未出错
-            this.$router.push({ path: this.redirect || "/" }).catch(()=>{});
-          }).catch(() => {
-            //校验失败
-            this.loading = false;
-            if (this.captchaEnabled) {
-              this.getCode();
-            }
-          });
+          this.$store
+            .dispatch("Login", this.loginForm)
+            .then(() => {
+              //未出错
+              this.$router.push({ path: this.redirect || "/" }).catch(() => {});
+            })
+            .catch(() => {
+              //校验失败
+              this.loading = false;
+              if (this.captchaEnabled) {
+                this.getCode();
+              }
+            });
         }
       });
     }

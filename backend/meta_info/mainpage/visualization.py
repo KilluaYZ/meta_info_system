@@ -26,7 +26,7 @@ def getHotTags():
         if('startDate' not in data or 'endDate' not in data):
             raise Exception('前端数据不正确！startDate或endDate缺失')
         conn, cursor = pooldb.get_conn()
-        cursor.execute('select tagName,count(*) from posts, posts_tags where postTime between %s and %s and posts.postID=posts_tags.postID group by tagName order by count(*) desc')
+        cursor.execute('select tagName,count(*) from posts, posts_tags where postTime between %s and %s and posts.postID=posts_tags.postID group by tagName order by count(*) desc',(data['startDate'],data['endDate']))
         rows = cursor.fetchall()
         pooldb.close_conn(conn,cursor)
         return build_success_response(rows,len(rows))
