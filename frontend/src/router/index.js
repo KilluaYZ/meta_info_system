@@ -115,6 +115,20 @@ export const constantRoutes = [
         meta:{title:'帖子管理', icon: 'user'}
       }
     ]
+  },
+  {
+    path:'/system',
+    component: Layout,
+    hidden:true,
+    redirect:'noredirect',
+    children:[
+      {
+        path:'visualization',
+        component: () => import('@/views/manage/visualization/index'),
+        name: "Visualization",
+        meta:{title:'可视化界面', icon: 'tree'}
+      }
+    ]
   }
 ]
 
