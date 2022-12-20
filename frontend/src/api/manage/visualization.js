@@ -2,8 +2,8 @@ import request from '@/utils/request'
 import { useMock } from '../settings'
 import {HotTagsData,NewTagsData,HotPostsData,NewPostsData} from '@/mock/mainpagedata'
 
-export function getData(startdate,enddate){
-    const data = {startDate:startdate,endDate:enddate};
+export function getData(queryParams){
+    const data = {startDate:queryParams.startdate,endDate:queryParams.enddate};
     return  false ? new Promise((resolve, reject) => {
         setTimeout(() => {
           resolve(HotTagsData)
