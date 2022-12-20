@@ -1,3 +1,16 @@
+import database.connectPool
+global pooldb
+pooldb = database.connectPool.pooldb
+
+#从前端获取起始时间数据项
+begin_time=request.json.get('begin_time')
+end_time=request.json.get('end_time')
+
+def get_txt(begin_time,end_time):
+    
+
+
+
 # 导入模块
 from wordcloud import WordCloud
 # 文本数据
