@@ -17,7 +17,8 @@ class Conndb:
             user=self.user,
             port=self.port,
             password=self.password,
-            database=self.database
+            database=self.database,
+            local_infile=True
         )
         if cursor_mode=='tuple':
             self.cursor = self.db.cursor()
@@ -44,6 +45,7 @@ class Conndb:
         with open(file,'r',encoding='utf8') as f:
             data = f.read()
             lines = data.splitlines()
+            # print("lines:",lines)
             sql_data = ''
             for line in lines:
                 if len(line) == 0:
@@ -52,12 +54,15 @@ class Conndb:
                     continue
                 else:
                     sql_data += line
+            # print("sql_data:",sql_data)
 
             sql_list = sql_data.split(';')[:-1]
             sql_list = [x.replace('\n',' ')if '\n' in x else x for x in sql_list]
             sql_item = ""
+            print(sql_list)
             try:
                 for sql_item in sql_list:
+                    print("[DEBUG] execute : ",sql_item)
                     self.cursor.execute(sql_item)
                     
             except:

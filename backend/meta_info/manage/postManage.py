@@ -113,7 +113,7 @@ def query_post_sql(queryParam):
             query_sql += ' %s AND' % (condition_sql_list[i])
         query_sql += (" "+condition_sql_list[-1] + " ")
     query_sql += sort_sql
-    print('[DEBUG] query_sql='+query_sql)
+    # print('[DEBUG] query_sql='+query_sql)
 
     try:
         #防止SQL注入，选用参数化查询
@@ -124,7 +124,8 @@ def query_post_sql(queryParam):
         rows = []
         for i in range(cursor.rowcount):
             row = cursor.fetchone()
-            row['postTime']=row['postTime'].strftime('%Y-%m-%d')
+            # row['postTime']=row['postTime'].strftime('%Y-%m-%d')
+            # print(f"[DEBUG] row['postTime']={row['postTime']}")
             rows.append(row)
         
         pooldb.close_conn(conn,cursor)
@@ -168,7 +169,7 @@ def add_post_sql(data:dict) -> int:
         sql += "%s)" % (data_key_val[-1][0])
         sql2 += "%s)"
         sql += sql2
-        print("[DEBUG] insert sql=",sql)
+        # print("[DEBUG] insert sql=",sql)
         conn,cursor = pooldb.get_conn()
         cursor.execute(sql,tuple(val_list))
         conn.commit()
@@ -348,6 +349,8 @@ def build_post_response_data(postID_list:list):
         keyword_data = query_post_all_keywords(postID)
         post_data['postTag'] = tag_data
         post_data['postKeywords'] = keyword_data
+        if not isinstance(post_data['postTime'],str):
+            post_data['postTime'] = post_data['postTime'].strftime('%Y-%m-%d')
         res.append(post_data)
     return res
 
@@ -450,12 +453,8 @@ def getPost():
                 raise Exception('sort 正确性检验失败')
 
         tmp_data = query_post_sql(queryParam)
-        # print("[DEBUG] tmp_data = \n",tmp_data)
-        postid_list = list(map(lambda x : x['postID'],tmp_data))
-        print("[DEBUG] postid_list = ",postid_list)
-        data = build_post_response_data(postid_list)
-        data_length = len(data)
-        print("data_length=",data_length)
+        data_length = len(tmp_data)
+
         # 返回某一页的数据
         if('pageNum' in queryParam and 'pageSize' in queryParam):
             if(not is_number(queryParam['pageNum']) or not is_number(queryParam['pageSize'])):
@@ -466,8 +465,19 @@ def getPost():
             pageNum = queryParam['pageNum']
             # print("pageSize=",pageSize)
             # print("pageNum=",pageNum)
-            data = data[(pageNum-1)*pageSize:pageNum*pageSize]
+            tmp_data = tmp_data[(pageNum-1)*pageSize:pageNum*pageSize]
             # print("data cur len=",len(data))
+
+
+        # print("[DEBUG] tmp_data = \n",tmp_data)
+        postid_list = list(map(lambda x : x['postID'],tmp_data))
+        # print("[DEBUG] postid_list = ",postid_list)
+        # print(1)
+        data = build_post_response_data(postid_list)
+        # print(2)
+        # print(data)
+        # print("data_length=",data_length)
+        
         
         return build_success_response(data,data_length)
 

@@ -33,7 +33,7 @@ CREATE TABLE tag(
 --帖子标签
 DROP Table if EXISTS posts_tags;
 create table posts_tags(
-    postID int not null,
+    postID int not null AUTO_INCREMENT,
     tagName VARCHAR(50) not null,
     primary key(postID,tagName),
     foreign key(postID) references posts(postID) on delete cascade on update cascade,
@@ -937,5 +937,7 @@ INSERT INTO tag (tagName,tagClass,tagParentName,tagPopularity,remark)
 VALUES ('弹性伸缩',3,'云数据库',0,'');
 
 -------------------------------------------------------------------------
-
-
+load data local infile 'database/data1.txt' into table posts 
+CHARACTER SET utf8  
+FIELDS TERMINATED BY ',' 
+(postID, postTitle, postContent,postAnswer,postTime);

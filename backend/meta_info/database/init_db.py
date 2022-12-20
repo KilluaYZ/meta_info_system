@@ -1,3 +1,4 @@
+from database.connect import Conndb
 from flask import Flask
 from flask import request
 from flask import Blueprint
@@ -12,15 +13,10 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(SCRIPT_DIR))
 # sys.path.append(".")
 # sys.path.append("..")
-from database.connect import Conndb
 conndb = Conndb()
+
 
 def init_db():
     print("开始创建数据库")
     conndb.execute_scirpt('database/init.sql')
-    
-    
-
-
-
 

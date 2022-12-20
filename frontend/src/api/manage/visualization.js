@@ -1,5 +1,5 @@
 import request from '@/utils/request'
-import { useMock } from '../settings'
+import { useMock } from '@/settings'
 import {HotTagsData,NewTagsData,HotPostsData,NewPostsData} from '@/mock/mainpagedata'
 
 export function getData(queryParams){

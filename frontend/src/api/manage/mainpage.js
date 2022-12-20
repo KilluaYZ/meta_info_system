@@ -14,7 +14,7 @@ export function getHotTags(payload){
           isToken: false
         },
         method: 'post',
-        data: data.HotTagsNum
+        data: data
       })
 }
 
@@ -30,7 +30,7 @@ export function getNewTags(payload){
           isToken: false
         },
         method: 'post',
-        data: data.NewTagsNum
+        data: data
       })
 }
 
@@ -46,7 +46,7 @@ export function getHotPosts(payload){
           isToken: false
         },
         method: 'post',
-        data: data.HotPostsNum
+        data: data
       })
 }
 
@@ -62,6 +62,6 @@ export function getNewPosts(payload){
           isToken: false
         },
         method: 'post',
-        data: data.NewPostsNum
+        data: data
       })
 }
