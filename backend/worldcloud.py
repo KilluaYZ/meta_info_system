@@ -11,7 +11,7 @@ def get_txt(begin_time,end_time):
     cursor = conn.cursor()
     sql="""select count(tagname) as pop from
             (select postID,tagname from posts_tags where postID in
-            (select postID from posts where posttime between "%s" and "%s" ))
+            (select postID from posts where posttime between "%s" and "%s" ))as new
             group by tagname order by pop DESC"""%(begin_time,end_time)
     cursor.execute(sql)
     txt=cursor.fetchall()
