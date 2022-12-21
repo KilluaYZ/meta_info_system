@@ -170,7 +170,7 @@ export const dynamicRoutes = [
     component: Layout,
     hidden:true,
     redirect:'noredirect',
-    roles:['common','tagger'],
+    roles:['tagger'],
     children:[
       {
         path:'tag',
@@ -185,7 +185,7 @@ export const dynamicRoutes = [
     component: Layout,
     hidden:true,
     redirect:'noredirect',
-    roles:['common','tagger'],
+    roles:['tagger'],
     children:[
       {
         path:'post',
@@ -207,6 +207,36 @@ export const dynamicRoutes = [
         component: () => import('@/views/manage/visualization/index'),
         name: "Visualization",
         meta:{title:'可视化界面', icon: 'tree'}
+      }
+    ]
+  },
+  {
+    path:'/monitor',
+    component: Layout,
+    hidden:true,
+    redirect:'noredirect',
+    roles:['admin'],
+    children:[
+      {
+        path:'server',
+        component: () => import('@/views/monitor/server/index'),
+        name: "server",
+        meta:{title:'服务监控', icon: 'tree'}
+      }
+    ]
+  },
+  {
+    path:'/monitor',
+    component: Layout,
+    hidden:true,
+    redirect:'noredirect',
+    roles:['admin'],
+    children:[
+      {
+        path:'online',
+        component: () => import('@/views/monitor/online/index'),
+        name: "online",
+        meta:{title:'在线用户', icon: 'tree'}
       }
     ]
   }

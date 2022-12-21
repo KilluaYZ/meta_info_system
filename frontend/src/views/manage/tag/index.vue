@@ -217,7 +217,7 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="标签级别" prop="tagClass">
+        <el-form-item label="标签级别" prop="tagClass" v-if="!form.tagID">
           <el-radio-group
             v-model="form.tagClass"
             size="small"
@@ -442,7 +442,7 @@ export default {
     submitForm: function () {
       this.$refs["form"].validate((valid) => {
         if (valid) {
-          if (this.form.tagName != undefined) {
+          if (this.form.tagID != undefined) {
             updateTag(this.form).then((response) => {
               this.$modal.msgSuccess("修改成功");
               this.config_open = false;

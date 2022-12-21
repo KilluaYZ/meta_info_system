@@ -3,13 +3,13 @@
     <el-row :gutter="20">
       <el-col :xs="24" :sm="24" :md="12" :lg="12" style="padding-left: 20px">
         <h2>知识点标签管理系统</h2>
-        <p>一段话</p>
+        <p>迄今为止，中国大学MOOC平台上人大的数据库系统概论课程，自2016年起已经开课了13次，在课程讨论区的老师答疑区留下了学习者很多的提问问题。现已根据这些提问的问题，通过对其打上知识点标签形式，对问题分类，挖掘出高频疑难知识点和学生的关注点，用以对后续教学的指导参考。</p>
         <p style="padding-bottom: 50px;">
           <b>当前版本:</b><span>v{{ version }}</span>
         </p>
       </el-col>
 
-      <el-col :xs="24" :sm="24" :md="12" :lg="4">
+      <!-- <el-col :xs="24" :sm="24" :md="12" :lg="4">
         <el-card class="info">
           <div>
             最近访问<i class="el-icon-timer"></i>
@@ -40,7 +40,7 @@
             <span><i class="el-icon-caret-right"></i>{{ notice }}</span>
           </div>
         </el-card>
-      </el-col>
+      </el-col> -->
 
     </el-row>
 
@@ -60,7 +60,7 @@
           <el-image
             style="width: 100%; height: 100%"
             :src="img_url"
-            :fit="fill"
+            fit="fill"
             :preview-src-list="img_url_list"
             ></el-image>
         </el-card>

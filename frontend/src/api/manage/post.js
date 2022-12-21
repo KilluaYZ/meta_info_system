@@ -60,19 +60,14 @@ export function updatePost (payload) {
 export function getPost(payload) {
     
     if(payload.sortMode){
-      if(payload.sortMode=='Default'){
+      if(payload.sortMode=='Hot'){
         payload.sort={
-          sortAttr:'tagID',
-          mode:'asc'
-        }
-      }else if(payload.sortMode=='Hot'){
-        payload.sort={
-          sortAttr:'tagPopularity',
+          sortAttr:'postPopularity',
           mode:'desc'
         }
       }else if(payload.sortMode=='New'){
         payload.sort={
-          sortAttr:'createTime',
+          sortAttr:'postTime',
           mode:'desc'
         }
       }
