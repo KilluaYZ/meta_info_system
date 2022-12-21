@@ -104,7 +104,7 @@ def getNewPosts():
         print(e)
         return build_error_response()
 
-#查找最热门的前10个标签，找到其一级标签，并根据一级标签制作词云图并返回给前端
+#查找最热门的前10个标签，找到其一级标签，并根据一级标签制作词云图保存到本地static/img下并返回给前端对应的url
 #查询某个标签的一级标签可以使用现有函数getFrontTagTree
 from manage.tagManage import get_front_tag_tree_sql
 #该函数作用是传入一个tagName，返回该tagName的前向标签继承关系
@@ -112,16 +112,12 @@ from manage.tagManage import get_front_tag_tree_sql
 #get_front_tag_tree_sql('SQL') -> [{"tagName":"SQL",...}]
 #get_front_tag_tree_sql('SQL查询') -> [{"tagName":"SQL",...},{"tagName":"SQL查询",...}]
 #get_front_tag_tree_sql('嵌套子查询') -> [{"tagName":"SQL",...},{"tagName":"SQL查询",...},{"tagName":"嵌套子查询",...}]
+
+#热门标签词云图
 @vis.route('/getWordCloud', methods=['GET'])
 def getWordCloud():
     
-    
-    response={
-        "code":200,
-        "msg":"操作成功",
-        "data":{
-            #词云图数据放在这里
-        }
+    data = {
+        "url":"localhost:5000/static/img/"+"图片名"
     }
-    
-    return build_raw_response(response)
+    return build_success_response(data)

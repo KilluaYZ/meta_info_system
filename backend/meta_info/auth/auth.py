@@ -16,7 +16,7 @@ from utils.buildResponse import *
 from utils.check import is_number
 from database.connect import Conndb
 from manage.tagManage import query_sql,update_sql
-from static.data import routerData
+from auth.routerdata import routerData
 
 # conndb = Conndb(cursor_mode='dict')
 auth = Blueprint('auth', __name__)
@@ -307,9 +307,167 @@ def updatePwd():
         print(e)
         return build_error_response()
 '''
-http://vue.ruoyi.vip/prod-api/system/user/list?pageNum=1&pageSize=10&userName=nihao&phonenumber=133&params%5BbeginTime%5D=2022-12-20&params%5BendTime%5D=2023-01-17
+http://vue.ruoyi.vip/prod-api/system/user/list?pageNum=1&pageSize=10&userName=nihao
+'''
+
+def query_user_sql(queryParam):
+    #假设queryParam是绝对正确的，本函数就忽略对queryParam的正确性检验，将注意力集中在功能上
+    try:
+        conn,cursor = pooldb.get_conn()
+        if 'userName' in queryParam:
+            cursor.execute('select * from user where username=%s',(queryParam['userName']))
+        else:
+            cursor.execute('select * from user')
+        rows = cursor.fetchall()
+        
+        return rows
+    
+    except Exception as e:
+        print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
+        print(e)        
+'''
+{
+    "tokenId": "f7856a4c-82f9-4f0f-bc42-9fe68dd6f8ee",
+    "deptName": "研发部门",
+    "userName": "admin",
+    "ipaddr": "211.101.240.111",
+    "loginLocation": "北京市 北京市",
+    "browser": "Chrome 10",
+    "os": "Windows 10",
+    "loginTime": 1671592539893
+}
 '''
 @auth.route('/user/list', methods=['POST'])
 def userList():
-    data = request.json
+    try:
+        print(1)
+        queryParam = request.json
+        if('pageNum' in queryParam and 'pageSize' in queryParam):
+            if(not is_number(queryParam['pageNum']) or not is_number(queryParam['pageSize'])):
+                # pageNum和pageSize必须为数字
+                print('pageNum和pageSize 正确性检验失败')
+                raise Exception('pageNum和pageSize 正确性检验失败')
+        print(2)
+        rows = query_user_sql(queryParam)
+        data_length = len(rows)
+        print(3)
+        #构造前端所需数据
+        pageSize = queryParam['pageSize']
+        pageNum = queryParam['pageNum']
+        rows = rows[(pageNum-1)*pageSize:pageNum*pageSize]
+        respon = []
+        for row in rows:
+            if not isinstance(row['createTime'],str):
+                row['createTime'] = row['createTime'].strftime('%Y-%m-%d %H:%M:%S')
+            
+            respon.append({
+                "userName":row['username'],
+                'userId':row['uid'],
+                "nickName":row['nickname'],
+                "phonenumber":row['phonenumber'],
+                'createTime':row['createTime']
+            })
+        print(4)
+        return build_success_response(respon,data_length)
+        
+    except Exception as e:
+        print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
+        print(e)    
+        return build_error_response()
+
+def add_user_sql(data):
+    try:
+        #假设data中的属性都是确定无误的
+        sql = 'insert into user ('
+        sql2 = ' values ('
+        val_list = []
+        data_key_val = list(data.items())
+        for i in range(len(data_key_val)-1):
+            val_list.append(data_key_val[i][1])
+            sql += " %s ," % (data_key_val[i][0])
+            sql2 += "%s ,"
+
+        val_list.append(data_key_val[-1][1])
+        sql += "%s)" % (data_key_val[-1][0])
+        sql2 += "%s)"
+        sql += sql2
+        # print("[DEBUG] insert sql=",sql)
+        conn,cursor = pooldb.get_conn()
+        cursor.execute(sql,tuple(val_list))
+        conn.commit()
+        pooldb.close_conn(conn,cursor)
+        
+    except Exception as e:
+        print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
+        print(e)
+        if conn is not None:
+            conn.rollback()
+            pooldb.close_conn(conn,cursor)
+        raise Exception()
+
+@auth.route('/user/add', methods=['POST'])
+def addUser():
+    try:
+        data = request.json
+        if('userName' not in data or 'password' not in data
+           or 'roles' not in data):
+            raise Exception('前端数据不正确，重要数据缺失')
+        user_add_data = {}
+        # print(1)
+        for item in data.items():
+            if(item[0] == 'nickName'):
+                user_add_data['nickname']=item[1]
+            elif(item[0] == 'roles'):
+                user_add_data['roles']=item[1]
+            elif(item[0] == 'phonenumber'):
+                user_add_data['phonenumber']=item[1]
+            elif(item[0] == 'email'):
+                user_add_data['email']=item[1]
+            elif(item[0] == 'userName'):
+                user_add_data['username']=item[1]
+            elif(item[0] == 'password'):
+                user_add_data['password']=generate_password_hash(item[1])
+        
+        add_user_sql(user_add_data)
+        
+        return build_success_response()
+        
+    except Exception as e:
+        print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
+        print(e)
+        return build_error_response()
     
+def update_user_sql(data):
+    #假定data绝对正确
+    try:
+        sql = 'update user set username=%s, nickname=%s, phonenumber=%s,email=%s, password=%s, roles=%s'
+        
+        conn,cursor = pooldb.get_conn()
+        cursor.execute(sql,(data['userName'],data['userName'],
+                            data['userName'],data['userName'],
+                            data['userName'],data['userName']))
+        conn.commit()
+        pooldb.close_conn(conn,cursor)
+        
+    except Exception as e:
+        print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
+        print(e)
+        conn.rollback()
+        pooldb.close_conn(conn,cursor)
+        raise Exception()
+    
+@auth.route('/user/update', methods=['POST'])
+def userUpdate():
+    try:
+        data = request.json
+        if('userId' not in data):
+            raise Exception('前端数据不正确，重要数据缺失')
+        
+        
+        
+        return build_success_response()
+        
+    except Exception as e:
+        print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
+        print(e)
+        return build_error_response()

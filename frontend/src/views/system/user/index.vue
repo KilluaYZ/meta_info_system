@@ -1,8 +1,8 @@
 <template>
-  <div class="app-container">
+  <div class="app-container" >
     <el-row :gutter="20">
       <!--用户数据-->
-      <el-col :span="20" :xs="24">
+      <el-col :span="20" :xs="24" class="user-table">
         <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
           <el-form-item label="用户名称" prop="userName">
             <el-input
@@ -13,7 +13,7 @@
               @keyup.enter.native="handleQuery"
             />
           </el-form-item>
-          <el-form-item label="手机号码" prop="phonenumber">
+          <!-- <el-form-item label="手机号码" prop="phonenumber">
             <el-input
               v-model="queryParams.phonenumber"
               placeholder="请输入手机号码"
@@ -21,7 +21,7 @@
               style="width: 240px"
               @keyup.enter.native="handleQuery"
             />
-          </el-form-item>
+          </el-form-item> -->
           <!-- <el-form-item label="状态" prop="status">
             <el-select
               v-model="queryParams.status"
@@ -37,7 +37,7 @@
               />
             </el-select>
           </el-form-item> -->
-          <el-form-item label="创建时间">
+          <!-- <el-form-item label="创建时间">
             <el-date-picker
               v-model="dateRange"
               style="width: 240px"
@@ -47,7 +47,7 @@
               start-placeholder="开始日期"
               end-placeholder="结束日期"
             ></el-date-picker>
-          </el-form-item>
+          </el-form-item> -->
           <el-form-item>
             <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
             <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
@@ -139,14 +139,12 @@
                 type="text"
                 icon="el-icon-edit"
                 @click="handleUpdate(scope.row)"
-                v-hasPermi="['system:user:edit']"
               >修改</el-button>
               <el-button
                 size="mini"
                 type="text"
                 icon="el-icon-delete"
                 @click="handleDelete(scope.row)"
-                v-hasPermi="['system:user:remove']"
               >删除</el-button>
               <el-dropdown size="mini" @command="(command) => handleCommand(command, scope.row)" v-hasPermi="['system:user:resetPwd', 'system:user:edit']">
                 <el-button size="mini" type="text" icon="el-icon-d-arrow-right">更多</el-button>
@@ -180,9 +178,22 @@
               <el-input v-model="form.nickName" placeholder="请输入用户昵称" maxlength="30" />
             </el-form-item>
           </el-col>
-          <el-col :span="12">
+          <!-- <el-col :span="12">
             <el-form-item label="归属部门" prop="deptId">
               <treeselect v-model="form.deptId" :options="deptOptions" :show-count="true" placeholder="请选择归属部门" />
+            </el-form-item>
+          </el-col> -->
+          <el-col :span="12">
+            <el-form-item label="用户角色" prop="roles">
+              <!-- <el-input v-model="form.nickName" placeholder="请输入用户昵称" maxlength="30" /> -->
+              <el-select
+                v-model="form.roles"
+                placeholder="请选择用户角色"
+              >
+                <el-option value="admin" label="管理员"></el-option>
+                <el-option value="tagger" label="标记员"></el-option>
+                <el-option value="common" label="普通用户"></el-option>
+              </el-select>
             </el-form-item>
           </el-col>
         </el-row>
@@ -210,7 +221,7 @@
             </el-form-item>
           </el-col>
         </el-row>
-        <el-row>
+        <!-- <el-row>
           <el-col :span="12">
             <el-form-item label="用户性别">
               <el-select v-model="form.sex" placeholder="请选择性别">
@@ -234,8 +245,8 @@
               </el-radio-group>
             </el-form-item>
           </el-col>
-        </el-row>
-        <el-row>
+        </el-row> -->
+        <!-- <el-row>
           <el-col :span="12">
             <el-form-item label="岗位">
               <el-select v-model="form.postIds" multiple placeholder="请选择岗位">
@@ -262,14 +273,14 @@
               </el-select>
             </el-form-item>
           </el-col>
-        </el-row>
-        <el-row>
+        </el-row> -->
+        <!-- <el-row>
           <el-col :span="24">
             <el-form-item label="备注">
               <el-input v-model="form.remark" type="textarea" placeholder="请输入内容"></el-input>
             </el-form-item>
           </el-col>
-        </el-row>
+        </el-row> -->
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="submitForm">确 定</el-button>
@@ -278,7 +289,7 @@
     </el-dialog>
 
     <!-- 用户导入对话框 -->
-    <el-dialog :title="upload.title" :visible.sync="upload.open" width="400px" append-to-body>
+    <!-- <el-dialog :title="upload.title" :visible.sync="upload.open" width="400px" append-to-body>
       <el-upload
         ref="upload"
         :limit="1"
@@ -305,7 +316,7 @@
         <el-button type="primary" @click="submitFileForm">确 定</el-button>
         <el-button @click="upload.open = false">取 消</el-button>
       </div>
-    </el-dialog>
+    </el-dialog> -->
   </div>
 </template>
 
@@ -317,7 +328,6 @@ import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 
 export default {
   name: "User",
-  dicts: ['sys_normal_disable', 'sys_user_sex'],
   components: { Treeselect },
   data() {
     return {
@@ -386,9 +396,9 @@ export default {
         { key: 0, label: `用户编号`, visible: true },
         { key: 1, label: `用户名称`, visible: true },
         { key: 2, label: `用户昵称`, visible: true },
-        { key: 3, label: `部门`, visible: true },
+        { key: 3, label: `部门`, visible: false },
         { key: 4, label: `手机号码`, visible: true },
-        { key: 5, label: `状态`, visible: true },
+        { key: 5, label: `状态`, visible: false },
         { key: 6, label: `创建时间`, visible: true }
       ],
       // 表单校验
@@ -423,55 +433,61 @@ export default {
   },
   watch: {
     // 根据名称筛选部门树
-    deptName(val) {
-      this.$refs.tree.filter(val);
-    }
+    // deptName(val) {
+    //   this.$refs.tree.filter(val);
+    // }
   },
   created() {
     this.getList();
-    this.getDeptTree();
-    this.getConfigKey("sys.user.initPassword").then(response => {
-      this.initPassword = response.msg;
-    });
+    // this.getDeptTree();
+    // this.getConfigKey("sys.user.initPassword").then(response => {
+    //   this.initPassword = response.msg;
+    // });
   },
   methods: {
     /** 查询用户列表 */
     getList() {
       this.loading = true;
-      listUser(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
-          this.userList = response.rows;
+      // listUser(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
+      //     this.userList = response.data;
+      //     this.total = response.total;
+      //     this.loading = false;
+      //   }
+      // );
+      listUser(this.queryParams).then(response => {
+          this.userList = response.data;
           this.total = response.total;
           this.loading = false;
         }
       );
     },
     /** 查询部门下拉树结构 */
-    getDeptTree() {
-      deptTreeSelect().then(response => {
-        this.deptOptions = response.data;
-      });
-    },
+    // getDeptTree() {
+    //   deptTreeSelect().then(response => {
+    //     this.deptOptions = response.data;
+    //   });
+    // },
     // 筛选节点
-    filterNode(value, data) {
-      if (!value) return true;
-      return data.label.indexOf(value) !== -1;
-    },
+    // filterNode(value, data) {
+    //   if (!value) return true;
+    //   return data.label.indexOf(value) !== -1;
+    // },
     // 节点单击事件
-    handleNodeClick(data) {
-      this.queryParams.deptId = data.id;
-      this.handleQuery();
-    },
+    // handleNodeClick(data) {
+    //   this.queryParams.deptId = data.id;
+    //   this.handleQuery();
+    // },
     // 用户状态修改
-    handleStatusChange(row) {
-      let text = row.status === "0" ? "启用" : "停用";
-      this.$modal.confirm('确认要"' + text + '""' + row.userName + '"用户吗？').then(function() {
-        return changeUserStatus(row.userId, row.status);
-      }).then(() => {
-        this.$modal.msgSuccess(text + "成功");
-      }).catch(function() {
-        row.status = row.status === "0" ? "1" : "0";
-      });
-    },
+    // handleStatusChange(row) {
+    //   let text = row.status === "0" ? "启用" : "停用";
+    //   this.$modal.confirm('确认要"' + text + '""' + row.userName + '"用户吗？').then(function() {
+    //     return changeUserStatus(row.userId, row.status);
+    //   }).then(() => {
+    //     this.$modal.msgSuccess(text + "成功");
+    //   }).catch(function() {
+    //     row.status = row.status === "0" ? "1" : "0";
+    //   });
+    // },
     // 取消按钮
     cancel() {
       this.open = false;
@@ -530,13 +546,16 @@ export default {
     /** 新增按钮操作 */
     handleAdd() {
       this.reset();
-      getUser().then(response => {
-        this.postOptions = response.posts;
-        this.roleOptions = response.roles;
-        this.open = true;
-        this.title = "添加用户";
-        this.form.password = this.initPassword;
-      });
+      // getUser().then(response => {
+      //   this.postOptions = response.posts;
+      //   this.roleOptions = response.roles;
+      //   this.open = true;
+      //   this.title = "添加用户";
+      //   this.form.password = this.initPassword;
+      // });
+      this.open = true;
+      this.title = "添加用户";
+      this.form.password = this.initPassword;
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
@@ -637,3 +656,13 @@ export default {
   }
 };
 </script>
+
+<style lang="scss">
+.app-container{
+  width: 100%;
+}
+
+.app-container el-row,.user-table{
+  width: 100%;
+}
+</style>

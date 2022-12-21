@@ -6,7 +6,7 @@ export function listUser(query) {
   return request({
     url: '/auth/user/list',
     method: 'post',
-    json: query
+    data: query
   })
 }
 
