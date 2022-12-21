@@ -14,17 +14,17 @@
               </thead>
               <tbody>
                 <tr>
-                  <td class="el-table__cell is-leaf"><div class="cell">核心数</div></td>
-                  <td class="el-table__cell is-leaf"><div class="cell" v-if="server.cpu">{{ server.cpu.cpuNum }}</div></td>
+                  <td class="el-table__cell is-leaf"><div class="cell">CPU类型</div></td>
+                  <td class="el-table__cell is-leaf"><div class="cell" v-if="server.cpu">{{ server.cpu.cpuType }}</div></td>
                 </tr>
                 <tr>
-                  <td class="el-table__cell is-leaf"><div class="cell">用户使用率</div></td>
+                  <td class="el-table__cell is-leaf"><div class="cell">使用率</div></td>
                   <td class="el-table__cell is-leaf"><div class="cell" v-if="server.cpu">{{ server.cpu.used }}%</div></td>
                 </tr>
-                <tr>
+                <!-- <tr>
                   <td class="el-table__cell is-leaf"><div class="cell">系统使用率</div></td>
                   <td class="el-table__cell is-leaf"><div class="cell" v-if="server.cpu">{{ server.cpu.sys }}%</div></td>
-                </tr>
+                </tr> -->
                 <tr>
                   <td class="el-table__cell is-leaf"><div class="cell">当前空闲率</div></td>
                   <td class="el-table__cell is-leaf"><div class="cell" v-if="server.cpu">{{ server.cpu.free }}%</div></td>
@@ -44,29 +44,29 @@
                 <tr>
                   <th class="el-table__cell is-leaf"><div class="cell">属性</div></th>
                   <th class="el-table__cell is-leaf"><div class="cell">内存</div></th>
-                  <th class="el-table__cell is-leaf"><div class="cell">JVM</div></th>
+                  <!-- <th class="el-table__cell is-leaf"><div class="cell">JVM</div></th> -->
                 </tr>
               </thead>
               <tbody>
                 <tr>
                   <td class="el-table__cell is-leaf"><div class="cell">总内存</div></td>
                   <td class="el-table__cell is-leaf"><div class="cell" v-if="server.mem">{{ server.mem.total }}G</div></td>
-                  <td class="el-table__cell is-leaf"><div class="cell" v-if="server.jvm">{{ server.jvm.total }}M</div></td>
+                  <!-- <td class="el-table__cell is-leaf"><div class="cell" v-if="server.jvm">{{ server.jvm.total }}M</div></td> -->
                 </tr>
                 <tr>
                   <td class="el-table__cell is-leaf"><div class="cell">已用内存</div></td>
                   <td class="el-table__cell is-leaf"><div class="cell" v-if="server.mem">{{ server.mem.used}}G</div></td>
-                  <td class="el-table__cell is-leaf"><div class="cell" v-if="server.jvm">{{ server.jvm.used}}M</div></td>
+                  <!-- <td class="el-table__cell is-leaf"><div class="cell" v-if="server.jvm">{{ server.jvm.used}}M</div></td> -->
                 </tr>
                 <tr>
                   <td class="el-table__cell is-leaf"><div class="cell">剩余内存</div></td>
                   <td class="el-table__cell is-leaf"><div class="cell" v-if="server.mem">{{ server.mem.free }}G</div></td>
-                  <td class="el-table__cell is-leaf"><div class="cell" v-if="server.jvm">{{ server.jvm.free }}M</div></td>
+                  <!-- <td class="el-table__cell is-leaf"><div class="cell" v-if="server.jvm">{{ server.jvm.free }}M</div></td> -->
                 </tr>
                 <tr>
                   <td class="el-table__cell is-leaf"><div class="cell">使用率</div></td>
                   <td class="el-table__cell is-leaf"><div class="cell" v-if="server.mem" :class="{'text-danger': server.mem.usage > 80}">{{ server.mem.usage }}%</div></td>
-                  <td class="el-table__cell is-leaf"><div class="cell" v-if="server.jvm" :class="{'text-danger': server.jvm.usage > 80}">{{ server.jvm.usage }}%</div></td>
+                  <!-- <td class="el-table__cell is-leaf"><div class="cell" v-if="server.jvm" :class="{'text-danger': server.jvm.usage > 80}">{{ server.jvm.usage }}%</div></td> -->
                 </tr>
               </tbody>
             </table>
@@ -100,7 +100,7 @@
         </el-card>
       </el-col>
 
-      <el-col :span="24" class="card-box">
+      <!-- <el-col :span="24" class="card-box">
         <el-card>
           <div slot="header">
             <span>Java虚拟机信息</span>
@@ -136,9 +136,9 @@
             </table>
           </div>
         </el-card>
-      </el-col>
+      </el-col> -->
 
-      <el-col :span="24" class="card-box">
+      <!-- <el-col :span="24" class="card-box">
         <el-card>
           <div slot="header">
             <span>磁盘状态</span>
@@ -170,7 +170,7 @@
             </table>
           </div>
         </el-card>
-      </el-col>
+      </el-col> -->
     </el-row>
   </div>
 </template>

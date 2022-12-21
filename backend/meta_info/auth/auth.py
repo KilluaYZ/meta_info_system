@@ -127,9 +127,9 @@ def getInfo():
         token = request.headers.get('Authorization')
         if token is None:
             raise Exception('token不存在，无法查询')
-        print(1)
+        # print(1)
         user = get_user_by_token(token)
-        print(2)
+        # print(2)
         if not isinstance(user['createTime'],str):
             user['createTime'] = user['createTime'].strftime('%Y-%m-%d %H:%M:%S')
         response = {
@@ -145,7 +145,7 @@ def getInfo():
                 "createTime":user['createTime']
             }
         }
-        print(3)
+        # print(3)
         if user['roles'] == 'admin':
             response['user']['admin']=True
         else:
@@ -158,7 +158,7 @@ def getInfo():
         elif user['roles'] == 'common':
             response['roleGroup'] = '普通用户'
             
-        print(4)
+        # print(4)
         return build_raw_response(response)
     
     except Exception as e:
@@ -499,3 +499,51 @@ def getUser():
         if conn is not None:
             pooldb.close_conn(conn,cursor)
         raise Exception()
+
+@auth.route('/online/list', methods=['GET'])
+def getOnlineUser():
+    try:
+        userName = request.args.get('userName')
+        if userName is None:
+            rows = pooldb.read('select token,username as userName ,roles,user.uid as userId,user_token.createTime as loginTime from user, user_token where user.uid=user_token.uid')
+            
+        else:
+            conn,cursor = pooldb.get_conn()
+            cursor.execute('select token,username as userName ,roles,user.uid as userId,user_token.createTime as loginTime from user, user_token where username = %s and user.uid=user_token.uid',(userName))
+            rows = cursor.fetchall()
+            pooldb.close_conn(conn,cursor)
+            
+        length = len(rows)
+        for row in rows:
+            if not isinstance(row['loginTime'],str):
+                row['loginTime']=row['loginTime'].strftime('%Y-%m-%d %H:%M:%S')
+                
+        return build_success_response(rows,length)
+    
+    except Exception as e:
+        print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
+        print(e)
+        if not conn is None:
+            pooldb.close_conn(conn,cursor)
+        return build_error_response()
+
+@auth.route('/online/forceLogout', methods=['POST'])
+def forceLogout():    
+    try:
+        token = request.json.get('token')
+        if token is None:
+            raise Exception('前端数据错误')
+
+        conn,cursor = pooldb.get_conn()
+        cursor.execute('delete from user_token where token=%s',(token))
+        conn.commit()
+        pooldb.close_conn(conn,cursor)
+        
+        return build_success_response()
+    
+    except Exception as e:
+        print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
+        print(e)
+        if conn is not None:
+            pooldb.close_conn(conn,cursor)
+        return build_error_response()

@@ -3,7 +3,7 @@ import request from '@/utils/request'
 // 查询在线用户列表
 export function list(query) {
   return request({
-    url: '/monitor/online/list',
+    url: '/auth/online/list',
     method: 'get',
     params: query
   })
@@ -12,7 +12,10 @@ export function list(query) {
 // 强退用户
 export function forceLogout(tokenId) {
   return request({
-    url: '/monitor/online/' + tokenId,
-    method: 'delete'
+    url: '/auth/online/forceLogout',
+    method: 'post',
+    data:{
+      token:tokenId
+    }
   })
 }
