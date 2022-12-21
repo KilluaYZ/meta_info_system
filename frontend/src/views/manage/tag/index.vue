@@ -22,13 +22,28 @@
           v-model="queryParams.tagClass"
           placeholder="标签级别"
           clearable
-          style="width: 240px"
+          style="width: 240px;padding-right: 25px;"
         >
           <el-option label="1" value="1">1</el-option>
           <el-option label="2" value="2">2</el-option>
           <el-option label="3" value="3">3</el-option>
         </el-select>
       </el-form-item>
+      
+      
+      <el-form-item label="排序方式" prop="sort">
+        <el-select
+          v-model="queryParams.sortMode"
+          placeholder="默认排序"
+          clearable
+          style="width: 240px;"
+        >
+          <el-option label="默认排序" value="Default">默认排序</el-option>
+          <el-option label="按热度排序" value="Hot">按热度排序</el-option>
+          <el-option label="按时间排序" value="New">按时间排序</el-option>
+        </el-select>
+      </el-form-item>
+      
       <el-form-item>
         <el-button
           type="primary"
@@ -65,7 +80,7 @@
           >删除</el-button
         >
       </el-col>
-      <el-col :span="1.5">
+      <!-- <el-col :span="1.5">
         <el-button
           type="warning"
           plain
@@ -74,7 +89,7 @@
           @click="handleExport"
           >导出</el-button
         >
-      </el-col>
+      </el-col> -->
       <el-col :span="1.5">
         <el-button
           type="danger"
@@ -102,7 +117,13 @@
         align="center"
         prop="tagName"
         :show-overflow-tooltip="true"
-      />
+      >
+        <template slot-scope="scope">
+          <el-button  type="text" @click="showDetials({data:scope.row,row:'selftag'})">
+            <span>{{ scope.row.tagName }}</span>
+          </el-button>
+        </template>      
+      </el-table-column>
       <el-table-column
         label="父标签"
         align="center"
@@ -110,7 +131,7 @@
         prop="tagParentName"
       >
         <template slot-scope="scope">
-          <el-button size="mini" type="text" @click="showDetials(scope.row)">
+          <el-button size="mini" type="text" @click="showDetials({data:scope.row,row:'parent'})">
             <span>{{ scope.row.tagParentName }}</span>
           </el-button>
         </template>
@@ -124,6 +145,8 @@
       </el-table-column>
       <el-table-column label="热度" align="center" prop="tagPopularity">
       </el-table-column>
+
+      <el-table-column label="创建时间" align="center" prop="createTime"></el-table-column>
       
       <el-table-column
         label="备注"
@@ -148,6 +171,7 @@
             size="mini"
             type="text"
             icon="el-icon-delete"
+            style="color: crimson;"
             @click="handleDelete(scope.row)"
             >删除</el-button
           >
@@ -179,7 +203,6 @@
           <el-select
             v-model="form.tagParentName"
             filterable
-            :loading="tagSelectLoading"
             placeholder="父标签名"
             :disabled="configPageParentTagDisabled"
           >
@@ -234,6 +257,9 @@
         <el-form-item label="标签级别" prop="tagClass">
           <el-input v-model="form.tagClass" readonly />
         </el-form-item>
+        <el-form-item label="创建时间" prop="createTime">
+          <el-input v-model="form.createTime" readonly />
+        </el-form-item>
         <el-form-item label="备注" prop="remark">
           <el-input
             v-model="form.remark"
@@ -261,7 +287,6 @@ import { addTag, delTag, updateTag, getTag } from "@/api/manage/tag.js";
 
 export default {
   name: "Tag",
-  dicts: ["sys_normal_disable"],
   data() {
     return {
       // 遮罩层
@@ -292,6 +317,8 @@ export default {
         pageSize: 10,
         tagName: undefined,
         tagClass: undefined,
+        tagDate: undefined,
+        sort: "Default"
       },
       // 表单参数
       form: {},
@@ -309,6 +336,15 @@ export default {
     };
   },
   created() {
+    console.log(sessionStorage.getItem("tagneedRunPreset"))
+    if(sessionStorage.getItem("tagneedRunPreset") === "ok"){
+      console.log("使用初始化配置")
+      if(sessionStorage.getItem("tagpresetParam") === 'Hot')
+        this.queryParams.sortMode = "Hot"
+      if(sessionStorage.getItem("tagpresetParam") === 'New')
+        this.queryParams.sortMode = "New"
+    }
+    console.log(this.queryParams.sortMode)
     this.getList();
     console.log("创建tag页面ing");
   },
@@ -341,6 +377,7 @@ export default {
         tagName: undefined,
         tagClass: undefined,
         tagParentName: undefined,
+        tagDate: undefined,
         remark: undefined,
       };
       this.resetForm("form");
@@ -382,13 +419,14 @@ export default {
         this.title = "修改标签类型";
       });
     },
-    showDetials(row) {
+    showDetials(param) {
       this.reset();
-      const tagName = row.tagParentName;
+      const tagName = param.row === 'parent' ? param.data.tagParentName : param.data.tagName;
       getTag({ tagName: tagName }).then((res) => {
         console.log("点开详情页面，收到数据");
         console.log(res);
         this.form = res.data[0];
+        console.log(res.data[0])
         this.detail_open = true;
         this.title = "标签详情";
       });

@@ -59,6 +59,19 @@
         </el-date-picker>
       </el-form-item>
 
+      <el-form-item label="排序方式" prop="sort">
+        <el-select
+          v-model="queryParams.sortMode"
+          placeholder="默认排序"
+          clearable
+          style="width: 240px;"
+        >
+          <el-option label="默认排序" value="Default">默认排序</el-option>
+          <el-option label="按热度排序" value="Hot">按热度排序</el-option>
+          <el-option label="按时间排序" value="New">按时间排序</el-option>
+        </el-select>
+      </el-form-item>
+
       <el-form-item>
         <el-button
           type="primary"
@@ -139,7 +152,15 @@
         prop="postTitle"
         :show-overflow-tooltip="true"
         width="250"
-      />
+      >
+        <template slot-scope="scope" class="postpage-warp-column">
+          <el-button type="text"
+            @click="showpostDetails(scope.row)"
+          >
+            <span>{{ scope.row.postTitle }}</span>
+          </el-button>
+        </template>
+      </el-table-column>
 
       <el-table-column
         label="关键词"
@@ -167,7 +188,7 @@
             v-for="item in scope.row.postTag"
             :key="item"
             :type="item.type"
-            @click="showDetials(item)"
+            @click="showtagDetails(item)"
           >
             <span>{{ item.tagName }}</span>
           </el-button>
@@ -218,6 +239,7 @@
             size="mini"
             type="text"
             icon="el-icon-delete"
+            style="color: crimson;"
             @click="handleDelete(scope.row)"
             >删除</el-button
           >
@@ -416,11 +438,11 @@
     <!-- 显示标签详情对话框 -->
     <el-dialog
       :title="title"
-      :visible.sync="detail_open"
-      width="500px"
+      :visible.sync="tag_detail_open"
+      width="600px"
       append-to-body
     >
-      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+      <el-form ref="form" :model="form" :rules="rules" label-width="100px">
         <el-form-item label="标签名称" prop="tagName">
           <el-input v-model="form.tagName" readonly />
         </el-form-item>
@@ -444,6 +466,35 @@
         <el-form-item label="备注" prop="remark">
           <el-input
             v-model="form.remark"
+            type="textarea"
+            readonly
+            :autosize="{ minRows: 5, maxRows: 15 }"
+          ></el-input>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
+
+    <el-dialog
+      :title="title"
+      :visible.sync="post_detail_open"
+      width="600px"
+      append-to-body
+    >
+      <el-form ref="form" :model="form" :rules="rules" label-width="100px">
+        <el-form-item label="标题" prop="postTitle">
+          <el-input v-model="form.postTitle" readonly />
+        </el-form-item>
+        <el-form-item label="帖子内容" prop="postContent">
+          <el-input
+            v-model="form.postContent"
+            type="textarea"
+            readonly
+            :autosize="{ minRows: 5, maxRows: 15 }"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="帖子回答" prop="postAnswer">
+          <el-input
+            v-model="form.postAnswer"
             type="textarea"
             readonly
             :autosize="{ minRows: 5, maxRows: 15 }"
@@ -515,8 +566,10 @@ export default {
       title: "",
       // 是否显示弹出层
       config_open: false,
-      // 是否显示详情页面
-      detail_open: false,
+      // 是否显示标签详情页面
+      tag_detail_open: false,
+      // 是否显示帖子详情页面
+      post_detail_open: false,
       // 日期范围
       dateRange: [],
       // 查询参数
@@ -528,6 +581,7 @@ export default {
         postKeywords: undefined,
         postTag: undefined,
         postTime: undefined,
+        sortMode: "Default"
       },
       // 表单参数
       form: {},
@@ -651,7 +705,7 @@ export default {
       });
     },
 
-    showDetials(row) {
+    showtagDetails(row) {
       this.reset();
       const tagName = row.tagName;
       getTag({ tagName: tagName }).then((res) => {
@@ -660,10 +714,22 @@ export default {
         this.form = res.data[0];
         getFrontTagTree({tagName:tagName}).then((res) => {
           this.form.frontTagTree = res.data;
-          this.detail_open = true;
+          this.tag_detail_open = true;
           this.title = "标签详情";
         });
       });
+    },
+
+    showpostDetails(row) {
+      this.reset();
+      const postIDData = row.postID;
+      getPost({ postID: postIDData }).then((response) =>{
+        console.log("点开详情页面，收到数据")
+        this.form = response.data[0];
+        console.log(this.form);
+        this.post_detail_open = true;
+        this.title = "帖子详情";
+      })
     },
 
     /** 提交按钮 */

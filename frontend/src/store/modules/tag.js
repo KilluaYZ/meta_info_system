@@ -1,15 +1,16 @@
 const state = {
-    presetParam:{},
-    needRunPreset:false
+    tagpresetParam:{},
+    tagneedRunPreset:false
 }
 
 const mutations = {
     setpresetParam: (state,preload) => {
-        state.presetParam = preload
-        if(state.presetParam != undefined)
-            state.needRunPreset = true;
+        state.tagpresetParam = preload
+        if(state.tagpresetParam != undefined)
+            state.tagneedRunPreset = true;
         console.log('传递初始化数据')
-        console.log(state.presetParam)
+        console.log(state.tagpresetParam)
+        console.log(state.tagneedRunPreset)
     }
 }
 

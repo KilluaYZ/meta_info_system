@@ -58,6 +58,26 @@ export function updatePost (payload) {
 
 //查询标签
 export function getPost(payload) {
+    
+    if(payload.sortMode){
+      if(payload.sortMode=='Default'){
+        payload.sort={
+          sortAttr:'tagID',
+          mode:'asc'
+        }
+      }else if(payload.sortMode=='Hot'){
+        payload.sort={
+          sortAttr:'tagPopularity',
+          mode:'desc'
+        }
+      }else if(payload.sortMode=='New'){
+        payload.sort={
+          sortAttr:'createTime',
+          mode:'desc'
+        }
+      }
+    }
+    
     const data = payload;
   
     return false ? getMockPostData(payload) : request({
