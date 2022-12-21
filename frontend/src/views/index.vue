@@ -1,13 +1,47 @@
 <template>
   <div class="app-container home">
     <el-row :gutter="20">
-      <el-col :sm="24" :lg="12" style="padding-left: 20px">
+      <el-col :xs="24" :sm="24" :md="12" :lg="12" style="padding-left: 20px">
         <h2>知识点标签管理系统</h2>
         <p>一段话</p>
         <p style="padding-bottom: 50px;">
           <b>当前版本:</b><span>v{{version}}</span>
         </p>
       </el-col>
+
+      <el-col :xs="24" :sm="24" :md="12" :lg="4">
+        <el-card class="info">
+          <div>
+            最近访问<i class="el-icon-timer"></i>
+          </div>
+          <div v-for="latestvisit in latestvisitlist">
+            <span><i class="el-icon-caret-right"></i>{{ latestvisit }}</span>
+          </div>
+        </el-card>
+      </el-col>
+
+      <el-col :xs="24" :sm="24" :md="12" :lg="4">
+        <el-card class="info">
+          <div>
+            待办事项<i class="el-icon-warning"></i>
+          </div>
+          <div v-for="todo in todolist">
+            <span><i class="el-icon-caret-right"></i>{{ todo }}</span>
+          </div>
+        </el-card>
+      </el-col>
+
+      <el-col :xs="24" :sm="24" :md="12" :lg="4">
+        <el-card class="info">
+          <div>
+            通知公告<i class="el-icon-message-solid"></i>
+          </div>
+          <div v-for="notice in noticelist">
+            <span><i class="el-icon-caret-right"></i>{{ notice }}</span>
+          </div>
+        </el-card>
+      </el-col>
+
     </el-row>
 
     <el-divider></el-divider>
@@ -31,14 +65,14 @@
         </el-card>
       </el-col>
 
-      <el-col :xs="24" :sm="24" :md="12" :lg="5">
+      <el-col :xs="24" :sm="24" :md="12" :lg="6">
         <el-card class="update-log">
           <div class="header">
             <el-link v-bind:style="HotTagSetting" :underline="false" @click="switchTagsTitle('Hot')">热门标签</el-link>
             <el-divider direction="vertical"></el-divider>
             <el-link v-bind:style="NewTagSetting" :underline="false" @click="switchTagsTitle('New')">最新标签</el-link>
 
-            <el-link style="float:right; padding-bottom: 10px;" type="warning" el-link :underline="false" @click="goTag({sort:'Hot'})">
+            <el-link style="float:right; padding-bottom: 10px;" type="warning" el-link :underline="false" @click="goTag({sort:taghead})">
               更多<i class="el-icon-view el-icon--right"></i>
             </el-link>
           </div>
@@ -52,14 +86,14 @@
         </el-card>
       </el-col>
 
-      <el-col :xs="24" :sm="24" :md="12" :lg="9" >
+      <el-col :xs="24" :sm="24" :md="12" :lg="8" >
         <el-card class="update-log">
           <div class="header">
             <el-link v-bind:style="HotPostSetting" :underline="false" @click="switchPostsTitle('Hot')">热门帖子</el-link>
             <el-divider style="color:black" direction="vertical"></el-divider>
             <el-link v-bind:style="NewPostSetting" :underline="false" @click="switchPostsTitle('New')">最新帖子</el-link>
 
-            <el-link style="float:right; padding-bottom: 10px;" type="warning" el-link :underline="false" @click="goTag({sort:'New'})">
+            <el-link style="float:right; padding-bottom: 10px;" type="warning" el-link :underline="false" @click="goTag({sort:taghead})">
               更多<i class="el-icon-view el-icon--right"></i>
             </el-link>
           </div>
@@ -145,6 +179,8 @@ export default {
         // {id:3,idView:require('../assets/mainpage/3.png')}
       ],
 
+      taghead : 'Hot',
+
       queryHotTagsParams: {
         HotTagsNum: 5,
         tagName: undefined,
@@ -159,7 +195,13 @@ export default {
       },
       queryNewPostsParams: {
         NewPostsNum: 5,
-      }
+      },
+
+      latestvisitlist: ["暂无"],
+
+      todolist: ["暂无"],
+
+      noticelist: ["快点写,不然就做不完了"]
     };  
   },
   created() 
@@ -199,10 +241,14 @@ export default {
       this.tagloading = true;
       this.settagTitletheme(title)
       setTimeout(() => {
-        if(title === 'Hot')
+        if(title === 'Hot'){
           this.displayTagsContent = this.HotTagsContent;
-        else
+          this.taghead = 'Hot';
+        }
+        else{
           this.displayTagsContent = this.NewTagsContent;
+          this.taghead = 'New';
+        }
         this.tagloading = false
       }, 200);
       //console.log(HotTagsContent[0].tagName)
@@ -255,6 +301,7 @@ export default {
 
 <style scoped lang="scss">
 .home {
+  
   blockquote {
     padding: 10px 20px;
     margin: 0 0 20px;
@@ -323,6 +370,7 @@ export default {
   }
 
   .update-log {
+    
     ol {
       display: block;
       list-style-type: decimal;
@@ -336,6 +384,26 @@ export default {
     height: 350px;
   }
 
+  .info {
+    background-color: #ece0db;
+    //background-color: #c9dbef;
+    font-size: 15px;
+    color: #01847f;
+    height: 200px;  
+    ol {
+      display: block;
+      list-style-type: decimal;
+      margin-block-start: 10px;
+      margin-block-end: 10px;
+      margin-inline-start: 0;
+      margin-inline-end: 0;
+      padding-inline-start: 40px;
+      
+    }
+    span{
+      line-height: 30px;
+    }
+  }
 }
 </style>
 
