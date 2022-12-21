@@ -58,18 +58,18 @@ export function updateTag (payload) {
 
 //查询标签
 export function getTag(payload) {
-    if(payload.sort){
-      if(payload.sort=='Default'){
+  if(payload.sortMode){
+      if(payload.sortMode=='Default'){
         payload.sort={
           sortAttr:'tagID',
           mode:'asc'
         }
-      }else if(payload.sort=='Hot'){
+      }else if(payload.sortMode=='Hot'){
         payload.sort={
           sortAttr:'tagPopularity',
           mode:'desc'
         }
-      }else if(payload.sort=='New'){
+      }else if(payload.sortMode=='New'){
         payload.sort={
           sortAttr:'createTime',
           mode:'desc'
@@ -77,7 +77,6 @@ export function getTag(payload) {
       }
     }
     const data = payload;
-    
     return false ? getMockTagData(payload) : request({
       url: '/tag/get',
       headers: {

@@ -31,9 +31,9 @@
       </el-form-item>
       
       
-      <el-form-item label="排序方式" prop="sort">
+      <el-form-item label="排序方式" prop="sortMode">
         <el-select
-          v-model="queryParams.sort"
+          v-model="queryParams.sortMode"
           placeholder="按序号排序"
           clearable
           style="width: 240px;"
@@ -203,7 +203,6 @@
           <el-select
             v-model="form.tagParentName"
             filterable
-            :loading="tagSelectLoading"
             placeholder="父标签名"
             :disabled="configPageParentTagDisabled"
           >
@@ -316,7 +315,7 @@ export default {
         tagName: undefined,
         tagClass: undefined,
         tagDate: undefined,
-        sort: "Default"
+        sortMode: "Default"
       },
       // 表单参数
       form: {},
