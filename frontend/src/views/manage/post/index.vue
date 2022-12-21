@@ -494,7 +494,7 @@ import {
 import { addPost, delPost, updatePost, getPost } from "@/api/manage/post.js";
 export default {
   name: "Post",
-  dicts: ["sys_normal_disable"],
+  // dicts: ["sys_normal_disable"],
   data() {
     return {
       // 遮罩层

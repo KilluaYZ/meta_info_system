@@ -261,7 +261,7 @@ import { addTag, delTag, updateTag, getTag } from "@/api/manage/tag.js";
 
 export default {
   name: "Tag",
-  dicts: ["sys_normal_disable"],
+  // dicts: ["sys_normal_disable"],
   data() {
     return {
       // 遮罩层

@@ -74,6 +74,27 @@ def get_user_by_token(token):
 def getRouters():
     return build_success_response(routerData)
 
+def authorize_username_password(username,password):
+    try:
+        conn,cursor = pooldb.get_conn()
+        cursor.execute('select * from user where username=%s',(username))
+        user = cursor.fetchone()
+        pooldb.close_conn(conn,cursor)
+        if user is None:
+            raise Exception('用户名不正确')
+        
+        if not check_password_hash(user['password'],password):
+            raise Exception('密码不正确')
+        
+        #都正确了，开始创建会话
+        print('验证成功')
+        return user
+    except Exception as e:
+        print(e)
+        if conn is not None:
+            pooldb.close_conn(conn,cursor)
+        return None
+
 #收到用户名密码，返回会话对应的toKen
 @auth.route('/login', methods=['POST'])
 def login():
@@ -84,17 +105,10 @@ def login():
         username = data['username']
         
         password = data['password']
-        conn,cursor = pooldb.get_conn()
-        cursor.execute('select * from user where username=%s',(username))
-        user = cursor.fetchone()
-        pooldb.close_conn(conn,cursor)
+        user = authorize_username_password(username,password)
         if user is None:
-            raise Exception('用户名不正确')
+            return build_error_response(msg='用户名或密码错误')
         
-        if not check_password_hash(user['password'],password):
-            raise Exception('密码不正确')
-        #都正确了，开始创建会话
-        print('验证成功')
         token = build_session(user['uid'])
         print('[DEBUG] get token, token = ',token)
         # tokenList.append(token)
@@ -103,8 +117,6 @@ def login():
     except Exception as e:
         print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
         print(e)
-        if conn is not None:
-            pooldb.close_conn(conn,cursor)
         return build_error_response(msg='登录失败')    
     
 
@@ -118,6 +130,8 @@ def getInfo():
         print(1)
         user = get_user_by_token(token)
         print(2)
+        if not isinstance(user['createTime'],str):
+            user['createTime'] = user['createTime'].strftime('%Y-%m-%d %H:%M:%S')
         response = {
             "msg": "操作成功",
             "roles": [user['roles']],
@@ -127,7 +141,8 @@ def getInfo():
                 "nickName": user['nickname'],
                 "email": user['email'],
                 "phonenumber": user['phonenumber'],
-                "avator":user['avator']
+                "avator":user['avator'],
+                "createTime":user['createTime']
             }
         }
         print(3)
@@ -135,6 +150,14 @@ def getInfo():
             response['user']['admin']=True
         else:
             response['user']['admin']=False
+        
+        if user['roles'] == 'admin':
+            response['roleGroup'] = '管理员'
+        elif user['roles'] == 'tagger':
+            response['roleGroup'] = '标记员'
+        elif user['roles'] == 'common':
+            response['roleGroup'] = '普通用户'
+            
         print(4)
         return build_raw_response(response)
     
@@ -166,3 +189,120 @@ def logout():
 @auth.route('/captchaImage', methods=['POST','GET'])
 def captchaImage():
     return build_success_response()
+
+def update_user_sql(data):
+    try:
+        conn, cursor = pooldb.get_conn()
+        sql = 'update user set nickname=%s,email=%s,phonenumber=%s where uid=%s'
+        cursor.execute(sql,(data['nickName'],data['email'],data['phonenumber'],data['userId']))
+        conn.commit()
+        pooldb.close_conn(conn,cursor)
+        
+    except Exception as e:
+        print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
+        print(e)
+        if conn is not None:
+            pooldb.close_conn(conn,cursor)
+        raise Exception('update_ser_sql错误')
+
+@auth.route('/profile', methods=['GET','POST'])
+def getprofile():
+    try:
+        if request.method == 'GET':
+            token = request.headers.get('Authorization')
+            if token is None:
+                raise Exception('token不存在，无法查询')
+            print(1)
+            user = get_user_by_token(token)
+            print(2)
+            if not isinstance(user['createTime'],str):
+                user['createTime'] = user['createTime'].strftime('%Y-%m-%d %H:%M:%S')
+            response = {
+                "msg": "操作成功",
+                "roles": [user['roles']],
+                "data":{
+                    "userId": user['uid'],
+                    "userName": user['username'],
+                    "nickName": user['nickname'],
+                    "email": user['email'],
+                    "phonenumber": user['phonenumber'],
+                    "avator":user['avator'],
+                    "createTime":user['createTime']
+                }
+            }
+            print(3)
+            if user['roles'] == 'admin':
+                response['data']['admin']=True
+            else:
+                response['data']['admin']=False
+            
+            if user['roles'] == 'admin':
+                response['roleGroup'] = '管理员'
+            elif user['roles'] == 'tagger':
+                response['roleGroup'] = '标记员'
+            elif user['roles'] == 'common':
+                response['roleGroup'] = '普通用户'
+                
+            print(4)
+            return build_raw_response(response)
+        
+        elif request.method == 'POST':
+            token = request.headers.get('Authorization')
+            if token is None:
+                raise Exception('token不存在，无法修改信息')
+            data = request.json
+            update_user_sql(data)
+            
+            return build_success_response()
+    
+    except Exception as e:
+        print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
+        print(e)
+        return build_error_response()
+
+
+def update_user_pwd(uid,pwd):
+    try:
+        sql = 'update user set password=%s where uid=%s'
+        conn,cursor = pooldb.get_conn()
+        cursor.execute(sql,(generate_password_hash(pwd),uid))
+        conn.commit()
+        pooldb.close_conn(conn,cursor)
+    except Exception as e:
+        print(e)
+        if conn is not None:
+            pooldb.close_conn(conn,cursor)
+        raise Exception(f'用户{uid}密码修改失败')
+
+@auth.route('/profile/updatePwd', methods=['POST'])
+def updatePwd():
+    try:
+        # print(1)
+        data = request.json
+        if('oldPassword' not in data or 'newPassword' not in data):
+            raise Exception('前端数据错误，不存在oldPassword或newPassword')
+        # print(2)
+        
+        token = request.headers.get('Authorization')
+        if token is None:
+            raise Exception('token不存在')
+        # print(3)
+        # print('token=',token)
+        user = get_user_by_token(token)
+        if user is None:
+            raise Exception('会话不存在')
+        # print(3.5)
+        res = authorize_username_password(user['username'],data['oldPassword'])
+        if res is None:
+            raise Exception('密码不正确')
+        # print(4)
+        
+        update_user_pwd(user['uid'],data['newPassword'])
+        # print(5)
+        
+        return build_success_response()
+    
+    except Exception as e:
+        print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
+        print(e)
+        return build_error_response()
