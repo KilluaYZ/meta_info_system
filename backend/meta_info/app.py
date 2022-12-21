@@ -60,6 +60,7 @@ def create_app(test_config=None):
     app.register_blueprint(vis,url_prefix='/vis')
     app.register_blueprint(auth,url_prefix='/auth')
     app.register_blueprint(monitor,url_prefix='/monitor')
+
     
     return app
 

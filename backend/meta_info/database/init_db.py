@@ -19,4 +19,5 @@ conndb = Conndb()
 def init_db():
     print("开始创建数据库")
     conndb.execute_scirpt('database/init.sql')
+    
 

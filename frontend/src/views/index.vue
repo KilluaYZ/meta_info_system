@@ -5,7 +5,7 @@
         <h2>知识点标签管理系统</h2>
         <p>一段话</p>
         <p style="padding-bottom: 50px;">
-          <b>当前版本:</b><span>v{{version}}</span>
+          <b>当前版本:</b><span>v{{ version }}</span>
         </p>
       </el-col>
 
@@ -48,20 +48,21 @@
 
     <el-row :gutter="20">
       <el-col :xs="24" :sm="24" :md="12" :lg="10">
-        <el-card class="update-log">
-          <div>
-            <el-link style="float:right; padding-bottom: 10px;" type="warning" el-link :underline="false">
-              更多<i class="el-icon-view el-icon--right"></i>
+        <el-card class="update-log word-cloud-card">
+          <div class="header">
+            <el-link style="float:right; padding-bottom: 10px;" type="warning" el-link :underline="false" href="http://localhost:5000/vis/getWordCloud">
+              放大<i class="el-icon-view el-icon--right"></i>
             </el-link>
-            <h3>可视化</h3>
-          </div>
-          <div style="margin:0 auto;">
-            <el-carousel :interval="4000" type="card" height="300px"  >
-              <el-carousel-item v-for="item in imgList" :key="item.id">
-                <img :src="item.idView" width="450px" height="275px">
-              </el-carousel-item>
-            </el-carousel>
-          </div>
+            <h3>词云图</h3>
+            <!-- <el-image :src="img_url" :preview-src-list="img_url_list" :fit="cover" lazy></el-image> -->
+          </div>  
+          <!-- <iframe v-bind:src="img_url" id="wordcloud" scrolling="no" frameborder="0"></iframe> -->
+          <el-image
+            style="width: 100%; height: 100%"
+            :src="img_url"
+            :fit="fill"
+            :preview-src-list="img_url_list"
+            ></el-image>
         </el-card>
       </el-col>
 
@@ -72,41 +73,43 @@
             <el-divider direction="vertical"></el-divider>
             <el-link v-bind:style="NewTagSetting" :underline="false" @click="switchTagsTitle('New')">最新标签</el-link>
 
-            <el-link style="float:right; padding-bottom: 10px;" type="warning" el-link :underline="false" @click="goTag({sort:taghead})">
+            <el-link style="float:right; padding-bottom: 10px;" type="warning" el-link :underline="false"
+              @click="goTag({ sort: taghead })">
               更多<i class="el-icon-view el-icon--right"></i>
             </el-link>
           </div>
           <ul>
             <li v-for="Tag in displayTagsContent">
               <div class="col-item">
-                 <el-link v-loading="tagloading" type="primary" @click="showtagDetail(Tag)" >{{Tag.tagName}}</el-link>
+                <el-link v-loading="tagloading" type="primary" @click="showtagDetail(Tag)">{{ Tag.tagName }}</el-link>
               </div>
             </li>
           </ul>
         </el-card>
       </el-col>
 
-      <el-col :xs="24" :sm="24" :md="12" :lg="8" >
+      <el-col :xs="24" :sm="24" :md="12" :lg="8">
         <el-card class="update-log">
           <div class="header">
             <el-link v-bind:style="HotPostSetting" :underline="false" @click="switchPostsTitle('Hot')">热门帖子</el-link>
             <el-divider style="color:black" direction="vertical"></el-divider>
             <el-link v-bind:style="NewPostSetting" :underline="false" @click="switchPostsTitle('New')">最新帖子</el-link>
 
-            <el-link style="float:right; padding-bottom: 10px;" type="warning" el-link :underline="false" @click="goTag({sort:taghead})">
+            <el-link style="float:right; padding-bottom: 10px;" type="warning" el-link :underline="false"
+              @click="goTag({ sort: taghead })">
               更多<i class="el-icon-view el-icon--right"></i>
             </el-link>
           </div>
           <ul>
             <li v-for="Post in displayPostsContent">
-              <div class="col-item" >
-                 <el-link v-loading="postloading" type="primary" >{{Post.postContent}}</el-link>
+              <div class="col-item">
+                <el-link v-loading="postloading" type="primary">{{ Post.postContent }}</el-link>
               </div>
             </li>
           </ul>
         </el-card>
       </el-col>
-  
+
     </el-row>
 
     <!-- 显示标签详情对话框 -->
@@ -122,7 +125,7 @@
           <el-input v-model="Tagform.tagClass" readonly />
         </el-form-item>
         <el-form-item label="备注" prop="remark">
-          <el-input v-model="Tagform.remark" type="textarea" readonly :autosize="{ minRows: 5, maxRows: 15}" ></el-input>
+          <el-input v-model="Tagform.remark" type="textarea" readonly :autosize="{ minRows: 5, maxRows: 15 }"></el-input>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -133,8 +136,9 @@
 
 <script>
 
-import { getHotTags, getNewTags, getHotPosts, getNewPosts} from "@/api/manage/mainpage.js";
+import { getHotTags, getNewTags, getHotPosts, getNewPosts } from "@/api/manage/mainpage.js";
 import { getTag } from "@/api/manage/tag.js"
+import { getWordCloud } from "@/api/manage/visualization.js"
 
 export default {
   name: "Index",
@@ -142,7 +146,7 @@ export default {
     return {
       // 版本号
       version: "1.0.0",
-      
+
       tagloading: false,
 
       postloading: false,
@@ -165,21 +169,20 @@ export default {
       //标签表单
       Tagform: {},
       //标题字体样式设置
-      HotTagSetting: {color:'red',fontSize:'16px'},
-        
-      NewTagSetting: {fontSize:'16px'},
+      HotTagSetting: { color: 'red', fontSize: '16px' },
 
-      HotPostSetting: {color:'red',fontSize:'16px'},
+      NewTagSetting: { fontSize: '16px' },
 
-      NewPostSetting: {fontSize:'16px'},
+      HotPostSetting: { color: 'red', fontSize: '16px' },
 
-      imgList : [
-        // {id:1,idView:require('../assets/mainpage/1.png')},
-        // {id:2,idView:require('../assets/mainpage/2.png')},
-        // {id:3,idView:require('../assets/mainpage/3.png')}
-      ],
+      NewPostSetting: { fontSize: '16px' },
 
-      taghead : 'Hot',
+      img_url_list: ["http://localhost:5000/vis/getWordCloud"],
+      
+      // img_url:"localhost:5000/static/img/wordcloud_img.jpg",
+      img_url:"http://localhost:5000/vis/getWordCloud",
+
+      taghead: 'Hot',
 
       queryHotTagsParams: {
         HotTagsNum: 5,
@@ -202,10 +205,9 @@ export default {
       todolist: ["暂无"],
 
       noticelist: ["快点写,不然就做不完了"]
-    };  
+    };
   },
-  created() 
-  {
+  created() {
     console.log("获取数据");
     this.getList();
   },
@@ -231,21 +233,29 @@ export default {
       getNewPosts(this.queryNewPostsParams).then((res) => {
         console.log("成功取得NewPosts数据")
         this.NewPostsContent = res.data;
-      })   
+      })
+      // getWordCloud().then((res) => {
+      //   // console.log('接收到词云图')
+      //   // console.log(res)
+      //   // const blob = new Blob([res.data])
+      //   // this.img_url = URL.createObjectURL(blob)
+      //   // console.log('this.img_url=',this.img_url)
+      //   // this.img_url_list.push(this.img_url)
+      // })
     },
     goTag(sortForm) {
-      this.$store.commit('tag/setpresetParam',sortForm)
+      this.$store.commit('tag/setpresetParam', sortForm)
       this.$router.push('/system/tag')
     },
     switchTagsTitle(title) {
       this.tagloading = true;
       this.settagTitletheme(title)
       setTimeout(() => {
-        if(title === 'Hot'){
+        if (title === 'Hot') {
           this.displayTagsContent = this.HotTagsContent;
           this.taghead = 'Hot';
         }
-        else{
+        else {
           this.displayTagsContent = this.NewTagsContent;
           this.taghead = 'New';
         }
@@ -257,16 +267,16 @@ export default {
       this.postloading = true;
       this.setpostTitletheme(title);
       setTimeout(() => {
-        if(title === 'Hot')
+        if (title === 'Hot')
           this.displayPostsContent = this.HotPostsContent;
         else
           this.displayPostsContent = this.NewPostsContent;
         this.postloading = false
-      }, 200);   
+      }, 200);
     },
     showtagDetail(row) {
       const tagName = row.tagName;
-      getTag({tagName: tagName}).then((res)=>{
+      getTag({ tagName: tagName }).then((res) => {
         console.log('点开详情页面，收到数据')
         console.log(res)
         this.Tagform = res.data[0];
@@ -276,23 +286,23 @@ export default {
     },
     //根据标签主题设置字符样式
     settagTitletheme(title) {
-      if(title === 'Hot'){
-        this.HotTagSetting = {color:'red',fontSize:'16px'};
-        this.NewTagSetting = {fontSize:'16px'};
+      if (title === 'Hot') {
+        this.HotTagSetting = { color: 'red', fontSize: '16px' };
+        this.NewTagSetting = { fontSize: '16px' };
       }
-      else{
-        this.HotTagSetting = {fontSize:'16px'};
-        this.NewTagSetting = {color:'red',fontSize:'16px'};    
+      else {
+        this.HotTagSetting = { fontSize: '16px' };
+        this.NewTagSetting = { color: 'red', fontSize: '16px' };
       }
     },
     setpostTitletheme(title) {
-      if(title === 'Hot'){
-        this.HotPostSetting = {color:'red',fontSize:'16px'};
-        this.NewPostSetting = {fontSize:'16px'};
+      if (title === 'Hot') {
+        this.HotPostSetting = { color: 'red', fontSize: '16px' };
+        this.NewPostSetting = { fontSize: '16px' };
       }
-      else{
-        this.HotPostSetting = {fontSize:'16px'}; 
-        this.NewPostSetting = {color:'red',fontSize:'16px'}; 
+      else {
+        this.HotPostSetting = { fontSize: '16px' };
+        this.NewPostSetting = { color: 'red', fontSize: '16px' };
       }
     }
   },
@@ -301,18 +311,20 @@ export default {
 
 <style scoped lang="scss">
 .home {
-  
+
   blockquote {
     padding: 10px 20px;
     margin: 0 0 20px;
     font-size: 17.5px;
     border-left: 5px solid #eee;
   }
+
   hr {
     margin-top: 20px;
     margin-bottom: 20px;
     border: 0;
   }
+
   h3 {
     margin-top: 10px;
     margin-bottom: 10px;
@@ -320,6 +332,7 @@ export default {
     border-bottom: 1px solid rgb(200, 200, 200);
     font-size: 16px;
   }
+
   .col-item {
     width: 100%;
     margin-top: 20px;
@@ -331,6 +344,7 @@ export default {
     overflow: hidden;
     word-break: break-all;
   }
+
   .header {
     padding-top: 8px;
     padding-bottom: 9px;
@@ -342,7 +356,11 @@ export default {
     margin: 0;
   }
 
-  font-family: "open sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: "open sans",
+  "Helvetica Neue",
+  Helvetica,
+  Arial,
+  sans-serif;
   font-size: 13px;
   color: #676a6c;
   overflow-x: hidden;
@@ -370,7 +388,7 @@ export default {
   }
 
   .update-log {
-    
+
     ol {
       display: block;
       list-style-type: decimal;
@@ -380,6 +398,7 @@ export default {
       margin-inline-end: 0;
       padding-inline-start: 40px;
     }
+
     margin-bottom: 20px;
     height: 350px;
   }
@@ -389,7 +408,8 @@ export default {
     //background-color: #c9dbef;
     font-size: 15px;
     color: #01847f;
-    height: 200px;  
+    height: 200px;
+
     ol {
       display: block;
       list-style-type: decimal;
@@ -398,12 +418,34 @@ export default {
       margin-inline-start: 0;
       margin-inline-end: 0;
       padding-inline-start: 40px;
-      
+
     }
-    span{
+
+    span {
       line-height: 30px;
     }
   }
 }
+
+#wordcloud{
+  width: 100%;
+  height: 100%;
+  min-width: 700px;
+  min-height: 600px;
+}
+
+#wordcloud img{
+  width:100%;
+  height: auto;
+}
+
+.word-cloud-card .el-card__body{
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  object-fit: cover;
+}
+
+
 </style>
 

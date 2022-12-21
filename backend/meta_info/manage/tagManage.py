@@ -4,7 +4,6 @@ import os
 import sys
 import inspect
 
-
 # 找到model文件夹
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(SCRIPT_DIR))
@@ -98,6 +97,27 @@ def addTag():
         print("Error occurs in tagManage.py::addTag")
         return build_error_response()
 
+def del_tag_sql(tagName):
+    try:
+        #先将child删完
+        childTagData = query_sql({"tagParentName":tagName})
+        for childTag in childTagData:
+            del_tag_sql(childTag['tagName'])
+        #再删他本身
+        
+        del_sql = 'DELETE FROM tag WHERE tagName=%s'
+        # conndb.cursor.execute(del_sql,(tagName))
+        conn,cursor = pooldb.get_conn()
+        cursor.execute(del_sql,(tagName))
+        conn.commit()
+        pooldb.close_conn(conn,cursor)
+        
+    except Exception as e:
+            #出现错误回滚
+            # conndb.db.rollback()
+            conn.roolback()
+            pooldb.close_conn(conn,cursor)
+
 
 #删除标签
 @tag.route('/del', methods=['POST'])
@@ -107,21 +127,12 @@ def delTag():
         
         #防止sql注入
         try:
-            del_sql = 'DELETE FROM tag WHERE tagName=%s'
-            # conndb.cursor.execute(del_sql,(tagName))
-            conn,cursor = pooldb.get_conn()
-            cursor.execute(del_sql,(tagName))
-            #提交事务
-            # conndb.db.commit()
-            conn.commit()
-            pooldb.close_conn(conn,cursor)
+            del_tag_sql(tagName)
             return build_success_response()
 
         except Exception as e:
             #出现错误回滚
             # conndb.db.rollback()
-            conn.roolback()
-            pooldb.close_conn(conn,cursor)
             print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
             print(e)
             raise Exception()

@@ -17,3 +17,13 @@ export function getData(queryParams){
         data: data
       })
 }
+
+export function getWordCloud(){
+  return  request({
+      url: 'vis//getWordCloud',
+      headers: {
+        isToken: false
+      },
+      method: 'get',
+    })
+}

@@ -41,6 +41,7 @@ create table posts_tags(
     foreign key(tagName) references tag(tagName) on delete cascade on update cascade
 );
 
+
 -------------------------------------------------------------------------
 --帖子关键词
 DROP Table if EXISTS posts_keywords;
@@ -88,9 +89,10 @@ DROP Table if EXISTS user_token;
 SET foreign_key_checks=1;
 create table user_token( 
     uid int not null, 
-    token TEXT not null, 
+    token VARCHAR(128) not null, 
     createTime datetime not null  default CURRENT_TIMESTAMP, 
     visitTime datetime not null default CURRENT_TIMESTAMP , 
+    PRIMARY key(uid,token), 
     foreign key(uid) references user(uid) on delete cascade on update cascade 
 ); 
 --用户会话表触发器
