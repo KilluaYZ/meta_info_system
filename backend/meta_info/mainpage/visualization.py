@@ -41,7 +41,7 @@ def getHotTags():
     elif(request.method=='GET'):
         #查找最热门的5个tag
         try:
-            rows = pooldb.read('select * from tag order by createTime desc limit 5')
+            rows = pooldb.read('select * from tag order by tagPopularity desc limit 5')
             for row in rows:
                 if(not isinstance(row['createTime'],str)):
                     row['createTime']=row['createTime'].strftime('%Y-%m-%d')
