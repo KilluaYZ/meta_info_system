@@ -440,12 +440,12 @@ def addUser():
 def update_user_sql(data):
     #假定data绝对正确
     try:
-        sql = 'update user set username=%s, nickname=%s, phonenumber=%s,email=%s, password=%s, roles=%s'
+        sql = 'update user set username=%s, nickname=%s, phonenumber=%s,email=%s, password=%s, roles=%s where uid=%s'
         
         conn,cursor = pooldb.get_conn()
         cursor.execute(sql,(data['userName'],data['nickName'],
                             data['phonenumber'],data['email'],
-                            generate_password_hash(data['password']),data['roles']))
+                            generate_password_hash(data['password']),data['roles'],data['userId']))
         conn.commit()
         pooldb.close_conn(conn,cursor)
         
