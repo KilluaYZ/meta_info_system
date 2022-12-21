@@ -111,7 +111,7 @@
           <el-table-column label="用户编号" align="center" key="userId" prop="userId" v-if="columns[0].visible" />
           <el-table-column label="用户名称" align="center" key="userName" prop="userName" v-if="columns[1].visible" :show-overflow-tooltip="true" />
           <el-table-column label="用户昵称" align="center" key="nickName" prop="nickName" v-if="columns[2].visible" :show-overflow-tooltip="true" />
-          <!-- <el-table-column label="部门" align="center" key="deptName" prop="dept.deptName" v-if="columns[3].visible" :show-overflow-tooltip="true" /> -->
+          <el-table-column label="用户角色" align="center" key="roles" prop="roles" v-if="columns[3].visible" :show-overflow-tooltip="true" />
           <el-table-column label="手机号码" align="center" key="phonenumber" prop="phonenumber" v-if="columns[4].visible" width="120" />
           <!-- <el-table-column label="状态" align="center" key="status" v-if="columns[5].visible">
             <template slot-scope="scope">
@@ -150,7 +150,7 @@
                 <el-button size="mini" type="text" icon="el-icon-d-arrow-right">更多</el-button>
                 <el-dropdown-menu slot="dropdown">
                   <el-dropdown-item command="handleResetPwd" icon="el-icon-key"
-                    v-hasPermi="['system:user:resetPwd']">重置密码</el-dropdown-item>
+                    >重置密码</el-dropdown-item>
                   <!-- <el-dropdown-item command="handleAuthRole" icon="el-icon-circle-check"
                     v-hasPermi="['system:user:edit']">分配角色</el-dropdown-item> -->
                 </el-dropdown-menu>
@@ -396,7 +396,7 @@ export default {
         { key: 0, label: `用户编号`, visible: true },
         { key: 1, label: `用户名称`, visible: true },
         { key: 2, label: `用户昵称`, visible: true },
-        { key: 3, label: `部门`, visible: false },
+        { key: 3, label: `用户角色`, visible: true },
         { key: 4, label: `手机号码`, visible: true },
         { key: 5, label: `状态`, visible: false },
         { key: 6, label: `创建时间`, visible: true }
@@ -456,7 +456,7 @@ export default {
       // );
       listUser(this.queryParams).then(response => {
           this.userList = response.data;
-          this.total = response.total;
+          this.total = response.length;
           this.loading = false;
         }
       );
@@ -553,9 +553,9 @@ export default {
       //   this.title = "添加用户";
       //   this.form.password = this.initPassword;
       // });
-      this.open = true;
+      
       this.title = "添加用户";
-      this.form.password = this.initPassword;
+      this.open = true;
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
@@ -563,13 +563,14 @@ export default {
       const userId = row.userId || this.ids;
       getUser(userId).then(response => {
         this.form = response.data;
-        this.postOptions = response.posts;
-        this.roleOptions = response.roles;
-        this.$set(this.form, "postIds", response.postIds);
-        this.$set(this.form, "roleIds", response.roleIds);
-        this.open = true;
+        // this.postOptions = response.posts;
+        // this.roleOptions = response.roles;
+        // this.$set(this.form, "postIds", response.postIds);
+        // this.$set(this.form, "roleIds", response.roleIds);
+        
         this.title = "修改用户";
         this.form.password = "";
+        this.open = true;
       });
     },
     /** 重置密码按钮操作 */

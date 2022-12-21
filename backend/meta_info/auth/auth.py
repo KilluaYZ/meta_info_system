@@ -443,17 +443,18 @@ def update_user_sql(data):
         sql = 'update user set username=%s, nickname=%s, phonenumber=%s,email=%s, password=%s, roles=%s'
         
         conn,cursor = pooldb.get_conn()
-        cursor.execute(sql,(data['userName'],data['userName'],
-                            data['userName'],data['userName'],
-                            data['userName'],data['userName']))
+        cursor.execute(sql,(data['userName'],data['nickName'],
+                            data['phonenumber'],data['email'],
+                            generate_password_hash(data['password']),data['roles']))
         conn.commit()
         pooldb.close_conn(conn,cursor)
         
     except Exception as e:
         print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
         print(e)
-        conn.rollback()
-        pooldb.close_conn(conn,cursor)
+        if conn is not None:
+            conn.rollback()
+            pooldb.close_conn(conn,cursor)
         raise Exception()
     
 @auth.route('/user/update', methods=['POST'])
@@ -463,7 +464,7 @@ def userUpdate():
         if('userId' not in data):
             raise Exception('前端数据不正确，重要数据缺失')
         
-        
+        update_user_sql(data)
         
         return build_success_response()
         
@@ -471,3 +472,30 @@ def userUpdate():
         print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
         print(e)
         return build_error_response()
+    
+@auth.route('/user/get', methods=['POST'])
+def getUser():
+    try:
+        data = request.json
+        if('userId' not in data):
+            raise Exception('前端数据错误，无userId')
+        
+        sql = 'select * from user where uid=%s'
+        conn,cursor = pooldb.get_conn()
+        cursor.execute(sql,(data['userId']))
+        row = cursor.fetchone()
+        pooldb.close_conn(conn,cursor)
+        if not isinstance(row['createTime'],str):
+            row['createTime'] = row['createTime'].strftime('%Y-%m-%d %H:%M:%S')
+        row['userName'] = row['username']
+        row['nickName'] = row['nickname']
+        row['userId'] = row['uid']
+        
+        return build_success_response(row)
+        
+    except Exception as e:
+        print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
+        print(e)
+        if conn is not None:
+            pooldb.close_conn(conn,cursor)
+        raise Exception()
