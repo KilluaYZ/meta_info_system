@@ -4,6 +4,7 @@ import {HotTagsData,NewTagsData,HotPostsData,NewPostsData} from '@/mock/mainpage
 
 export function getData(queryParams){
     const data = {startDate:queryParams.startdate,endDate:queryParams.enddate};
+    console.log("进入getdata")
     return  false ? new Promise((resolve, reject) => {
         setTimeout(() => {
           resolve(HotTagsData)

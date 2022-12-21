@@ -1,7 +1,7 @@
 <template>
     <div class="app-container">
-      <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-        <el-form-item label="图片类型" prop="imgtype">
+      <el-form :model="queryParams" :rules="rules" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="80px">
+        <el-form-item label="图片类型" prop="imgtype" >
           <el-select v-model="queryParams.imgtype" placeholder="请选择图片类型" clearable>
             <el-option
               v-for="imgtype in imagetype"
@@ -112,6 +112,7 @@
           this.loading = false
         })
         
+        console.log(this.chartData);
         this.initChart();
       },
       initChart() {

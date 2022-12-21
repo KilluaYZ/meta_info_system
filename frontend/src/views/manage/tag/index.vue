@@ -31,6 +31,7 @@
       </el-form-item>
       
       
+
       <el-form-item label="排序方式" prop="sortMode">
         <el-select
           v-model="queryParams.sortMode"
@@ -41,6 +42,7 @@
           <el-option label="默认排序" value="Default"></el-option>
           <el-option label="按热度排序" value="Hot"></el-option>
           <el-option label="按时间排序" value="New"></el-option>
+
         </el-select>
       </el-form-item>
       
@@ -146,8 +148,9 @@
       <el-table-column label="热度" align="center" prop="tagPopularity">
       </el-table-column>
 
-      <el-table-column label="更新时间" align="center" prop="createTime"></el-table-column>
-      
+
+      <el-table-column label="创建时间" align="center" prop="createTime"></el-table-column>
+  
       <el-table-column
         label="备注"
         align="center"
@@ -257,6 +260,9 @@
         <el-form-item label="标签级别" prop="tagClass">
           <el-input v-model="form.tagClass" readonly />
         </el-form-item>
+        <el-form-item label="创建时间" prop="createTime">
+          <el-input v-model="form.createTime" readonly />
+        </el-form-item>
         <el-form-item label="备注" prop="remark">
           <el-input
             v-model="form.remark"
@@ -333,6 +339,15 @@ export default {
     };
   },
   created() {
+    console.log(sessionStorage.getItem("tagneedRunPreset"))
+    if(sessionStorage.getItem("tagneedRunPreset") === "ok"){
+      console.log("使用初始化配置")
+      if(sessionStorage.getItem("tagpresetParam") === 'Hot')
+        this.queryParams.sortMode = "Hot"
+      if(sessionStorage.getItem("tagpresetParam") === 'New')
+        this.queryParams.sortMode = "New"
+    }
+    console.log(this.queryParams.sortMode)
     this.getList();
     //if(this.$store.state.tagneedRunPreset === true)
     //  console.log("使用配置")
@@ -417,6 +432,7 @@ export default {
         console.log("点开详情页面，收到数据");
         console.log(res);
         this.form = res.data[0];
+        console.log(res.data[0])
         this.detail_open = true;
         this.title = "标签详情";
       });

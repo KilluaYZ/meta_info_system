@@ -72,9 +72,7 @@
             <el-link v-bind:style="HotTagSetting" :underline="false" @click="switchTagsTitle('Hot')">热门标签</el-link>
             <el-divider direction="vertical"></el-divider>
             <el-link v-bind:style="NewTagSetting" :underline="false" @click="switchTagsTitle('New')">最新标签</el-link>
-
-            <el-link style="float:right; padding-bottom: 10px;" type="warning" el-link :underline="false"
-              @click="goTag({ sort: taghead })">
+            <el-link style="float:right; padding-bottom: 10px;" type="warning" el-link :underline="false" @click="goTag(taghead)">
               更多<i class="el-icon-view el-icon--right"></i>
             </el-link>
           </div>
@@ -94,16 +92,15 @@
             <el-link v-bind:style="HotPostSetting" :underline="false" @click="switchPostsTitle('Hot')">热门帖子</el-link>
             <el-divider style="color:black" direction="vertical"></el-divider>
             <el-link v-bind:style="NewPostSetting" :underline="false" @click="switchPostsTitle('New')">最新帖子</el-link>
-
-            <el-link style="float:right; padding-bottom: 10px;" type="warning" el-link :underline="false"
-              @click="goTag({ sort: taghead })">
+            <el-link style="float:right; padding-bottom: 10px;" type="warning" el-link :underline="false" @click="goPost(posthead)">
               更多<i class="el-icon-view el-icon--right"></i>
             </el-link>
           </div>
           <ul>
             <li v-for="Post in displayPostsContent">
-              <div class="col-item">
-                <el-link v-loading="postloading" type="primary">{{ Post.postContent }}</el-link>
+              <div class="col-item" >
+                 <el-link v-loading="postloading" type="primary" @click="showpostDetail(Post)" >{{Post.postTitle}}</el-link>
+
               </div>
             </li>
           </ul>
@@ -124,12 +121,60 @@
         <el-form-item label="标签级别" prop="tagClass">
           <el-input v-model="Tagform.tagClass" readonly />
         </el-form-item>
+        <el-form-item label="更新时间" prop="createTime">
+          <el-input v-model="Tagform.createTime" readonly />
+        </el-form-item>
+        <el-form-item label="热度" prop="tagPopularity">
+          <el-input v-model="Tagform.tagPopularity" readonly />
+        </el-form-item>  
         <el-form-item label="备注" prop="remark">
           <el-input v-model="Tagform.remark" type="textarea" readonly :autosize="{ minRows: 5, maxRows: 15 }"></el-input>
         </el-form-item>
       </el-form>
     </el-dialog>
 
+    
+    <el-dialog
+      :title="title"
+      :visible.sync="post_detail_open"
+      width="600px"
+      append-to-body
+    >
+      <el-form ref="form" :model="postform" label-width="100px">
+        <el-form-item label="标题" prop="postTitle">
+          <el-input v-model="postform.postTitle" readonly />
+        </el-form-item>
+        <el-form-item label="关键词" prop="postKeywords">
+          <el-tag :key="keyword" type="success" v-for="keyword in postform.postKeywords" >{{ keyword }}</el-tag>
+        </el-form-item>
+        <el-form-item label="标签" prop="postTag">
+          <el-tag :key="tag" type="success" v-for="tag in postform.postKeywords" >{{ tag }}</el-tag>
+        </el-form-item>
+        <el-form-item label="发帖时间" prop="postTime">
+          <el-input v-model="postform.postTime" readonly />
+        </el-form-item>
+        <el-form-item label="热度" prop="postPopularity">
+          <el-input v-model="postform.postPopularity" readonly />
+        </el-form-item>
+        <el-form-item label="帖子内容" prop="postContent">
+          <el-input
+            v-model="postform.postContent"
+            type="textarea"
+            readonly
+            :autosize="{ minRows: 5, maxRows: 15 }"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="帖子回答" prop="postAnswer">
+          <el-input
+            v-model="postform.postAnswer"
+            type="textarea"
+            readonly
+            :autosize="{ minRows: 5, maxRows: 15 }"
+          ></el-input>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
+    
   </div>
 </template>
 
@@ -139,6 +184,8 @@
 import { getHotTags, getNewTags, getHotPosts, getNewPosts } from "@/api/manage/mainpage.js";
 import { getTag } from "@/api/manage/tag.js"
 import { getWordCloud } from "@/api/manage/visualization.js"
+import { getPost } from "@/api/manage/post.js"
+
 
 export default {
   name: "Index",
@@ -166,8 +213,12 @@ export default {
       title: "",
       //是否打开标签详情界面
       Tag_detail_open: false,
+      //
+      post_detail_open: false,
       //标签表单
       Tagform: {},
+
+      postform: {},
       //标题字体样式设置
       HotTagSetting: { color: 'red', fontSize: '16px' },
 
@@ -184,11 +235,10 @@ export default {
 
       taghead: 'Hot',
 
+      posthead: 'Hot',
+
       queryHotTagsParams: {
         HotTagsNum: 5,
-        tagName: undefined,
-        tagClass: undefined,
-        tagID: undefined,
       },
       queryNewTagsParams: {
         NewTagsNum: 5,
@@ -227,6 +277,7 @@ export default {
       })
       getHotPosts(this.queryHotPostsParams).then((res) => {
         console.log("成功取得HotPosts数据")
+        console.log(res.data)
         this.HotPostsContent = res.data;
         this.displayPostsContent = res.data
       })
@@ -244,8 +295,14 @@ export default {
       // })
     },
     goTag(sortForm) {
-      this.$store.commit('tag/setpresetParam', sortForm)
+      sessionStorage.setItem("tagpresetParam",sortForm)
+      sessionStorage.setItem("tagneedRunPreset","ok")
       this.$router.push('/system/tag')
+    },
+    goPost(sortForm) {
+      sessionStorage.setItem("postpresetParam",sortForm)
+      sessionStorage.setItem("postneedRunPreset","ok")
+      this.$router.push('/system/post')
     },
     switchTagsTitle(title) {
       this.tagloading = true;
@@ -267,10 +324,14 @@ export default {
       this.postloading = true;
       this.setpostTitletheme(title);
       setTimeout(() => {
-        if (title === 'Hot')
+        if(title === 'Hot'){
           this.displayPostsContent = this.HotPostsContent;
-        else
+          this.posthead = 'Hot'
+        }
+        else{
           this.displayPostsContent = this.NewPostsContent;
+          this.posthead = 'New'
+        }
         this.postloading = false
       }, 200);
     },
@@ -282,6 +343,16 @@ export default {
         this.Tagform = res.data[0];
         this.Tag_detail_open = true;
         this.title = "标签详情";
+      })
+    },
+    showpostDetail(row) {
+      const postIDData = row.postID;
+      getPost({ postID: postIDData}).then((res) => {
+        console.log('点开详情界面，收到数据')
+        console.log(res)
+        this.postform = res.data[0];
+        this.post_detail_open = true;
+        this.title = "帖子详情";
       })
     },
     //根据标签主题设置字符样式
