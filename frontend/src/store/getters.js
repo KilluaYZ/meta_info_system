@@ -15,5 +15,7 @@ const getters = {
   topbarRouters:state => state.permission.topbarRouters,
   defaultRoutes:state => state.permission.defaultRoutes,
   sidebarRouters:state => state.permission.sidebarRouters,
+  presetParam:state => state.permission.presetParam,
+  needRunPreset:state => state.permission.needRunPreset
 }
 export default getters
