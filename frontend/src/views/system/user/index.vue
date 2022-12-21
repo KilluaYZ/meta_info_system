@@ -1,32 +1,6 @@
 <template>
   <div class="app-container">
     <el-row :gutter="20">
-      <!--部门数据-->
-      <el-col :span="4" :xs="24">
-        <div class="head-container">
-          <el-input
-            v-model="deptName"
-            placeholder="请输入部门名称"
-            clearable
-            size="small"
-            prefix-icon="el-icon-search"
-            style="margin-bottom: 20px"
-          />
-        </div>
-        <div class="head-container">
-          <el-tree
-            :data="deptOptions"
-            :props="defaultProps"
-            :expand-on-click-node="false"
-            :filter-node-method="filterNode"
-            ref="tree"
-            node-key="id"
-            default-expand-all
-            highlight-current
-            @node-click="handleNodeClick"
-          />
-        </div>
-      </el-col>
       <!--用户数据-->
       <el-col :span="20" :xs="24">
         <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
@@ -48,7 +22,7 @@
               @keyup.enter.native="handleQuery"
             />
           </el-form-item>
-          <el-form-item label="状态" prop="status">
+          <!-- <el-form-item label="状态" prop="status">
             <el-select
               v-model="queryParams.status"
               placeholder="用户状态"
@@ -62,7 +36,7 @@
                 :value="dict.value"
               />
             </el-select>
-          </el-form-item>
+          </el-form-item> -->
           <el-form-item label="创建时间">
             <el-date-picker
               v-model="dateRange"
@@ -88,10 +62,9 @@
               icon="el-icon-plus"
               size="mini"
               @click="handleAdd"
-              v-hasPermi="['system:user:add']"
             >新增</el-button>
           </el-col>
-          <el-col :span="1.5">
+          <!-- <el-col :span="1.5">
             <el-button
               type="success"
               plain
@@ -99,9 +72,8 @@
               size="mini"
               :disabled="single"
               @click="handleUpdate"
-              v-hasPermi="['system:user:edit']"
             >修改</el-button>
-          </el-col>
+          </el-col> -->
           <el-col :span="1.5">
             <el-button
               type="danger"
@@ -110,20 +82,18 @@
               size="mini"
               :disabled="multiple"
               @click="handleDelete"
-              v-hasPermi="['system:user:remove']"
             >删除</el-button>
           </el-col>
-          <el-col :span="1.5">
+          <!-- <el-col :span="1.5">
             <el-button
               type="info"
               plain
               icon="el-icon-upload2"
               size="mini"
               @click="handleImport"
-              v-hasPermi="['system:user:import']"
             >导入</el-button>
-          </el-col>
-          <el-col :span="1.5">
+          </el-col> -->
+          <!-- <el-col :span="1.5">
             <el-button
               type="warning"
               plain
@@ -132,7 +102,7 @@
               @click="handleExport"
               v-hasPermi="['system:user:export']"
             >导出</el-button>
-          </el-col>
+          </el-col> -->
           <right-toolbar :showSearch.sync="showSearch" @queryTable="getList" :columns="columns"></right-toolbar>
         </el-row>
 
@@ -141,9 +111,9 @@
           <el-table-column label="用户编号" align="center" key="userId" prop="userId" v-if="columns[0].visible" />
           <el-table-column label="用户名称" align="center" key="userName" prop="userName" v-if="columns[1].visible" :show-overflow-tooltip="true" />
           <el-table-column label="用户昵称" align="center" key="nickName" prop="nickName" v-if="columns[2].visible" :show-overflow-tooltip="true" />
-          <el-table-column label="部门" align="center" key="deptName" prop="dept.deptName" v-if="columns[3].visible" :show-overflow-tooltip="true" />
+          <!-- <el-table-column label="部门" align="center" key="deptName" prop="dept.deptName" v-if="columns[3].visible" :show-overflow-tooltip="true" /> -->
           <el-table-column label="手机号码" align="center" key="phonenumber" prop="phonenumber" v-if="columns[4].visible" width="120" />
-          <el-table-column label="状态" align="center" key="status" v-if="columns[5].visible">
+          <!-- <el-table-column label="状态" align="center" key="status" v-if="columns[5].visible">
             <template slot-scope="scope">
               <el-switch
                 v-model="scope.row.status"
@@ -151,8 +121,7 @@
                 inactive-value="1"
                 @change="handleStatusChange(scope.row)"
               ></el-switch>
-            </template>
-          </el-table-column>
+          </el-table-column> -->
           <el-table-column label="创建时间" align="center" prop="createTime" v-if="columns[6].visible" width="160">
             <template slot-scope="scope">
               <span>{{ parseTime(scope.row.createTime) }}</span>
@@ -184,8 +153,8 @@
                 <el-dropdown-menu slot="dropdown">
                   <el-dropdown-item command="handleResetPwd" icon="el-icon-key"
                     v-hasPermi="['system:user:resetPwd']">重置密码</el-dropdown-item>
-                  <el-dropdown-item command="handleAuthRole" icon="el-icon-circle-check"
-                    v-hasPermi="['system:user:edit']">分配角色</el-dropdown-item>
+                  <!-- <el-dropdown-item command="handleAuthRole" icon="el-icon-circle-check"
+                    v-hasPermi="['system:user:edit']">分配角色</el-dropdown-item> -->
                 </el-dropdown-menu>
               </el-dropdown>
             </template>

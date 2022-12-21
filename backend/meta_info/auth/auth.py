@@ -306,3 +306,10 @@ def updatePwd():
         print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
         print(e)
         return build_error_response()
+'''
+http://vue.ruoyi.vip/prod-api/system/user/list?pageNum=1&pageSize=10&userName=nihao&phonenumber=133&params%5BbeginTime%5D=2022-12-20&params%5BendTime%5D=2023-01-17
+'''
+@auth.route('/user/list', methods=['POST'])
+def userList():
+    data = request.json
+    

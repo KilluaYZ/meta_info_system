@@ -314,6 +314,24 @@ def getTag():
         print(e)
         return build_error_response()
 
+#该函数作用是传入一个tagName，返回该tagName的前向标签继承关系
+#例如：SQL->SQL查询->嵌套子查询
+#get_front_tag_tree_sql('SQL') -> [{"tagName":"SQL",...}]
+#get_front_tag_tree_sql('SQL查询') -> [{"tagName":"SQL",...},{"tagName":"SQL查询",...}]
+#get_front_tag_tree_sql('嵌套子查询') -> [{"tagName":"SQL",...},{"tagName":"SQL查询",...},{"tagName":"嵌套子查询",...}]
+def get_front_tag_tree_sql(tagName):
+    response_data=[]
+    row = query_sql({'tagName':tagName})[0]
+    if(row['tagClass'] == 1):
+        response_data.append(row)
+    elif(row['tagClass']==2):
+        parent_row = query_sql({'tagName':row['tagParentName']})[0]
+        response_data=[parent_row,row]
+    elif(row['tagClass']==3):
+        second_class_row = query_sql({'tagName':row['tagParentName']})[0]
+        first_class_row = query_sql({'tagName':second_class_row['tagParentName']})[0]
+        response_data=[first_class_row,second_class_row,row]
+    return response_data
 
 #查询标签的前向路径
 @tag.route('/getFrontTree', methods=['POST'])
@@ -322,17 +340,7 @@ def getFrontTagTree():
         data = request.json
         if('tagName' not in data):
             raise Exception()
-        response_data=[]
-        row = query_sql({'tagName':data['tagName']})[0]
-        if(row['tagClass'] == 1):
-            response_data.append(row)
-        elif(row['tagClass']==2):
-            parent_row = query_sql({'tagName':row['tagParentName']})[0]
-            response_data=[parent_row,row]
-        elif(row['tagClass']==3):
-            second_class_row = query_sql({'tagName':row['tagParentName']})[0]
-            first_class_row = query_sql({'tagName':second_class_row['tagParentName']})[0]
-            response_data=[first_class_row,second_class_row,row]
+        response_data = get_front_tag_tree_sql(data['tagName'])
 
         return build_success_response(response_data)
 
