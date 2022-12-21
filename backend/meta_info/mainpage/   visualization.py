@@ -2,6 +2,7 @@
 该文件是主页面可视化展示的后端逻辑
 '''
 from flask import request
+from wordcloud import WordCloud
 import os
 import sys
 import inspect
@@ -101,16 +102,28 @@ def getNewPosts():
         print(e)
         return build_error_response()
 
-#查找最热门的前10个标签，找到其一级标签，并根据一级标签制作词云图保存到本地static/img下并返回给前端对应的url
 @vis.route('/getHotPosts_wordcloud', methods=['GET'])
 def getHotPosts_wordcloud():
-    #查找最热门的5个post
+    #查找最热门的前10个标签，找到其一级标签，并根据一级标签制作词云图保存到本地static/img下并返回给前端对应的url
     try:
         rows = pooldb.read('select tagName from posts order by postPopularity DESC limit 10')
         for row in rows:
             row=get_front_tag_tree_sql(tagName)
 
-        return build_success_response(rows,len(rows))
+        wc = WordCloud(
+            width=400,                  # 设置宽为400px
+            height=300,                 # 设置高为300px
+            background_color='white',    # 设置背景颜色为白色
+            max_font_size=100,           # 设置最大的字体大小，所有词都不会超过100px
+            min_font_size=10,            # 设置最小的字体大小，所有词都不会超过10px
+            max_words=10,                # 设置最大的单词个数
+            scale=2                     # 扩大两倍
+        )
+        # 根据文本数据生成词云
+        wc.generate(rows)
+        # 保存词云文件
+        wc.to_file('img.jpg')
+        return 
 
     except Exception as e:
         print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back))
