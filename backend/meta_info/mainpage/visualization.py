@@ -106,13 +106,12 @@ def getNewPosts():
 
 #查找最热门的前10个标签，找到其一级标签，并根据一级标签制作词云图保存到本地static/img下并返回给前端对应的url
 @vis.route('/getHotPosts_wordcloud', methods=['GET'])
-def getHotPosts():
+def getHotPosts_wordcloud():
     #查找最热门的5个post
     try:
-        rows = pooldb.read('select * from posts order by  postPopularity desc limit 5')
+        rows = pooldb.read('select tagName from posts order by postPopularity DESC limit 10')
         for row in rows:
-            if(not isinstance(row['postTime'],str)):
-                row['postTime']=row['postTime'].strftime('%Y-%m-%d')
+            row=
 
         return build_success_response(rows,len(rows))
 
