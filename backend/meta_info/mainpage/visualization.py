@@ -111,7 +111,7 @@ def getHotPosts_wordcloud():
     try:
         rows = pooldb.read('select tagName from posts order by postPopularity DESC limit 10')
         for row in rows:
-            row=
+            row=get_front_tag_tree_sql(tagName)
 
         return build_success_response(rows,len(rows))
 
