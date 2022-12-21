@@ -18,6 +18,8 @@ from manage.tagManage import tag
 from manage.postManage import posts
 from mainpage.visualization import vis
 from auth.auth import auth
+from monitor.monitor import monitor
+
 
 #创建flask app
 def create_app(test_config=None):
@@ -57,6 +59,7 @@ def create_app(test_config=None):
     app.register_blueprint(posts,url_prefix='/post')
     app.register_blueprint(vis,url_prefix='/vis')
     app.register_blueprint(auth,url_prefix='/auth')
+    app.register_blueprint(monitor,url_prefix='/monitor')
     
     return app
 

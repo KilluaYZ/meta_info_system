@@ -63,6 +63,22 @@ def query_post_all_tags(postID)->list:
         pooldb.close_conn(conn,cursor)
         raise Exception()
 
+def update_post_pop(postid_list):
+    try:
+        conn,cursor = pooldb.get_conn()
+        cursor.executemany('update posts set postPopularity=postPopularity+1 where postID = %s',(postid_list))
+            
+        conn.commit()
+        pooldb.close_conn(conn,cursor)
+            
+    except Exception as e:
+        print(e)
+        if conn:
+            conn.rollback()
+            pooldb.close_conn(conn,cursor)
+        
+        raise Exception('update_post_pop出错')
+
 def query_post_sql(queryParam):
     #假设queryParam是绝对正确的，本函数就忽略对queryParam的正确性检验，将注意力集中在功能上
     query_sql = 'select * from posts'
@@ -129,6 +145,10 @@ def query_post_sql(queryParam):
             rows.append(row)
         
         pooldb.close_conn(conn,cursor)
+        
+        # postid_list = list(map(lambda x:x['postID'],rows))
+        # update_post_pop(postid_list)
+        
         return rows
 
     except Exception as e:
@@ -451,7 +471,10 @@ def getPost():
             if ('sortAttr' not in queryParam['sort'] or 'mode' not in queryParam['sort']):
                 print('sort 正确性检验失败')
                 raise Exception('sort 正确性检验失败')
-
+        # print(queryParam["postTime"])
+        if('postTime' in queryParam and queryParam['postTime'] == [None]):
+            queryParam.pop("postTime")
+        
         tmp_data = query_post_sql(queryParam)
         data_length = len(tmp_data)
 

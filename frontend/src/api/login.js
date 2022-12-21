@@ -49,7 +49,10 @@ export function getInfo() {
     })
     : request({
       url: 'auth/getInfo',
-      method: 'get'
+      method: 'get',
+      headers:{
+        isRepeatSubmit: false
+      }
     })
 }
 

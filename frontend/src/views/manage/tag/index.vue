@@ -31,6 +31,7 @@
       </el-form-item>
       
       
+<<<<<<< HEAD
       <el-form-item label="排序方式" prop="sort">
         <el-select
           v-model="queryParams.sortMode"
@@ -41,6 +42,18 @@
           <el-option label="默认排序" value="Default">默认排序</el-option>
           <el-option label="按热度排序" value="Hot">按热度排序</el-option>
           <el-option label="按时间排序" value="New">按时间排序</el-option>
+=======
+      <el-form-item label="排序方式" prop="sortMode">
+        <el-select
+          v-model="queryParams.sortMode"
+          placeholder="按序号排序"
+          clearable
+          style="width: 240px;"
+        >
+          <el-option label="默认排序" value="Default"></el-option>
+          <el-option label="按热度排序" value="Hot"></el-option>
+          <el-option label="按时间排序" value="New"></el-option>
+>>>>>>> d32ab92a69262b550cae4e5f43c91dcf2eba1e4d
         </el-select>
       </el-form-item>
       
@@ -146,7 +159,11 @@
       <el-table-column label="热度" align="center" prop="tagPopularity">
       </el-table-column>
 
+<<<<<<< HEAD
       <el-table-column label="创建时间" align="center" prop="createTime"></el-table-column>
+=======
+      <el-table-column label="更新时间" align="center" prop="createTime"></el-table-column>
+>>>>>>> d32ab92a69262b550cae4e5f43c91dcf2eba1e4d
       
       <el-table-column
         label="备注"
@@ -318,7 +335,11 @@ export default {
         tagName: undefined,
         tagClass: undefined,
         tagDate: undefined,
+<<<<<<< HEAD
         sort: "Default"
+=======
+        sortMode: "Default"
+>>>>>>> d32ab92a69262b550cae4e5f43c91dcf2eba1e4d
       },
       // 表单参数
       form: {},
@@ -346,6 +367,9 @@ export default {
     }
     console.log(this.queryParams.sortMode)
     this.getList();
+    //if(this.$store.state.tagneedRunPreset === true)
+    //  console.log("使用配置")
+    console.log(sessionStorage.getItem("tagneedRunPreset"))
     console.log("创建tag页面ing");
   },
   methods: {

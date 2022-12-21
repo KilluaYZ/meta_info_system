@@ -78,7 +78,8 @@ create table user(
     roles varchar(8) not null , 
     email varchar(50), 
     phonenumber varchar(50), 
-    avator TEXT 
+    avator TEXT, 
+    createTime datetime not null  default CURRENT_TIMESTAMP 
 ); 
 
 --用户会话表
@@ -88,6 +89,8 @@ SET foreign_key_checks=1;
 create table user_token( 
     uid int not null, 
     token TEXT not null, 
+    createTime datetime not null  default CURRENT_TIMESTAMP, 
+    visitTime datetime not null default CURRENT_TIMESTAMP , 
     foreign key(uid) references user(uid) on delete cascade on update cascade 
 ); 
 --用户会话表触发器

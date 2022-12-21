@@ -108,7 +108,7 @@
           >删除</el-button
         >
       </el-col>
-      <el-col :span="1.5">
+      <!-- <el-col :span="1.5">
         <el-button
           type="warning"
           plain
@@ -117,7 +117,7 @@
           @click="handleExport"
           >导出</el-button
         >
-      </el-col>
+      </el-col> -->
       <el-col :span="1.5">
         <el-button
           type="danger"
@@ -545,7 +545,7 @@ import {
 import { addPost, delPost, updatePost, getPost } from "@/api/manage/post.js";
 export default {
   name: "Post",
-  dicts: ["sys_normal_disable"],
+  // dicts: ["sys_normal_disable"],
   data() {
     return {
       // 遮罩层
