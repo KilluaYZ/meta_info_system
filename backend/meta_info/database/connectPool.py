@@ -9,20 +9,21 @@ from sqlalchemy import null
 from dbutils.pooled_db import PooledDB
 from pymysql.cursors import DictCursor
 import time
+import os
 
 class Pooldb:
     def __init__(
         self,
-        host="43.138.62.72", 
+        host="127.0.0.1", 
         user="root", 
         password="123456", 
         database="meta_info_db",
-        port=6666,
+        port=3306,
         max_reconnect_time=20
     ):
         self.host = host
         self.user = user
-        self.port = port
+        self.port = int(port)
         self.password = password
         self.database = database
         
@@ -39,7 +40,8 @@ class Pooldb:
                     user=self.user,
                     passwd=self.password,
                     db=self.database,
-                    charset='utf8'
+                    charset='utf8',
+                    local_infile=True,
                 )
             except BaseException as e:
                 print(f"数据库连接错误！{e}")
@@ -107,6 +109,67 @@ class Pooldb:
             print(e)
             pooldb.close_conn(conn,cursor)
             raise Exception('Pooldb::read错误！')
+    
+    def execute_scirpt(self,file):
+        with open(file,'r',encoding='utf8') as f:
+            data = f.read()
+            lines = data.splitlines()
+            # print("lines:",lines)
+            sql_data = ''
+            for line in lines:
+                if len(line) == 0:
+                    continue
+                elif line.startswith('--'):
+                    continue
+                else:
+                    sql_data += line
+            # print("sql_data:",sql_data)
+
+            sql_list = sql_data.split(';')[:-1]
+            sql_list = [x.replace('\n',' ')if '\n' in x else x for x in sql_list]
+            sql_item = ""
+            # print(sql_list)
+            try:
+                conn,cursor = self.get_conn()
+                for sql_item in sql_list:
+                    # print("[DEBUG] execute : ",sql_item)
+                    cursor.execute(sql_item)
+                    
+            except:
+                print('connect.py::execute_scirpt sql脚本执行失败')
+                print('错误的sql语句：',sql_item)
+                conn.rollback()
+                self.close_conn(conn,cursor)
+                raise Exception()
+            
+            try:
+                conn.commit()
+            except:
+                conn.rollback()
+                self.close_conn(conn,cursor)
+                print('connect.py::execute_scirpt 事务提交失败')
+                raise Exception()
+
+MYSQL_HOST=os.environ.get('MYSQL_HOST')
+MYSQL_PORT=os.environ.get('MYSQL_PORT')
+MYSQL_USER=os.environ.get('MYSQL_USER')
+MYSQL_PASSWORD=os.environ.get('MYSQL_PASSWORD')
+MYSQL_DATABASE=os.environ.get('MYSQL_DATABASE')
+if not MYSQL_HOST:
+    MYSQL_HOST = '127.0.0.1'
+if not MYSQL_PORT:
+    MYSQL_PORT = 3306
+if not MYSQL_USER:
+    MYSQL_USER = 'root'
+if not MYSQL_PASSWORD:
+    MYSQL_PASSWORD = '123456'
+if not MYSQL_DATABASE:
+    MYSQL_DATABASE = 'meta_info_db'
 
 global pooldb
-pooldb = Pooldb()
+pooldb = Pooldb(host=MYSQL_HOST,
+                port=MYSQL_PORT,
+                user=MYSQL_USER,
+                password=MYSQL_PASSWORD,
+                database=MYSQL_DATABASE)
+

@@ -1,0 +1,10 @@
+global-include meta_info/*
+graft meta_info/auth
+graft meta_info/database
+graft meta_info/mainpage
+graft meta_info/manage
+graft meta_info/monitor
+graft meta_info/static
+graft meta_info/utils
+global-exlucde *.pyc
+global-exlucde *.git

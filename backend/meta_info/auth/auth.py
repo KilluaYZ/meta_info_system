@@ -5,25 +5,19 @@ import sys
 import inspect
 import hashlib
 
-# 找到model文件夹
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.dirname(SCRIPT_DIR))
-
-# sys.path.append("..")
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from utils.buildResponse import *
-from utils.check import is_number
-from database.connect import Conndb
-from manage.tagManage import query_sql,update_sql
-from auth.routerdata import routerData
+from meta_info.utils.buildResponse import *
+from meta_info.utils.check import is_number
+from meta_info.manage.tagManage import query_sql,update_sql
+from meta_info.auth.routerdata import routerData
 
 # conndb = Conndb(cursor_mode='dict')
 auth = Blueprint('auth', __name__)
 
-import database.connectPool
+import meta_info.database.connectPool
 global pooldb
-pooldb = database.connectPool.pooldb
+pooldb = meta_info.database.connectPool.pooldb
 # tokenList = []
 
 def build_token():

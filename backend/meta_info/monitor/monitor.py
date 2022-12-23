@@ -7,14 +7,10 @@ import os
 import sys
 import inspect
 
-# 找到model文件夹
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.dirname(SCRIPT_DIR))
-
-from utils.buildResponse import *
-from utils.check import is_number
+from meta_info.utils.buildResponse import *
+from meta_info.utils.check import is_number
 monitor = Blueprint('monitor', __name__)
-from auth.auth import get_user_by_token
+from meta_info.auth.auth import get_user_by_token
 
 def get_host_ip():
     try:

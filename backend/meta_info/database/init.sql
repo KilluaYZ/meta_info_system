@@ -994,7 +994,7 @@ INSERT INTO tag (tagName,tagClass,tagParentName,tagPopularity,remark)
 VALUES ('弹性伸缩',3,'云数据库',0,'');
 
 -------------------------------------------------------------------------
-load data local infile 'database/data1.txt' into table posts 
+load data local infile 'meta_info/database/data1.txt' into table posts 
 CHARACTER SET utf8  
 FIELDS TERMINATED BY ',' 
 (postID, postTitle, postContent,postAnswer,postTime);

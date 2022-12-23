@@ -4,21 +4,15 @@ import os
 import sys
 import inspect
 
-# 找到model文件夹
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.dirname(SCRIPT_DIR))
-
-# sys.path.append("..")
-
-from utils.buildResponse import build_response,build_success_response,build_error_response
-from utils.check import is_number
+from meta_info.utils.buildResponse import build_response,build_success_response,build_error_response
+from meta_info.utils.check import is_number
 # from database.connect import Conndb
  
 tag = Blueprint('tag', __name__)
 
-import database.connectPool
+import meta_info.database.connectPool
 global pooldb
-pooldb = database.connectPool.pooldb
+pooldb = meta_info.database.connectPool.pooldb
 
 '''
     重要数据项

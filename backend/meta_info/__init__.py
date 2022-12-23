@@ -1,0 +1,56 @@
+from distutils.log import debug
+from flask import Flask
+from flask import request
+from flask_cors import CORS # 跨域
+# from dbtest.showdata10 import db # 引入其他蓝图
+import os
+import sys
+
+from meta_info.database.init_db import init_db
+from meta_info.manage.tagManage import tag
+from meta_info.manage.postManage import posts
+from meta_info.mainpage.visualization import vis
+from meta_info.auth.auth import auth
+from meta_info.monitor.monitor import monitor
+
+from meta_info.manage.tagManage import tag as prod_tag
+from meta_info.manage.postManage import posts as prod_posts
+from meta_info.mainpage.visualization import vis as prod_vis
+from meta_info.auth.auth import auth as prod_auth
+from meta_info.monitor.monitor import monitor as prod_monitor
+
+#创建flask app
+def create_app():
+    # create and configure the app
+    app = Flask(__name__, instance_relative_config=True)
+    CORS(app)
+
+    # a simple page that says hello
+    @app.route('/hello')
+    def hello():
+        return 'Hello, World!'
+
+    #在应用中注册init_db
+    @app.cli.command('init-db')
+    def init_db_command():
+        '''删除现有的所有数据，并新建关系表'''
+        init_db()
+        print("已初始化数据库")
+
+    #在应用中注册蓝图
+    # app.register_blueprint(db,url_prefix='/db')
+    # app.register_blueprint(tag,url_prefix='/tag')
+    # app.register_blueprint(posts,url_prefix='/post')
+    # app.register_blueprint(vis,url_prefix='/vis')
+    # app.register_blueprint(auth,url_prefix='/auth')
+    # app.register_blueprint(monitor,url_prefix='/monitor')
+    
+    #生产环境蓝图注册
+    app.register_blueprint(prod_tag,url_prefix='/prod-api/tag')
+    app.register_blueprint(prod_posts,url_prefix='/prod-api/post')
+    app.register_blueprint(prod_vis,url_prefix='/prod-api/vis')
+    app.register_blueprint(prod_auth,url_prefix='/prod-api/auth')
+    app.register_blueprint(prod_monitor,url_prefix='/prod-api/monitor')
+
+    
+    return app

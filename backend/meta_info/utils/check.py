@@ -1,6 +1,3 @@
-from database.connect import Conndb
-conndb = Conndb()
-
 def is_number(s):
     try:
         float(s)
