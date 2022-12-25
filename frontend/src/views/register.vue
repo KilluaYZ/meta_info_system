@@ -29,7 +29,7 @@
           <svg-icon slot="prefix" icon-class="password" class="el-input__icon input-icon" />
         </el-input>
       </el-form-item>
-      <el-form-item prop="code" v-if="captchaEnabled">
+      <!-- <el-form-item prop="code" v-if="captchaEnabled">
         <el-input
           v-model="registerForm.code"
           auto-complete="off"
@@ -42,7 +42,7 @@
         <div class="register-code">
           <img :src="codeUrl" @click="getCode" class="register-code-img"/>
         </div>
-      </el-form-item>
+      </el-form-item> -->
       <el-form-item style="width:100%;">
         <el-button
           :loading="loading"
@@ -60,9 +60,9 @@
       </el-form-item>
     </el-form>
     <!--  底部  -->
-    <div class="el-register-footer">
+    <!-- <div class="el-register-footer">
       <span>Copyright © 2018-2022 ruoyi.vip All Rights Reserved.</span>
-    </div>
+    </div> -->
   </div>
 </template>
 
@@ -101,14 +101,14 @@ export default {
           { required: true, trigger: "blur", message: "请再次输入您的密码" },
           { required: true, validator: equalToPassword, trigger: "blur" }
         ],
-        code: [{ required: true, trigger: "change", message: "请输入验证码" }]
+        // code: [{ required: true, trigger: "change", message: "请输入验证码" }]
       },
       loading: false,
-      captchaEnabled: true
+      captchaEnabled: false
     };
   },
   created() {
-    this.getCode();
+    // this.getCode();
   },
   methods: {
     getCode() {
@@ -135,7 +135,7 @@ export default {
           }).catch(() => {
             this.loading = false;
             if (this.captchaEnabled) {
-              this.getCode();
+              // this.getCode();
             }
           })
         }

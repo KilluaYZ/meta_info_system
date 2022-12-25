@@ -58,6 +58,51 @@ def authorize_username_password(username,password):
             pooldb.close_conn(conn,cursor)
         return None
 
+def register_user_sql(data):
+    try:
+        conn,cursor = pooldb.get_conn()
+        cursor.execute('insert into user(username,nickname,password,roles) values(%s,%s,%s,%s)',(data['username'],data['username'],generate_password_hash(data['password']),'common'))
+        conn.commit()
+        pooldb.close_conn(conn,cursor)
+        
+    except Exception as e:
+        print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
+        print(e)
+        if conn is not None:
+            pooldb.close_conn(conn,cursor)
+
+#检查username是不是唯一的，如果是则返回True，否则返回False
+def checkUsernameIsUnique(username):
+    try:
+        conn,cursor = pooldb.get_conn()
+        cursor.execute('select * from user where username=%s',(username))
+        rows = cursor.fetchall()
+        pooldb.close_conn(conn,cursor)
+        if(len(rows) == 0):
+            return True
+        return False
+            
+    except Exception as e:
+        print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
+        print(e)
+        if conn is not None:
+            pooldb.close_conn(conn,cursor)
+ 
+@auth.route('/register', methods=['POST'])
+def register():
+    try:
+        data = request.json
+        if('username' not in data or 'password' not in data):
+            raise Exception('前端数据错误！缺少username或password')
+        if not checkUsernameIsUnique(data['username']):
+            return build_error_response(msg='该用户名已存在')
+        register_user_sql(data)        
+        return build_success_response()
+    except Exception as e:
+        print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
+        print(e)
+        return build_error_response(msg='注册失败')
+
 #收到用户名密码，返回会话对应的toKen
 @auth.route('/login', methods=['POST'])
 def login():

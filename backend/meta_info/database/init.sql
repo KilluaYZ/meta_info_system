@@ -74,7 +74,7 @@ SET foreign_key_checks=1;
 
 create table user( 
     uid int PRIMARY KEY AUTO_INCREMENT, 
-    username varchar(50) not null, 
+    username varchar(50) not null UNIQUE, 
     nickname varchar(50) not null, 
     password TEXT not null, 
     roles varchar(8) not null , 

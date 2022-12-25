@@ -11,6 +11,7 @@ from urllib.parse import  quote
 from flask import Blueprint
 from meta_info.utils.buildResponse import *
 from meta_info.utils.check import *
+from meta_info.utils.fileIO import encode_base64
 import meta_info.database.connectPool
 global pooldb
 pooldb = meta_info.database.connectPool.pooldb
@@ -136,7 +137,13 @@ def getHotPosts_wordcloud():
         # img_url = url_for('static',filename='img/wordcloud_img.jpg')
         img_url = cur_path+'\\meta_info\\static\\img\\wordcloud_img.jpg'
         wc.to_file(img_url)
-        return send_file(img_url)
+        # return send_file(img_url)
+        res = {
+            "code":200,
+            "img":encode_base64(img_url),
+            "msg":'操作成功'
+        }
+        return build_raw_response(res)
     
     except Exception as e:
         print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back))
