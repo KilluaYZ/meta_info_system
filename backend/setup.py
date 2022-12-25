@@ -21,6 +21,7 @@ setup(
         'sqlalchemy',
         'DButils',
         'wordcloud',
-        'psutil'
+        'psutil',
+        'flask_apscheduler'
     ],
 )

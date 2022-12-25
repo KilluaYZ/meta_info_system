@@ -60,7 +60,7 @@
           <el-image
             style="width: 100%; height: 100%"
             :src="img_url"
-            fit="fill"
+            fit="cover"
             :preview-src-list="img_url_list"
             ></el-image>
         </el-card>
@@ -144,12 +144,12 @@
         <el-form-item label="标题" prop="postTitle">
           <el-input v-model="postform.postTitle" readonly />
         </el-form-item>
-        <el-form-item label="关键词" prop="postKeywords">
-          <el-tag :key="keyword" type="success" v-for="keyword in postform.postKeywords" >{{ keyword }}</el-tag>
+        <!-- <el-form-item label="关键词" prop="postKeywords">
+          <el-tag :key="keyword" type="primary" v-for="keyword in postform.postKeywords" >{{ keyword }}</el-tag>
         </el-form-item>
         <el-form-item label="标签" prop="postTag">
-          <el-tag :key="tag" type="success" v-for="tag in postform.postKeywords" >{{ tag }}</el-tag>
-        </el-form-item>
+          <el-tag :key="tag.tagID" :type="tag.type" v-for="tag in postform.postTags" >{{ tag.tagName }}</el-tag>
+        </el-form-item> -->
         <el-form-item label="发帖时间" prop="postTime">
           <el-input v-model="postform.postTime" readonly />
         </el-form-item>

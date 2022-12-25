@@ -10,7 +10,7 @@ import inspect
 from meta_info.utils.buildResponse import *
 from meta_info.utils.check import is_number
 monitor = Blueprint('monitor', __name__)
-from meta_info.auth.auth import get_user_by_token
+from meta_info.utils.auth import get_user_by_token,checkTokens
 
 def get_host_ip():
     try:
@@ -25,7 +25,15 @@ def get_host_ip():
 @monitor.route('/server', methods=['GET'])
 def getPlantformInfo():
     try:
-        token = request.headers.get('Authorization')
+        state = checkTokens(request.cookies.get('Admin-Token'),'admin')
+        if state == 404:
+            return build_error_response(400,'会话未建立，请重新登录')
+        elif state == 403:
+            return build_error_response(403,'您没有该操作的权限，请联系管理员')
+        elif state == 500:
+            return build_error_response(500,'服务器内部发生错误，请联系管理员')
+
+        token = request.cookies.get('Admin-Token')
         if token is None:
             raise Exception('token不存在，无法查询')
         user = get_user_by_token(token)

@@ -3,15 +3,14 @@ from flask import Blueprint
 import os
 import sys
 import inspect
-import hashlib
 
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from meta_info.utils.buildResponse import *
 from meta_info.utils.check import is_number
 from meta_info.manage.tagManage import query_sql,update_sql
-from meta_info.auth.routerdata import routerData
-
+from meta_info.auth.routerdata import *
+from meta_info.utils.auth import build_token,get_user_by_token,build_session,update_token_visit_time,checkTokens
 # conndb = Conndb(cursor_mode='dict')
 auth = Blueprint('auth', __name__)
 
@@ -20,53 +19,23 @@ global pooldb
 pooldb = meta_info.database.connectPool.pooldb
 # tokenList = []
 
-def build_token():
-    while True:
-        token = hashlib.sha1(os.urandom(24)).hexdigest()
-        # rows = pooldb.read('select * from user_token where token="%s"' % token)
-        # if rows and len(rows) <= 0:
-        #     #找到一个不重复的token
-        #     return token
-        return token
-            
-def build_session(uid):
-    try:
-        token = build_token()
-        print('[DEBUG] build token success, token=',token)
-        conn,cursor = pooldb.get_conn()
-        cursor.execute('insert into user_token(uid, token) values(%s, %s)',(uid,token))
-        conn.commit()
-        pooldb.close_conn(conn,cursor)
-        return token
-        
-    except Exception as e:
-        print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
-        if conn is not None:
-            pooldb.close_conn(conn,cursor)
-        print(e)
-        raise Exception('创建会话失败')
-
-def get_user_by_token(token):
-    try:
-        conn,cursor = pooldb.get_conn()
-        cursor.execute('select * from user, user_token where token=%s and user_token.uid=user.uid',(token))
-        row = cursor.fetchone()
-        if row is None or len(row) <= 0:
-            raise Exception('会话不存在')
-        
-        pooldb.close_conn(conn,cursor)
-        return row
-        
-    except Exception as e:
-        print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
-        if conn is not None:
-            pooldb.close_conn(conn,cursor)
-        print(e)
-        raise Exception('会话不存在')
-
 @auth.route('/getRouters', methods=['GET'])
 def getRouters():
-    return build_success_response(routerData)
+    token = request.cookies.get('Admin-Token')
+    if token is None:
+        return build_error_response()
+    user = get_user_by_token(token)
+    if not user:
+        return build_error_response(msg="会话未建立，请重新登录")
+    
+    if user['roles'] == 'admin':
+        return build_success_response(adminRouterData)
+    elif user['roles'] == 'tagger':
+        return build_success_response(taggerRouterData)
+    elif user['roles'] == 'common':
+        return build_success_response(commonRouterData)
+
+    return build_success_response(commonRouterData)
 
 def authorize_username_password(username,password):
     try:
@@ -118,10 +87,18 @@ def login():
 @auth.route('/getInfo', methods=['GET'])
 def getInfo():
     try:
-        token = request.headers.get('Authorization')
+        token = request.cookies.get('Admin-Token')
         if token is None:
             raise Exception('token不存在，无法查询')
-        # print(1)
+
+        state = checkTokens(token,'common')
+        if state == 404:
+            return build_error_response(400,'会话未建立，请重新登录')
+        elif state == 403:
+            return build_error_response(403,'您没有该操作的权限，请联系管理员')
+        elif state == 500:
+            return build_error_response(500,'服务器内部发生错误，请联系管理员')
+        
         user = get_user_by_token(token)
         # print(2)
         if not isinstance(user['createTime'],str):
@@ -164,7 +141,7 @@ def getInfo():
 @auth.route('/logout', methods=['POST','GET'])
 def logout():
     try:
-        token = request.headers.get('Authorization')
+        token = request.cookies.get('Admin-Token')
         if token is None:
             return build_success_response()
         conn,cursor = pooldb.get_conn()
@@ -203,12 +180,20 @@ def user_profile_update_user_sql(data):
 def getprofile():
     try:
         if request.method == 'GET':
-            token = request.headers.get('Authorization')
+            token = request.cookies.get('Admin-Token')
             if token is None:
                 raise Exception('token不存在，无法查询')
-            print(1)
+
+            state = checkTokens(token,'common')
+            if state == 404:
+                return build_error_response(400,'会话未建立，请重新登录')
+            elif state == 403:
+                return build_error_response(403,'您没有该操作的权限，请联系管理员')
+            elif state == 500:
+                return build_error_response(500,'服务器内部发生错误，请联系管理员')
+            
             user = get_user_by_token(token)
-            print(2)
+            
             if not isinstance(user['createTime'],str):
                 user['createTime'] = user['createTime'].strftime('%Y-%m-%d %H:%M:%S')
             response = {
@@ -224,7 +209,7 @@ def getprofile():
                     "createTime":user['createTime']
                 }
             }
-            print(3)
+           
             if user['roles'] == 'admin':
                 response['data']['admin']=True
             else:
@@ -237,13 +222,22 @@ def getprofile():
             elif user['roles'] == 'common':
                 response['roleGroup'] = '普通用户'
                 
-            print(4)
+            
             return build_raw_response(response)
         
         elif request.method == 'POST':
-            token = request.headers.get('Authorization')
+            token = request.cookies.get('Admin-Token')
             if token is None:
                 raise Exception('token不存在，无法修改信息')
+
+            state = checkTokens(token,'common')
+            if state == 404:
+                return build_error_response(400,'会话未建立，请重新登录')
+            elif state == 403:
+                return build_error_response(403,'您没有该操作的权限，请联系管理员')
+            elif state == 500:
+                return build_error_response(500,'服务器内部发生错误，请联系管理员')
+
             data = request.json
             user_profile_update_user_sql(data)
             
@@ -271,28 +265,34 @@ def user_profile_update_user_pwd(uid,pwd):
 @auth.route('/profile/updatePwd', methods=['POST'])
 def updatePwd():
     try:
-        # print(1)
+        
         data = request.json
         if('oldPassword' not in data or 'newPassword' not in data):
             raise Exception('前端数据错误，不存在oldPassword或newPassword')
-        # print(2)
         
-        token = request.headers.get('Authorization')
+        
+        token = request.cookies.get('Admin-Token')
         if token is None:
             raise Exception('token不存在')
-        # print(3)
-        # print('token=',token)
+        
+        state = checkTokens(token,'common')
+        if state == 404:
+            return build_error_response(400,'会话未建立，请重新登录')
+        elif state == 403:
+            return build_error_response(403,'您没有该操作的权限，请联系管理员')
+        elif state == 500:
+            return build_error_response(500,'服务器内部发生错误，请联系管理员')
+
         user = get_user_by_token(token)
-        if user is None:
-            raise Exception('会话不存在')
-        # print(3.5)
+        
+        
         res = authorize_username_password(user['username'],data['oldPassword'])
         if res is None:
             raise Exception('密码不正确')
-        # print(4)
+        
         
         user_profile_update_user_pwd(user['uid'],data['newPassword'])
-        # print(5)
+        
         
         return build_success_response()
     

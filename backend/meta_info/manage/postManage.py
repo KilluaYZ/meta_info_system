@@ -7,7 +7,7 @@ import inspect
 from meta_info.utils.buildResponse import build_response,build_success_response,build_error_response
 from meta_info.utils.check import is_number
 from meta_info.manage.tagManage import query_sql,update_sql
-
+from meta_info.utils.auth import checkTokens
 # conndb = Conndb(cursor_mode='dict')
 posts = Blueprint('posts', __name__)
 
@@ -146,6 +146,7 @@ def query_post_sql(queryParam):
     except Exception as e:
         print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
         print(e)
+        print('query_post_sql错误')
         pooldb.close_conn(conn,cursor)
         raise Exception()
 
@@ -356,14 +357,18 @@ def del_post_sql(postID):
 def build_post_response_data(postID_list:list):
     res = []
     for postID in postID_list:
-        post_data = query_post_sql({"postID":postID})[0]
-        tag_data = query_post_all_tags(postID)
-        keyword_data = query_post_all_keywords(postID)
-        post_data['postTag'] = tag_data
-        post_data['postKeywords'] = keyword_data
-        if not isinstance(post_data['postTime'],str):
-            post_data['postTime'] = post_data['postTime'].strftime('%Y-%m-%d')
-        res.append(post_data)
+        # print("current ID = ",postID)
+        post_data = query_post_sql({"postID":postID})
+        if post_data and len(post_data):
+            #查询到了post
+            post_data = post_data[0]
+            tag_data = query_post_all_tags(postID)
+            keyword_data = query_post_all_keywords(postID)
+            post_data['postTag'] = tag_data
+            post_data['postKeywords'] = keyword_data
+            if not isinstance(post_data['postTime'],str):
+                post_data['postTime'] = post_data['postTime'].strftime('%Y-%m-%d')
+            res.append(post_data)
     return res
 
 
@@ -371,6 +376,14 @@ def build_post_response_data(postID_list:list):
 @posts.route('/add', methods=['POST'])
 def addPost():
     try:
+        state = checkTokens(request.cookies.get('Admin-Token'),'tagger')
+        if state == 404:
+            return build_error_response(400,'会话未建立，请重新登录')
+        elif state == 403:
+            return build_error_response(403,'您没有该操作的权限，请联系管理员')
+        elif state == 500:
+            return build_error_response(500,'服务器内部发生错误，请联系管理员')
+
         data = request.json
         post_add_data = {}
         post_tag_list = []
@@ -410,6 +423,14 @@ def addPost():
 #修改帖子
 @posts.route('/update', methods=['POST'])
 def updatePost():
+    state = checkTokens(request.cookies.get('Admin-Token'),'tagger')
+    if state == 404:
+        return build_error_response(400,'会话未建立，请重新登录')
+    elif state == 403:
+        return build_error_response(403,'您没有该操作的权限，请联系管理员')
+    elif state == 500:
+        return build_error_response(500,'服务器内部发生错误，请联系管理员')
+
     data = request.json
     post_update_data = {}
     post_tag_list = []
@@ -442,6 +463,14 @@ def updatePost():
 #删除帖子
 @posts.route('/del', methods=['POST'])
 def delPost():
+    state = checkTokens(request.cookies.get('Admin-Token'),'tagger')
+    if state == 404:
+        return build_error_response(400,'会话未建立，请重新登录')
+    elif state == 403:
+        return build_error_response(403,'您没有该操作的权限，请联系管理员')
+    elif state == 500:
+        return build_error_response(500,'服务器内部发生错误，请联系管理员')
+
     postID = request.json.get('postID')        
     try:
         del_post_sql(postID)
@@ -456,6 +485,15 @@ def delPost():
 @posts.route('/get', methods=['POST'])    
 def getPost():
     try:
+        
+        state = checkTokens(request.cookies.get('Admin-Token'),'common')
+        if state == 404:
+            return build_error_response(400,'会话未建立，请重新登录')
+        elif state == 403:
+            return build_error_response(403,'您没有该操作的权限，请联系管理员')
+        elif state == 500:
+            return build_error_response(500,'服务器内部发生错误，请联系管理员')
+
         queryParam = request.json
         #正确性检验
         if('sort' in queryParam):
@@ -468,6 +506,7 @@ def getPost():
             queryParam.pop("postTime")
         
         tmp_data = query_post_sql(queryParam)
+        
         data_length = len(tmp_data)
 
         # 返回某一页的数据
@@ -488,12 +527,13 @@ def getPost():
         postid_list = list(map(lambda x : x['postID'],tmp_data))
         # print("[DEBUG] postid_list = ",postid_list)
         # print(1)
+    
         data = build_post_response_data(postid_list)
         # print(2)
         # print(data)
         # print("data_length=",data_length)
-        
-        
+    
+        # print(8)
         return build_success_response(data,data_length)
 
     except Exception as e:

@@ -6,6 +6,9 @@ from flask_cors import CORS # 跨域
 import os
 import sys
 
+from sqlalchemy import func
+from apscheduler.schedulers.background import BackgroundScheduler
+
 from meta_info.database.init_db import init_db
 from meta_info.manage.tagManage import tag
 from meta_info.manage.postManage import posts
@@ -55,5 +58,15 @@ def create_app():
     # app.register_blueprint(prod_monitor,url_prefix='/prod-api/monitor')
     # app.register_blueprint(prod_user,url_prefix='/prod-api/user')
 
-    
+    #配置定时任务
+    from meta_info.manage.userManage import checkSessionsAvailability
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(func=checkSessionsAvailability,
+                    id='checkSessionsAvailability',
+                    trigger='interval',
+                    seconds=1800,
+                    replace_existing=True
+    )
+    #启动任务列表
+    scheduler.start()
     return app

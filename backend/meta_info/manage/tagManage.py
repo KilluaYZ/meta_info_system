@@ -6,6 +6,7 @@ import inspect
 
 from meta_info.utils.buildResponse import build_response,build_success_response,build_error_response
 from meta_info.utils.check import is_number
+from meta_info.utils.auth import checkTokens
 # from database.connect import Conndb
  
 tag = Blueprint('tag', __name__)
@@ -113,6 +114,14 @@ def check_tagParentName(tagParentName,tagClass):
 @tag.route('/add', methods=['POST'])
 def addTag():
     try:
+        state = checkTokens(request.cookies.get('Admin-Token'),'tagger')
+        if state == 404:
+            return build_error_response(400,'会话未建立，请重新登录')
+        elif state == 403:
+            return build_error_response(403,'您没有该操作的权限，请联系管理员')
+        elif state == 500:
+            return build_error_response(500,'服务器内部发生错误，请联系管理员')
+
         data = request.json  #request.json是一个字典
         # 正确性检验
         tagClass = data['tagClass']
@@ -180,6 +189,14 @@ def del_tag_sql(tagName):
 @tag.route('/del', methods=['POST'])
 def delTag():
     try:
+        state = checkTokens(request.cookies.get('Admin-Token'),'tagger')
+        if state == 404:
+            return build_error_response(400,'会话未建立，请重新登录')
+        elif state == 403:
+            return build_error_response(403,'您没有该操作的权限，请联系管理员')
+        elif state == 500:
+            return build_error_response(500,'服务器内部发生错误，请联系管理员')
+        print('[DEBUG] state=',state)
         tagName = request.json.get('tagName')
         
         #防止sql注入
@@ -291,6 +308,14 @@ def update_tag_sql(data):
 @tag.route('/update', methods=['POST'])
 def updateTag():
     try:
+        state = checkTokens(request.cookies.get('Admin-Token'),'tagger')
+        if state == 404:
+            return build_error_response(400,'会话未建立，请重新登录')
+        elif state == 403:
+            return build_error_response(403,'您没有该操作的权限，请联系管理员')
+        elif state == 500:
+            return build_error_response(500,'服务器内部发生错误，请联系管理员')
+
         data = request.json
         update_data = {}
         if('tagID' not in data):
@@ -329,6 +354,14 @@ def updateTag():
 @tag.route('/get', methods=['POST'])
 def getTag():
     try:
+        state = checkTokens(request.cookies.get('Admin-Token'),'common')
+        if state == 404:
+            return build_error_response(400,'会话未建立，请重新登录')
+        elif state == 403:
+            return build_error_response(403,'您没有该操作的权限，请联系管理员')
+        elif state == 500:
+            return build_error_response(500,'服务器内部发生错误，请联系管理员')
+
         queryParam = request.json
         #正确性检验
         if('tagClass' in queryParam):
