@@ -23,6 +23,69 @@ pooldb = meta_info.database.connectPool.pooldb
     tagPopularity = request.json.get('tagPopularity')
 '''
 
+def query_sql(queryParam:dict):
+    #假设queryParam是绝对正确的，本函数就忽略对queryParam的正确性检验，将注意力集中在功能上
+    query_sql = 'select * from tag '
+    #限制条件查询的属性
+    query_constrain_attr = ['tagName','tagClass','tagParentName','tagID']
+    #condition_sql_list是存放queryParam中的查询条件构造出的sql语句的列表
+    condition_sql_list = []
+    #condition_sql_val_list存放sql对应的值，添加这个是为了参数化查询，防sql注入
+    condition_sql_val_list = []
+
+    sort_sql = ''
+    # print(1)
+    for item in queryParam.items():
+        key = item[0]
+        val = item[1]
+        if(key in query_constrain_attr):
+            condition_sql_list.append(key+'=%s')
+            condition_sql_val_list.append(val)
+    # print(2)  
+    if('sort' in queryParam):
+        sort_sql = ' order by %s ' %(queryParam['sort']['sortAttr'])
+        if(queryParam['sort']['mode'] == 'asc'):
+            sort_sql+='ASC'
+        elif(queryParam['sort']['mode'] == 'desc'):
+            sort_sql+='DESC'
+        else:
+            print('tagManage.py::query_sql sort错误')
+            raise Exception()
+    # print(3)
+    #构建查询sql语句
+    if(len(condition_sql_list)):
+        query_sql += ' where '
+        for i in range(len(condition_sql_list)-1):
+            query_sql += ' %s AND ' % (condition_sql_list[i])
+        query_sql += (" " + condition_sql_list[-1] + " ")
+    query_sql += sort_sql
+    # print('[DEBUG] query_sql='+query_sql)
+    try:
+        #防止SQL注入，选用参数化查询
+        # conndb.cursor.execute(query_sql,tuple(condition_sql_val_list))
+        conn,cursor = pooldb.get_conn()
+        cursor.execute(query_sql,tuple(condition_sql_val_list))
+        # rows = conndb.cursor.fetchall()
+        rows = cursor.fetchall()
+    except:
+        print('tagManage.py::query_sql 查询失败')
+        raise Exception()
+    
+    #根据前端的要求，在tag中添加type属性，满足对不同tagClass有不同显示的需求
+    for row in rows:
+        if(row['tagClass']==1):
+            row['type']='danger'
+        elif(row['tagClass']==2):
+            row['type']='success'
+        elif(row['tagClass']==3):
+            row['type']=''
+        # print(row)
+        if(not isinstance(row['createTime'],str)):
+            row['createTime'] = row['createTime'].strftime('%Y-%m-%d')
+    return rows
+
+
+
 def check_tagParentName(tagParentName,tagClass):
     search_tagname_tag = 'select * from tag where tagName = %s'
     # conndb.cursor.execute(search_tagname_tag,(tagParentName))
@@ -178,107 +241,88 @@ def check_tagID(tagID):
     return True
     
 
+def update_tag_sql(data):
+    #认为data中的数据是绝对正确的，忽略正确性检查
+    try:
+        update_sql = 'UPDATE tag SET '
+        sql_list = []
+        val_list = []
+        #可以修改的项
+        valid_update_keys = ['tagName','tagParentName','remark']
+        #构建单个sql修改语句
+        for item in data.items():
+            if(item[0] in valid_update_keys):
+                sql_list.append(' '+item[0]+'=%s ' )
+                val_list.append(item[1])
+        #拼接sql语句
+        for i in range(len(sql_list)-1):
+            update_sql += (' '+sql_list[i]+', ')
+
+        update_sql += (' ' + sql_list[-1] +' where tagID=%s')
+        val_list.append(data['tagID'])
+        conn,cursor = pooldb.get_conn()
+
+        #先维护完整性约束，再改名
+        #如果该标签改名了，标签的子标签的tagParentName也得改名
+        if('tagName' in data):
+            rows = query_sql({"tagID":data['tagID']})
+            if(rows and not len(rows)):
+                raise Exception('数据错误！找不到tagID对应的数据')
+            tag_data = rows[0]
+            print('[DEBUG] rag_data[tagName]=',tag_data['tagName'])
+            print('[DEBUG] data[tagName]=',data['tagName'])
+            print(data)
+            print(tag_data)
+            cursor.execute('update tag set tagParentName=%s where tagParentName=%s',(data['tagName'],tag_data['tagName']))
+        
+        cursor.execute(update_sql,tuple(val_list))
+        #提交事务
+        conn.commit()
+        pooldb.close_conn(conn,cursor)
+    except Exception as e:
+        #出现错误回滚
+        conn.rollback()
+        pooldb.close_conn(conn,cursor)
+        print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
+        print(e)
+        raise Exception()
+
 #修改标签
 @tag.route('/update', methods=['POST'])
 def updateTag():
     try:
         data = request.json
-        tagID = data['tagID']
-        # print(1)
-        if(not check_tagID(tagID)):
-            print('[ERROR] tagID检查不通过')
-            #tagID检查不通过
-            raise Exception()
-        # print(2)
-        if('tagName' in data):
-            update_sql(tagID,'tagName',data['tagName'])
-        # print(3)
-        if('tagClass' in data):
-            if(not is_number(data['tagClass'])):
-                raise Exception()
-            update_sql(tagID,'tagClass',data['tagClass'])
-        # print(4)
-        if('tagParentName' in data):
+        update_data = {}
+        if('tagID' not in data):
+            raise Exception('前端数据不正确，缺少tagID')
+        
+        if('tagClass' not in data):
+            raise Exception('前端数据不正确，缺少tagClass')
+
+        if('tagParentName' in data and 'tagClass' in data and data['tagParentName']):
             if(not check_tagParentName(data['tagParentName'],data['tagClass'])):
                 print('updateTag::tagParentName检查不通过')
-                raise Exception()
-            update_sql(tagID,'tagParentName',data['tagParentName'])
-        # print(5)
-        if('tagPopularity' in data):
-            if(not is_number(data['tagPopularity'])):
-                raise Exception()
-            update_sql(tagID,'tagPopularity',data['tagPopularity'])
-        # print(6)
+                raise Exception('前端数据不正确')
+        
+
+        update_data['tagID'] = data['tagID']
+        if('tagName' in data):
+            update_data['tagName'] = data['tagName']
+        if('tagParentName' in data):
+            update_data['tagParentName'] = data['tagParentName']
         if('remark' in data):
-            update_sql(tagID,'remark',data['remark'])
-        print(7)
+            update_data['remark'] = data['remark']
+        if('tagClass' in data):
+            update_data['tagClass'] = data['tagClass']
+
+        update_tag_sql(update_data)
+        
         return build_success_response()
 
     except Exception as e:
         print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
         print(e)
         return build_error_response()
-
-def query_sql(queryParam:dict):
-    #假设queryParam是绝对正确的，本函数就忽略对queryParam的正确性检验，将注意力集中在功能上
-    query_sql = 'select * from tag '
-    #限制条件查询的属性
-    query_constrain_attr = ['tagName','tagClass','tagParentName']
-    #condition_sql_list是存放queryParam中的查询条件构造出的sql语句的列表
-    condition_sql_list = []
-    #condition_sql_val_list存放sql对应的值，添加这个是为了参数化查询，防sql注入
-    condition_sql_val_list = []
-
-    sort_sql = ''
-    # print(1)
-    for item in queryParam.items():
-        key = item[0]
-        val = item[1]
-        if(key in query_constrain_attr):
-            condition_sql_list.append(key+'=%s')
-            condition_sql_val_list.append(val)
-    # print(2)  
-    if('sort' in queryParam):
-        sort_sql = ' order by %s ' %(queryParam['sort']['sortAttr'])
-        if(queryParam['sort']['mode'] == 'asc'):
-            sort_sql+='ASC'
-        elif(queryParam['sort']['mode'] == 'desc'):
-            sort_sql+='DESC'
-        else:
-            print('tagManage.py::query_sql sort错误')
-            raise Exception()
-    # print(3)
-    #构建查询sql语句
-    if(len(condition_sql_list)):
-        query_sql += ' where '
-        for i in range(len(condition_sql_list)-1):
-            query_sql += ' %s AND ' % (condition_sql_list[i])
-        query_sql += (" " + condition_sql_list[-1] + " ")
-    query_sql += sort_sql
-    # print('[DEBUG] query_sql='+query_sql)
-    try:
-        #防止SQL注入，选用参数化查询
-        # conndb.cursor.execute(query_sql,tuple(condition_sql_val_list))
-        conn,cursor = pooldb.get_conn()
-        cursor.execute(query_sql,tuple(condition_sql_val_list))
-        # rows = conndb.cursor.fetchall()
-        rows = cursor.fetchall()
-    except:
-        print('tagManage.py::query_sql 查询失败')
-        raise Exception()
-    
-    #根据前端的要求，在tag中添加type属性，满足对不同tagClass有不同显示的需求
-    for row in rows:
-        if(row['tagClass']==1):
-            row['type']='danger'
-        elif(row['tagClass']==2):
-            row['type']='success'
-        elif(row['tagClass']==3):
-            row['type']=''
-        # print(row)
-        if(not isinstance(row['createTime'],str)):
-            row['createTime'] = row['createTime'].strftime('%Y-%m-%d')
-    return rows
 
 
 #查询标签

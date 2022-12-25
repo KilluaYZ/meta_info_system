@@ -427,6 +427,9 @@ export default {
             message: "请输入正确的手机号码",
             trigger: "blur"
           }
+        ],
+        roles:[
+          { required: true, message: "用户类型不能为空", trigger: "blur" },
         ]
       }
     };

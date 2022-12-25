@@ -52,12 +52,13 @@ create table posts_keywords(
     foreign key(postID) references posts(postID) on delete cascade on update cascade
 ); 
 
+--------------------------------------------------------------------------
+--定义触发器，维护完整性约束
 drop trigger if EXISTS posts_tags_insert_tri ; 
 create trigger posts_tags_insert_tri 
 after insert on posts_tags 
 for each row 
 update tag set tagPopularity=(select count(*) as cnt from posts_tags where NEW.tagName=posts_tags.tagName group by NEW.tagName ) where tagName = NEW.tagName ;
-
 
 drop trigger if EXISTS posts_tags_delete_tri ; 
 create trigger posts_tags_delete_tri 

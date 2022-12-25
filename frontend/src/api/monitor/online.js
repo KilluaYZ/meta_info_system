@@ -3,7 +3,7 @@ import request from '@/utils/request'
 // 查询在线用户列表
 export function list(query) {
   return request({
-    url: '/auth/online/list',
+    url: '/user/online/list',
     method: 'get',
     params: query
   })
@@ -12,7 +12,7 @@ export function list(query) {
 // 强退用户
 export function forceLogout(tokenId) {
   return request({
-    url: '/auth/online/forceLogout',
+    url: '/user/online/forceLogout',
     method: 'post',
     data:{
       token:tokenId

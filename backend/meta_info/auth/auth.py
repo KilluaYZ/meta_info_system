@@ -184,7 +184,7 @@ def logout():
 def captchaImage():
     return build_success_response()
 
-def update_user_sql(data):
+def user_profile_update_user_sql(data):
     try:
         conn, cursor = pooldb.get_conn()
         sql = 'update user set nickname=%s,email=%s,phonenumber=%s where uid=%s'
@@ -245,7 +245,7 @@ def getprofile():
             if token is None:
                 raise Exception('token不存在，无法修改信息')
             data = request.json
-            update_user_sql(data)
+            user_profile_update_user_sql(data)
             
             return build_success_response()
     
@@ -255,7 +255,7 @@ def getprofile():
         return build_error_response()
 
 
-def update_user_pwd(uid,pwd):
+def user_profile_update_user_pwd(uid,pwd):
     try:
         sql = 'update user set password=%s where uid=%s'
         conn,cursor = pooldb.get_conn()
@@ -291,7 +291,7 @@ def updatePwd():
             raise Exception('密码不正确')
         # print(4)
         
-        update_user_pwd(user['uid'],data['newPassword'])
+        user_profile_update_user_pwd(user['uid'],data['newPassword'])
         # print(5)
         
         return build_success_response()
@@ -300,244 +300,4 @@ def updatePwd():
         print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
         print(e)
         return build_error_response()
-'''
-http://vue.ruoyi.vip/prod-api/system/user/list?pageNum=1&pageSize=10&userName=nihao
-'''
 
-def query_user_sql(queryParam):
-    #假设queryParam是绝对正确的，本函数就忽略对queryParam的正确性检验，将注意力集中在功能上
-    try:
-        conn,cursor = pooldb.get_conn()
-        if 'userName' in queryParam:
-            cursor.execute('select * from user where username=%s',(queryParam['userName']))
-        else:
-            cursor.execute('select * from user')
-        rows = cursor.fetchall()
-        
-        return rows
-    
-    except Exception as e:
-        print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
-        print(e)        
-'''
-{
-    "tokenId": "f7856a4c-82f9-4f0f-bc42-9fe68dd6f8ee",
-    "deptName": "研发部门",
-    "userName": "admin",
-    "ipaddr": "211.101.240.111",
-    "loginLocation": "北京市 北京市",
-    "browser": "Chrome 10",
-    "os": "Windows 10",
-    "loginTime": 1671592539893
-}
-'''
-@auth.route('/user/list', methods=['POST'])
-def userList():
-    try:
-        print(1)
-        queryParam = request.json
-        if('pageNum' in queryParam and 'pageSize' in queryParam):
-            if(not is_number(queryParam['pageNum']) or not is_number(queryParam['pageSize'])):
-                # pageNum和pageSize必须为数字
-                print('pageNum和pageSize 正确性检验失败')
-                raise Exception('pageNum和pageSize 正确性检验失败')
-        print(2)
-        rows = query_user_sql(queryParam)
-        data_length = len(rows)
-        print(3)
-        #构造前端所需数据
-        pageSize = queryParam['pageSize']
-        pageNum = queryParam['pageNum']
-        rows = rows[(pageNum-1)*pageSize:pageNum*pageSize]
-        respon = []
-        for row in rows:
-            if not isinstance(row['createTime'],str):
-                row['createTime'] = row['createTime'].strftime('%Y-%m-%d %H:%M:%S')
-            
-            respon.append({
-                "userName":row['username'],
-                'userId':row['uid'],
-                "nickName":row['nickname'],
-                "phonenumber":row['phonenumber'],
-                'createTime':row['createTime']
-            })
-        print(4)
-        return build_success_response(respon,data_length)
-        
-    except Exception as e:
-        print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
-        print(e)    
-        return build_error_response()
-
-def add_user_sql(data):
-    try:
-        #假设data中的属性都是确定无误的
-        sql = 'insert into user ('
-        sql2 = ' values ('
-        val_list = []
-        data_key_val = list(data.items())
-        for i in range(len(data_key_val)-1):
-            val_list.append(data_key_val[i][1])
-            sql += " %s ," % (data_key_val[i][0])
-            sql2 += "%s ,"
-
-        val_list.append(data_key_val[-1][1])
-        sql += "%s)" % (data_key_val[-1][0])
-        sql2 += "%s)"
-        sql += sql2
-        # print("[DEBUG] insert sql=",sql)
-        conn,cursor = pooldb.get_conn()
-        cursor.execute(sql,tuple(val_list))
-        conn.commit()
-        pooldb.close_conn(conn,cursor)
-        
-    except Exception as e:
-        print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
-        print(e)
-        if conn is not None:
-            conn.rollback()
-            pooldb.close_conn(conn,cursor)
-        raise Exception()
-
-@auth.route('/user/add', methods=['POST'])
-def addUser():
-    try:
-        data = request.json
-        if('userName' not in data or 'password' not in data
-           or 'roles' not in data):
-            raise Exception('前端数据不正确，重要数据缺失')
-        user_add_data = {}
-        # print(1)
-        for item in data.items():
-            if(item[0] == 'nickName'):
-                user_add_data['nickname']=item[1]
-            elif(item[0] == 'roles'):
-                user_add_data['roles']=item[1]
-            elif(item[0] == 'phonenumber'):
-                user_add_data['phonenumber']=item[1]
-            elif(item[0] == 'email'):
-                user_add_data['email']=item[1]
-            elif(item[0] == 'userName'):
-                user_add_data['username']=item[1]
-            elif(item[0] == 'password'):
-                user_add_data['password']=generate_password_hash(item[1])
-        
-        add_user_sql(user_add_data)
-        
-        return build_success_response()
-        
-    except Exception as e:
-        print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
-        print(e)
-        return build_error_response()
-    
-def update_user_sql(data):
-    #假定data绝对正确
-    try:
-        sql = 'update user set username=%s, nickname=%s, phonenumber=%s,email=%s, password=%s, roles=%s where uid=%s'
-        
-        conn,cursor = pooldb.get_conn()
-        cursor.execute(sql,(data['userName'],data['nickName'],
-                            data['phonenumber'],data['email'],
-                            generate_password_hash(data['password']),data['roles'],data['userId']))
-        conn.commit()
-        pooldb.close_conn(conn,cursor)
-        
-    except Exception as e:
-        print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
-        print(e)
-        if conn is not None:
-            conn.rollback()
-            pooldb.close_conn(conn,cursor)
-        raise Exception()
-    
-@auth.route('/user/update', methods=['POST'])
-def userUpdate():
-    try:
-        data = request.json
-        if('userId' not in data):
-            raise Exception('前端数据不正确，重要数据缺失')
-        
-        update_user_sql(data)
-        
-        return build_success_response()
-        
-    except Exception as e:
-        print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
-        print(e)
-        return build_error_response()
-    
-@auth.route('/user/get', methods=['POST'])
-def getUser():
-    try:
-        data = request.json
-        if('userId' not in data):
-            raise Exception('前端数据错误，无userId')
-        
-        sql = 'select * from user where uid=%s'
-        conn,cursor = pooldb.get_conn()
-        cursor.execute(sql,(data['userId']))
-        row = cursor.fetchone()
-        pooldb.close_conn(conn,cursor)
-        if not isinstance(row['createTime'],str):
-            row['createTime'] = row['createTime'].strftime('%Y-%m-%d %H:%M:%S')
-        row['userName'] = row['username']
-        row['nickName'] = row['nickname']
-        row['userId'] = row['uid']
-        
-        return build_success_response(row)
-        
-    except Exception as e:
-        print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
-        print(e)
-        if conn is not None:
-            pooldb.close_conn(conn,cursor)
-        raise Exception()
-
-@auth.route('/online/list', methods=['GET'])
-def getOnlineUser():
-    try:
-        userName = request.args.get('userName')
-        if userName is None:
-            rows = pooldb.read('select token,username as userName ,roles,user.uid as userId,user_token.createTime as loginTime from user, user_token where user.uid=user_token.uid')
-            
-        else:
-            conn,cursor = pooldb.get_conn()
-            cursor.execute('select token,username as userName ,roles,user.uid as userId,user_token.createTime as loginTime from user, user_token where username = %s and user.uid=user_token.uid',(userName))
-            rows = cursor.fetchall()
-            pooldb.close_conn(conn,cursor)
-            
-        length = len(rows)
-        for row in rows:
-            if not isinstance(row['loginTime'],str):
-                row['loginTime']=row['loginTime'].strftime('%Y-%m-%d %H:%M:%S')
-                
-        return build_success_response(rows,length)
-    
-    except Exception as e:
-        print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
-        print(e)
-        if not conn is None:
-            pooldb.close_conn(conn,cursor)
-        return build_error_response()
-
-@auth.route('/online/forceLogout', methods=['POST'])
-def forceLogout():    
-    try:
-        token = request.json.get('token')
-        if token is None:
-            raise Exception('前端数据错误')
-
-        conn,cursor = pooldb.get_conn()
-        cursor.execute('delete from user_token where token=%s',(token))
-        conn.commit()
-        pooldb.close_conn(conn,cursor)
-        
-        return build_success_response()
-    
-    except Exception as e:
-        print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
-        print(e)
-        if conn is not None:
-            pooldb.close_conn(conn,cursor)
-        return build_error_response()
