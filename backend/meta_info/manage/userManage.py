@@ -67,10 +67,9 @@ def userList():
                 # pageNum和pageSize必须为数字
                 print('pageNum和pageSize 正确性检验失败')
                 raise Exception('pageNum和pageSize 正确性检验失败')
-        print(2)
         rows = query_user_sql(queryParam)
         data_length = len(rows)
-        print(3)
+       
         #构造前端所需数据
         pageSize = queryParam['pageSize']
         pageNum = queryParam['pageNum']
@@ -79,15 +78,21 @@ def userList():
         for row in rows:
             if not isinstance(row['createTime'],str):
                 row['createTime'] = row['createTime'].strftime('%Y-%m-%d %H:%M:%S')
-            
+            if row['roles'] == 'admin':
+                tmp_roles = '管理员'
+            elif row['roles'] == 'tagger':
+                tmp_roles = '标记员'
+            elif row['roles'] == 'tagger':
+                tmp_roles = '普通用户'
             respon.append({
                 "userName":row['username'],
                 'userId':row['uid'],
                 "nickName":row['nickname'],
                 "phonenumber":row['phonenumber'],
-                'createTime':row['createTime']
+                'createTime':row['createTime'],
+                'roles':tmp_roles
             })
-        print(4)
+        
         return build_success_response(respon,data_length)
         
     except Exception as e:

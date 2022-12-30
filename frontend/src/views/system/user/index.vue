@@ -122,7 +122,7 @@
                 @change="handleStatusChange(scope.row)"
               ></el-switch>
           </el-table-column> -->
-          <el-table-column label="创建时间" align="center" prop="createTime" v-if="columns[6].visible" width="160">
+          <el-table-column label="注册时间" align="center" prop="createTime" v-if="columns[5].visible" width="160">
             <template slot-scope="scope">
               <span>{{ parseTime(scope.row.createTime) }}</span>
             </template>
@@ -398,8 +398,7 @@ export default {
         { key: 2, label: `用户昵称`, visible: true },
         { key: 3, label: `用户角色`, visible: true },
         { key: 4, label: `手机号码`, visible: true },
-        { key: 5, label: `状态`, visible: false },
-        { key: 6, label: `创建时间`, visible: true }
+        { key: 5, label: `创建时间`, visible: true }
       ],
       // 表单校验
       rules: {

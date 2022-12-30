@@ -89,8 +89,8 @@ def query_post_sql(queryParam):
         if(key in query_constrain_attr):
             if(key == 'postKeywords'):
                 query_sql += ',posts_keywords '
-                condition_sql_list.append(' posts.postID=posts_keywords.postID and keyword=%s ')
-                condition_sql_val_list.append(val)
+                condition_sql_list.append(' posts.postID=posts_keywords.postID and keyword like %s ')
+                condition_sql_val_list.append(f'%{val}%')
             elif(key == 'postTag'):
                 query_sql += ',posts_tags '
                 condition_sql_list.append(' posts.postID=posts_tags.postID and tagName=%s ')
@@ -99,6 +99,9 @@ def query_post_sql(queryParam):
                 condition_sql_list.append(' postTime between %s and %s ')
                 condition_sql_val_list.append(val[0])
                 condition_sql_val_list.append(val[1])
+            elif key == 'postTitle':
+                condition_sql_list.append(f' posts.postTitle like %s')
+                condition_sql_val_list.append(f'%{val}%')
             else:
                 condition_sql_list.append(' posts.'+key+'=%s ')
                 condition_sql_val_list.append(val)

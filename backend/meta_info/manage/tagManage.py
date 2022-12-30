@@ -4,6 +4,7 @@ import os
 import sys
 import inspect
 
+
 from meta_info.utils.buildResponse import build_response,build_success_response,build_error_response
 from meta_info.utils.check import is_number
 from meta_info.utils.auth import checkTokens
@@ -40,8 +41,13 @@ def query_sql(queryParam:dict):
         key = item[0]
         val = item[1]
         if(key in query_constrain_attr):
-            condition_sql_list.append(key+'=%s')
-            condition_sql_val_list.append(val)
+            if(key in ['tagName','tagParentName']):
+                condition_sql_list.append(f' {key} like %s ')
+                condition_sql_val_list.append(f'%{val}%')
+            else:
+                condition_sql_list.append(key+'=%s')
+                condition_sql_val_list.append(val)
+            
     # print(2)  
     if('sort' in queryParam):
         sort_sql = ' order by %s ' %(queryParam['sort']['sortAttr'])
@@ -65,11 +71,13 @@ def query_sql(queryParam:dict):
         #防止SQL注入，选用参数化查询
         # conndb.cursor.execute(query_sql,tuple(condition_sql_val_list))
         conn,cursor = pooldb.get_conn()
+        # print(query_sql)
         cursor.execute(query_sql,tuple(condition_sql_val_list))
         # rows = conndb.cursor.fetchall()
         rows = cursor.fetchall()
-    except:
+    except Exception as e:
         print('tagManage.py::query_sql 查询失败')
+        print(e)
         raise Exception()
     
     #根据前端的要求，在tag中添加type属性，满足对不同tagClass有不同显示的需求
@@ -88,6 +96,7 @@ def query_sql(queryParam:dict):
 
 
 def check_tagParentName(tagParentName,tagClass):
+    print(2.1)
     search_tagname_tag = 'select * from tag where tagName = %s'
     # conndb.cursor.execute(search_tagname_tag,(tagParentName))
     # rows = conndb.cursor.fetchall()
@@ -97,11 +106,12 @@ def check_tagParentName(tagParentName,tagClass):
     rows = cursor.fetchall()
     #释放连接池中的连接
     pooldb.close_conn(conn,cursor)
-
+    print(2.2)
     if(len(rows) <= 0):
         #数据库中没有tagParentName，破坏了完整性约束
         return False
     row = rows[0]
+    print(2.3)
     if(int(row['tagClass']) >= int(tagClass)):
         #tagName对应的tagClass小于或等于tagParentName的tagClass，破坏了约束
         return False
@@ -121,7 +131,7 @@ def addTag():
             return build_error_response(403,'您没有该操作的权限，请联系管理员')
         elif state == 500:
             return build_error_response(500,'服务器内部发生错误，请联系管理员')
-
+        
         data = request.json  #request.json是一个字典
         # 正确性检验
         tagClass = data['tagClass']
@@ -130,17 +140,27 @@ def addTag():
             raise Exception()
         tagClass = int(tagClass)
 
+        
         tagName = data['tagName']
-        remark = data['remark']
-        tagParentName = data['tagParentName']
-        if(not check_tagParentName(tagParentName,tagClass)):
-            #检验不通过
-            print("Error occurs in tagManage.py::addTag Invalid tagClass")
-            raise Exception()
+        if('remark' in data):
+            remark = data['remark']
+        else:
+            remark = ""
+        
+        if('tagParentName' in data):
+            if not check_tagParentName(data['tagParentName'],tagClass):
+                #检验不通过
+                print("Error occurs in tagManage.py::addTag Invalid tagParentName")
+                raise Exception()
+            tagParentName = data['tagParentName']
+        else:
+            if tagClass != 1:
+                raise Exception('前端数据错误，tagClass应为1')
+            tagParentName = None
         
         #防止sql注入
         try:
-            add_sql = 'INSERT INTO tag (tagName,tagClass,tagParentName,tagPopularity,remark) VALUES(%s,%d,%s,0,%s)'
+            add_sql = 'INSERT INTO tag (tagName,tagClass,tagParentName,tagPopularity,remark) VALUES(%s,%s,%s,0,%s)'
             # conndb.cursor.execute(add_sql,(tagName,tagClass,tagParentName,remark))
             conn,cursor = pooldb.get_conn()
             cursor.execute(add_sql,(tagName,tagClass,tagParentName,remark))
@@ -148,6 +168,7 @@ def addTag():
             # conndb.db.commit()
             conn.commit()
             pooldb.close_conn(conn,cursor)
+            print(4)
             return build_success_response()
 
         except Exception as e:
@@ -159,8 +180,9 @@ def addTag():
             print(e)
             raise Exception()
 
-    except:
+    except Exception as e:
         print("Error occurs in tagManage.py::addTag")
+        print(e)
         return build_error_response()
 
 def del_tag_sql(tagName):

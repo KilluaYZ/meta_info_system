@@ -57,12 +57,13 @@
             <!-- <el-image :src="img_url" :preview-src-list="img_url_list" :fit="cover" lazy></el-image> -->
           </div>  
           <!-- <iframe v-bind:src="img_url" id="wordcloud" scrolling="no" frameborder="0"></iframe> -->
-          <el-image
+          <!-- <el-image
             style="width: 100%; height: 100%"
             :src="img_url"
             fit="cover"
             :preview-src-list="img_url_list"
-            ></el-image>
+            ></el-image> -->
+            <img  :src="img_url" />
         </el-card>
       </el-col>
 
@@ -228,10 +229,11 @@ export default {
 
       NewPostSetting: { fontSize: '16px' },
 
-      img_url_list: ["http://localhost:5000/vis/getWordCloud"],
+      img_url_list: [],
       
       // img_url:"localhost:5000/static/img/wordcloud_img.jpg",
-      img_url:"http://localhost:5000/vis/getWordCloud",
+      img_url:"",
+      // img_url:"http://localhost:5000/vis/getWordCloud",
 
       taghead: 'Hot',
 
@@ -285,14 +287,17 @@ export default {
         console.log("成功取得NewPosts数据")
         this.NewPostsContent = res.data;
       })
-      // getWordCloud().then((res) => {
-      //   // console.log('接收到词云图')
-      //   // console.log(res)
-      //   // const blob = new Blob([res.data])
-      //   // this.img_url = URL.createObjectURL(blob)
-      //   // console.log('this.img_url=',this.img_url)
-      //   // this.img_url_list.push(this.img_url)
-      // })
+      getWordCloud().then((res) => {
+        console.log('接收到词云图')
+        console.log(res)
+        // let blobObj = new Blob([atob(res.data)],{type:'image/jpg'})
+        // var binaryData = [];
+        // binaryData.push(res.data);
+        // this.img_url = window.URL.createObjectURL(new Blob(binaryData,{type:'image/jpg'}))
+        // console.log('this.img_url=',this.img_url)
+        this.img_url = 'data:image/jpg;base64,'+res;
+        this.img_url_list.push(this.img_url)
+      })
     },
     goTag(sortForm) {
       sessionStorage.setItem("tagpresetParam",sortForm)

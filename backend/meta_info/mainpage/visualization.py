@@ -138,12 +138,15 @@ def getHotPosts_wordcloud():
         img_url = cur_path+'\\meta_info\\static\\img\\wordcloud_img.jpg'
         wc.to_file(img_url)
         # return send_file(img_url)
-        res = {
-            "code":200,
-            "img":encode_base64(img_url),
-            "msg":'操作成功'
-        }
-        return build_raw_response(res)
+        # res = {
+        #     "code":200,
+        #     "img":encode_base64(img_url),
+        #     "msg":'操作成功'
+        # }
+        response = make_response(encode_base64(img_url))
+        
+        # response.headers['Content-Type']='image/jpg'
+        return response
     
     except Exception as e:
         print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back))
