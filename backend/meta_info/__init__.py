@@ -43,20 +43,20 @@ def create_app():
         print("已初始化数据库")
 
     #在应用中注册蓝图
-    app.register_blueprint(tag,url_prefix='/tag')
-    app.register_blueprint(posts,url_prefix='/post')
-    app.register_blueprint(vis,url_prefix='/vis')
-    app.register_blueprint(auth,url_prefix='/auth')
-    app.register_blueprint(monitor,url_prefix='/monitor')
-    app.register_blueprint(user,url_prefix='/user')
+    # app.register_blueprint(tag,url_prefix='/tag')
+    # app.register_blueprint(posts,url_prefix='/post')
+    # app.register_blueprint(vis,url_prefix='/vis')
+    # app.register_blueprint(auth,url_prefix='/auth')
+    # app.register_blueprint(monitor,url_prefix='/monitor')
+    # app.register_blueprint(user,url_prefix='/user')
     
     #生产环境蓝图注册
-    # app.register_blueprint(prod_tag,url_prefix='/prod-api/tag')
-    # app.register_blueprint(prod_posts,url_prefix='/prod-api/post')
-    # app.register_blueprint(prod_vis,url_prefix='/prod-api/vis')
-    # app.register_blueprint(prod_auth,url_prefix='/prod-api/auth')
-    # app.register_blueprint(prod_monitor,url_prefix='/prod-api/monitor')
-    # app.register_blueprint(prod_user,url_prefix='/prod-api/user')
+    app.register_blueprint(prod_tag,url_prefix='/prod-api/tag')
+    app.register_blueprint(prod_posts,url_prefix='/prod-api/post')
+    app.register_blueprint(prod_vis,url_prefix='/prod-api/vis')
+    app.register_blueprint(prod_auth,url_prefix='/prod-api/auth')
+    app.register_blueprint(prod_monitor,url_prefix='/prod-api/monitor')
+    app.register_blueprint(prod_user,url_prefix='/prod-api/user')
 
     #配置定时任务
     from meta_info.manage.userManage import checkSessionsAvailability

@@ -159,9 +159,12 @@ def getWordCloudUrl():
         SERVER_IP=os.environ.get('SERVER_IP')
         if SERVER_IP is None:
             SERVER_IP = '127.0.0.1:5000'
-        
-        img_url = 'http://'+SERVER_IP+'/vis/getWordCloud'
-        
+        FLASK_ENV = os.environ.get('FLASK_ENV')
+        if FLASK_ENV is None or FLASK_ENV == 'production':
+            img_url = 'http://'+SERVER_IP+'/prod-api/vis/getWordCloud'
+        else:
+            img_url = 'http://'+SERVER_IP+'/vis/getWordCloud'
+
         return build_success_response({"img_url":img_url})
 
     except Exception as e:
