@@ -137,17 +137,33 @@ def getHotPosts_wordcloud():
         # img_url = url_for('static',filename='img/wordcloud_img.jpg')
         img_url = cur_path+'\\meta_info\\static\\img\\wordcloud_img.jpg'
         wc.to_file(img_url)
-        # return send_file(img_url)
+        return send_file(img_url)
         # res = {
         #     "code":200,
         #     "img":encode_base64(img_url),
         #     "msg":'操作成功'
         # }
-        response = make_response(encode_base64(img_url))
+        # response = make_response(encode_base64(img_url))
         
         # response.headers['Content-Type']='image/jpg'
-        return response
+        # return response
     
+    except Exception as e:
+        print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back))
+        print(e)
+        return build_error_response()
+
+@vis.route('/getWordCloudUrl', methods=['GET'])
+def getWordCloudUrl():
+    try:
+        SERVER_IP=os.environ.get('SERVER_IP')
+        if SERVER_IP is None:
+            SERVER_IP = '127.0.0.1:5000'
+        
+        img_url = 'http://'+SERVER_IP+'/vis/getWordCloud'
+        
+        return build_success_response({"img_url":img_url})
+
     except Exception as e:
         print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back))
         print(e)

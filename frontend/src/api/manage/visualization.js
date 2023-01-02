@@ -21,7 +21,7 @@ export function getData(queryParams){
 
 export function getWordCloud(){
   return  request({
-      url: 'vis//getWordCloud',
+      url: 'vis//getWordCloudUrl',
       headers: {
         isToken: false
       },

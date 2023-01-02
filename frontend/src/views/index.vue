@@ -57,13 +57,13 @@
             <!-- <el-image :src="img_url" :preview-src-list="img_url_list" :fit="cover" lazy></el-image> -->
           </div>  
           <!-- <iframe v-bind:src="img_url" id="wordcloud" scrolling="no" frameborder="0"></iframe> -->
-          <!-- <el-image
+          <el-image
             style="width: 100%; height: 100%"
             :src="img_url"
             fit="cover"
             :preview-src-list="img_url_list"
-            ></el-image> -->
-            <img  :src="img_url" />
+            ></el-image>
+            <!-- <img  :src="img_url" /> -->
         </el-card>
       </el-col>
 
@@ -290,12 +290,8 @@ export default {
       getWordCloud().then((res) => {
         console.log('接收到词云图')
         console.log(res)
-        // let blobObj = new Blob([atob(res.data)],{type:'image/jpg'})
-        // var binaryData = [];
-        // binaryData.push(res.data);
-        // this.img_url = window.URL.createObjectURL(new Blob(binaryData,{type:'image/jpg'}))
-        // console.log('this.img_url=',this.img_url)
-        this.img_url = 'data:image/jpg;base64,'+res;
+        
+        this.img_url = res.data.img_url;
         this.img_url_list.push(this.img_url)
       })
     },
