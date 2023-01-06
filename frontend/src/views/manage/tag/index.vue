@@ -321,7 +321,8 @@ export default {
         tagName: undefined,
         tagClass: undefined,
         tagDate: undefined,
-        sortMode: "Default"
+        sortMode: "Default",
+        nameQueryMode: "blur"
       },
       // 表单参数
       form: {},

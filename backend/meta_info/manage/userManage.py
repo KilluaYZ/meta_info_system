@@ -26,9 +26,12 @@ http://vue.ruoyi.vip/prod-api/system/user/list?pageNum=1&pageSize=10&userName=ni
 def query_user_sql(queryParam):
     #假设queryParam是绝对正确的，本函数就忽略对queryParam的正确性检验，将注意力集中在功能上
     try:
+        # print('queryParam : ',queryParam)
         conn,cursor = pooldb.get_conn()
         if 'userName' in queryParam:
-            cursor.execute('select * from user where username=%s',(queryParam['userName']))
+            username = '%'+queryParam['userName']+'%'
+            # print(username)
+            cursor.execute('select * from user where username like %s',(username))
         else:
             cursor.execute('select * from user')
         rows = cursor.fetchall()
@@ -69,7 +72,7 @@ def userList():
                 raise Exception('pageNum和pageSize 正确性检验失败')
         rows = query_user_sql(queryParam)
         data_length = len(rows)
-       
+        # print('debug',rows)
         #构造前端所需数据
         pageSize = queryParam['pageSize']
         pageNum = queryParam['pageNum']
@@ -79,19 +82,32 @@ def userList():
             if not isinstance(row['createTime'],str):
                 row['createTime'] = row['createTime'].strftime('%Y-%m-%d %H:%M:%S')
             if row['roles'] == 'admin':
-                tmp_roles = '管理员'
-            elif row['roles'] == 'tagger':
-                tmp_roles = '标记员'
-            elif row['roles'] == 'tagger':
-                tmp_roles = '普通用户'
-            respon.append({
+                respon.append({
                 "userName":row['username'],
                 'userId':row['uid'],
                 "nickName":row['nickname'],
                 "phonenumber":row['phonenumber'],
                 'createTime':row['createTime'],
-                'roles':tmp_roles
-            })
+                'roles':'管理员'
+                })
+            elif row['roles'] == 'tagger':
+                respon.append({
+                "userName":row['username'],
+                'userId':row['uid'],
+                "nickName":row['nickname'],
+                "phonenumber":row['phonenumber'],
+                'createTime':row['createTime'],
+                'roles':'标记员'
+                })
+            elif row['roles'] == 'common':
+                respon.append({
+                "userName":row['username'],
+                'userId':row['uid'],
+                "nickName":row['nickname'],
+                "phonenumber":row['phonenumber'],
+                'createTime':row['createTime'],
+                'roles':'普通用户'
+                })
         
         return build_success_response(respon,data_length)
         

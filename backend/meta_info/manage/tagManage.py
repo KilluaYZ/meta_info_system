@@ -34,7 +34,11 @@ def query_sql(queryParam:dict):
     condition_sql_list = []
     #condition_sql_val_list存放sql对应的值，添加这个是为了参数化查询，防sql注入
     condition_sql_val_list = []
-
+    if 'nameQueryMode' not in queryParam:
+        nameQueryMode = 'accurate'
+    else:
+        nameQueryMode = queryParam['nameQueryMode']
+    
     sort_sql = ''
     # print(1)
     for item in queryParam.items():
@@ -42,8 +46,12 @@ def query_sql(queryParam:dict):
         val = item[1]
         if(key in query_constrain_attr):
             if(key in ['tagName','tagParentName']):
-                condition_sql_list.append(f' {key} like %s ')
-                condition_sql_val_list.append(f'%{val}%')
+                if(nameQueryMode == 'blur'):
+                    condition_sql_list.append(f' {key} like %s ')
+                    condition_sql_val_list.append(f'%{val}%')
+                else:
+                    condition_sql_list.append(key+'=%s')
+                    condition_sql_val_list.append(val)
             else:
                 condition_sql_list.append(key+'=%s')
                 condition_sql_val_list.append(val)
