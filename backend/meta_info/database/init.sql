@@ -35,10 +35,10 @@ CREATE TABLE tag(
 DROP Table if EXISTS posts_tags;
 create table posts_tags(
     postID int not null AUTO_INCREMENT,
-    tagName VARCHAR(50) not null,
-    primary key(postID,tagName),
+    tagID int not null,
+    primary key(postID,tagID),
     foreign key(postID) references posts(postID) on delete cascade on update cascade,
-    foreign key(tagName) references tag(tagName) on delete cascade on update cascade
+    foreign key(tagID) references tag(tagID) on delete cascade on update cascade
 );
 
 
@@ -58,13 +58,13 @@ drop trigger if EXISTS posts_tags_insert_tri ;
 create trigger posts_tags_insert_tri 
 after insert on posts_tags 
 for each row 
-update tag set tagPopularity=(select count(*) as cnt from posts_tags where NEW.tagName=posts_tags.tagName group by NEW.tagName ) where tagName = NEW.tagName ;
+update tag set tagPopularity=(select count(*) as cnt from posts_tags where NEW.tagID=posts_tags.tagID group by NEW.tagID ) where tagID = NEW.tagID ;
 
 drop trigger if EXISTS posts_tags_delete_tri ; 
 create trigger posts_tags_delete_tri 
 after delete on posts_tags 
 for each row 
-update tag set tagPopularity=(select count(*) as cnt from posts_tags where old.tagName=posts_tags.tagName  group by old.tagName ) where tagName = old.tagName ; 
+update tag set tagPopularity=(select count(*) as cnt from posts_tags where old.tagID=posts_tags.tagID  group by old.tagID ) where tagID = old.tagID ; 
 
 -------------------------------------------------------------------------
 --用户表

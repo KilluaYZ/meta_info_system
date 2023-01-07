@@ -418,8 +418,9 @@ export default {
       const tagNameData = row.tagName;
       getTag({ tagName: tagNameData }).then((response) => {
         console.log("点开修改页面，收到数据");
-        console.log(response);
+        console.log(response)
         this.form = response.data[0];
+        this.handleConfigPageParentTagNameSelectChanged(this.form.tagClass)
         console.log("this.form");
         console.log(this.form);
         this.config_open = true;

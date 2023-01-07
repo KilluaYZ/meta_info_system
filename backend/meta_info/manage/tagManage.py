@@ -394,15 +394,20 @@ def getTag():
 
         queryParam = request.json
         #正确性检验
-        if('tagClass' in queryParam):
-            if not is_number(queryParam['tagClass']):
+        if('tagClass' in queryParam and len(str(queryParam['tagClass']))):
+            if not is_number(str(queryParam['tagClass'])):
                 print('tagClass 正确性检验失败')
                 raise Exception('tagClass 正确性检验失败')
+        
+        if('tagClass' in queryParam and len(str(queryParam['tagClass'])) == 0):
+            queryParam.pop('tagClass')
+        
         if('sort' in queryParam):
             #sort中必须要包含sortAttr和mode
             if ('sortAttr' not in queryParam['sort'] or 'mode' not in queryParam['sort']):
                 print('sort 正确性检验失败')
                 raise Exception('sort 正确性检验失败')
+        
         data = query_sql(queryParam)
         data_length = len(data)
         # print('data_length=',data_length)

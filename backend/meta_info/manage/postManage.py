@@ -47,7 +47,7 @@ def query_post_all_tags(postID)->list:
         rows = cursor.fetchall()
         pooldb.close_conn(conn,cursor)
         #将字典的tagName作映射
-        return list(map(lambda tagname : query_sql({"tagName":tagname})[0],list(map(lambda x : x['tagName'],rows))))
+        return list(map(lambda tagID : query_sql({"tagID":tagID})[0],list(map(lambda x : x['tagID'],rows))))
 
     except Exception as e:
         print("[ERROR]"+__file__+"::"+inspect.getframeinfo(inspect.currentframe().f_back)[2])
@@ -92,8 +92,8 @@ def query_post_sql(queryParam):
                 condition_sql_list.append(' posts.postID=posts_keywords.postID and keyword like %s ')
                 condition_sql_val_list.append(f'%{val}%')
             elif(key == 'postTag'):
-                query_sql += ',posts_tags '
-                condition_sql_list.append(' posts.postID=posts_tags.postID and tagName=%s ')
+                query_sql += ',posts_tags,tag '
+                condition_sql_list.append(' posts.postID=posts_tags.postID and posts_tags.tagID = tag.tagID and tagName=%s ')
                 condition_sql_val_list.append(val)
             elif(key == 'postTime'):
                 condition_sql_list.append(' postTime between %s and %s ')
@@ -200,10 +200,16 @@ def add_post_sql(data:dict) -> int:
         raise Exception()
 
 def add_post_tag_sql(postID,tagName):
-    sql = 'insert into posts_tags(postID,tagName) values(%s,%s)'
     try:
+        rows = query_sql({'tagName':tagName})
+        if rows is None:
+            raise Exception(f'找不到tagName={tagName}对应的数据')
+        if len(rows) == 0:
+            raise Exception(f'找不到tagName={tagName}对应的数据')
+        tagID = rows[0]['tagID']
+        sql = 'insert into posts_tags(postID,tagID) values(%s,%s)'
         conn,cursor = pooldb.get_conn()
-        cursor.execute(sql,(postID,tagName))
+        cursor.execute(sql,(postID,tagID))
         conn.commit()
         pooldb.close_conn(conn,cursor)
 
@@ -215,10 +221,17 @@ def add_post_tag_sql(postID,tagName):
         raise Exception()
 
 def del_post_tag_sql(postID,tagName):
-    sql = 'delete from posts_tags where postID=%s and tagName=%s'
     try:
+        rows = query_sql({'tagName':tagName})
+        if rows is None:
+            raise Exception(f'找不到tagName={tagName}对应的数据')
+        if len(rows) == 0:
+            raise Exception(f'找不到tagName={tagName}对应的数据')
+        tagID = rows[0]['tagID']
+        
+        sql = 'delete from posts_tags where postID=%s and tagID=%s'
         conn,cursor = pooldb.get_conn()
-        cursor.execute(sql,(postID,tagName))
+        cursor.execute(sql,(postID,tagID))
         conn.commit()
         pooldb.close_conn(conn,cursor)
 
